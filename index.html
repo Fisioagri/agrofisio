@@ -280,13 +280,21 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 
       <div class="card">
         <div class="card-title">📸 Foto da planta</div>
-        <div class="upload-zone" onclick="triggerFile('plantaInput')">
-          <input type="file" id="plantaInput" accept="image/*" onchange="handlePlantaImg(event)">
-          <div class="uico">📸</div>
-          <strong>Toque para tirar foto ou selecionar</strong>
-          <p>Planta inteira · folha · sistema radicular</p>
+        <img id="previewPlanta" class="preview-img" style="display:none;margin-bottom:10px">
+        <div style="display:flex;gap:10px">
+          <div class="upload-zone" style="flex:1" onclick="triggerFile('plantaInputCam')">
+            <input type="file" id="plantaInputCam" accept="image/*" capture="environment" onchange="handlePlantaImg(event)">
+            <div class="uico">📷</div>
+            <strong>Câmera</strong>
+            <p>Tirar foto agora</p>
+          </div>
+          <div class="upload-zone" style="flex:1" onclick="triggerFile('plantaInputGal')">
+            <input type="file" id="plantaInputGal" accept="image/*" onchange="handlePlantaImg(event)">
+            <div class="uico">🖼️</div>
+            <strong>Galeria</strong>
+            <p>Escolher foto</p>
+          </div>
         </div>
-        <img id="previewPlanta" class="preview-img" style="display:none">
       </div>
 
       <div class="card">
@@ -635,11 +643,30 @@ function handlePlantaImg(e) {
   const r = new FileReader();
   r.onload = ev => {
     ST.plantaBase64 = ev.target.result.split(',')[1];
+    ST.plantaMime = file.type;
+    try {
+      sessionStorage.setItem('af_planta_b64', ST.plantaBase64);
+      sessionStorage.setItem('af_planta_mime', file.type);
+      sessionStorage.setItem('af_planta_src', ev.target.result);
+    } catch(e) {}
     const img = document.getElementById('previewPlanta');
-    img.src = ev.target.result;
-    img.style.display = 'block';
+    if(img) { img.src = ev.target.result; img.style.display = 'block'; }
   };
   r.readAsDataURL(file);
+}
+
+function restaurarFoto() {
+  try {
+    const src = sessionStorage.getItem('af_planta_src');
+    const b64 = sessionStorage.getItem('af_planta_b64');
+    const mime = sessionStorage.getItem('af_planta_mime');
+    if(src && b64) {
+      ST.plantaBase64 = b64;
+      ST.plantaMime = mime || 'image/jpeg';
+      const img = document.getElementById('previewPlanta');
+      if(img) { img.src = src; img.style.display = 'block'; }
+    }
+  } catch(e) {}
 }
 
 function tryGoStep(n) {
@@ -656,6 +683,7 @@ function goStep(n) {
   });
   window.scrollTo(0,0);
   renderNav();
+  if(n===3) setTimeout(restaurarFoto, 100);
 }
 
 function canNext() {
@@ -901,13 +929,10 @@ Cubra: AIA, GA3, Citocininas, Etileno, ABA, Brassinoesteróides, AJ/AS. Base: Ke
 Tabela HTML com colunas: Nutriente | Demanda atual (g ou kg/ha elemento puro) | Função fisiológica neste estádio | Mobilidade no floema | Sintoma de deficiência.
 NUNCA use marcas. Use apenas o elemento puro (ex: "150 g B/ha", "5 kg Zn/ha"). Base: Marschner (2012) + Embrapa.
 
-<h3>💰 5. Gasto Energético e Custo</h3>
-Estime: consumo de ATP equivalentes por ha nesta fase metabólica. Custo total do protocolo recomendado em sacas de soja ou @/ha de algodão. Base: Taiz & Zeiger.
-
-<h3>⚠️ 6. Diagnóstico de Estresses e Deficiências</h3>
+<h3>⚠️ 5. Diagnóstico de Estresses e Deficiências</h3>
 Diagnóstico diferencial de deficiências (nutriente, sintoma, localização na planta — apical vs basal). Impacto do déficit hídrico — em qual etapa da sequência de Hsiao está? Impacto hormonal (ABA, etileno). Se moléstia = SIM: diagnóstico de infecção, nutrição de defesa (Si, Ca, P, K, SA).
 
-<h3>💊 7. Protocolo de Manejo Fisiológico por Objetivo</h3>
+<h3>💊 6. Protocolo de Manejo Fisiológico por Objetivo</h3>
 Para cada objetivo selecionado, gere sub-seção com:
 — Manejo pré-estresse: aminoácidos (prolina, betaína) em g/ha, timing
 — Defesa celular: antioxidantes, poliaminas, vitamina E vegetal — g/ha
@@ -918,13 +943,13 @@ Para cada objetivo selecionado, gere sub-seção com:
 — Qualidade: S em kg/ha, Zn em g/ha para proteínas
 TODAS AS DOSES EM g/ha OU kg/ha DE ELEMENTO PURO — SEM MARCAS COMERCIAIS.
 
-<h3>🌿 8. Protocolo Anti-Doenças</h3>
+<h3>🌿 7. Protocolo Anti-Doenças</h3>
 (Se moléstia = SIM ou estresse biótico informado): Ca (fortalecimento parede celular) em kg/ha, Si foliar em g/ha, P em kg/ha (sinalização SA), Mn em g/ha. Estratégia nutricional de defesa por estádio.
 
-<h3>📅 9. Cronograma de Aplicações — Próximas 2 semanas</h3>
+<h3>📅 8. Cronograma de Aplicações — Próximas 2 semanas</h3>
 Tabela: Dia | Produto/nutriente | Dose (g ou kg/ha elemento puro) | Via de aplicação | Justificativa fisiológica.
 
-Seja rigorosamente técnico, cite os livros de referência para cada recomendação, e nunca mencione marcas comerciais.`;
+Seja rigorosamente técnico, cite os livros de referência para cada recomendação, e nunca mencione marcas comerciais. IMPORTANTE: complete TODAS as 9 seções sem interrupção. Não emita alertas, avisos ou mensagens de atenção no meio do laudo. Se algum dado não foi informado, estime com base nos dados disponíveis e indique a estimativa entre parênteses.`;
 }
 
 async function gerarLaudo() {
@@ -970,10 +995,10 @@ async function gerarLaudo() {
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
-        max_tokens:4000,
+        max_tokens:16000,
         system:buildSystemPrompt(),
         messages:[{role:'user',content:userContent}]
       })
