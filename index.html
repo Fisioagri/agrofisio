@@ -998,7 +998,7 @@ async function gerarLaudo() {
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
-        max_tokens:16000,
+        max_tokens:12000,
         system:buildSystemPrompt(),
         messages:[{role:'user',content:userContent}]
       })
