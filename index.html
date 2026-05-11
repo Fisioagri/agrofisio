@@ -1003,12 +1003,16 @@ async function gerarLaudo() {
         messages:[{role:'user',content:userContent}]
       })
     });
-    const data = await resp.json();
+    const rawText = await resp.text();
     clearInterval(loadTimer);
-    // Mostrar erro detalhado da API se houver
-    if(data.error) throw new Error('API: ' + JSON.stringify(data.error));
-    const text = data.content?.map(b=>b.text||'').join('')||'';
-    if(!text) throw new Error('Resposta vazia — API retornou: ' + JSON.stringify(data).substring(0,200));
+    let data;
+    try { data = JSON.parse(rawText); } catch(e) { throw new Error('JSON inválido: ' + rawText.substring(0,100)); }
+    if(data.error) throw new Error('API erro: ' + (data.error.message || JSON.stringify(data.error)));
+    let text = '';
+    if(data.content && Array.isArray(data.content)) {
+      text = data.content.map(b => b.text || '').join('');
+    }
+    if(!text) throw new Error('Sem conteúdo: ' + JSON.stringify(data).substring(0,200));
     ST.laudo = text;
     mostrarLaudo(text);
   } catch(e) {
