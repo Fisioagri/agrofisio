@@ -1004,7 +1004,7 @@ async function gerarLaudo() {
     const f = ST.soloFiles[0];
     const b64 = await fileToBase64(f);
     if(f.type==='application/pdf') userContent.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}});
-    else userContent.push({type:'image',source:{type:'base64',media_type:f.type,data:b64}});
+    else { const comp = await comprimirImagem(b64, f.type); userContent.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:comp}}); }
   }
 
   // Adiciona análise foliar se houver
@@ -1012,7 +1012,7 @@ async function gerarLaudo() {
     const f = ST.foliarFiles[0];
     const b64 = await fileToBase64(f);
     if(f.type==='application/pdf') userContent.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}});
-    else userContent.push({type:'image',source:{type:'base64',media_type:f.type,data:b64}});
+    else { const comp = await comprimirImagem(b64, f.type); userContent.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:comp}}); }
   }
 
   userContent.push({type:'text',text:buildUserPrompt()});
