@@ -2,1087 +2,940 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AgroFísio v3</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AgroFísio v4</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --green:#1a6b3a;--green-light:#e8f5ee;--green-mid:#2d9c5a;--green-dark:#0d3d20;
-  --amber:#b85d00;--amber-light:#fff3e0;--blue:#1a4a8a;--blue-light:#e8f0fb;
-  --red:#b81c1c;--red-light:#fdeaea;--teal:#0F6E56;--teal-light:#E1F5EE;
-  --bg:#f7f9f5;--card:#fff;--border:#d4e4d0;--text:#1a2e1a;--muted:#6b8a6b;
-  --font-head:'Syne',sans-serif;--font-mono:'DM Mono',monospace;--font-body:'Inter',sans-serif;
-  --radius:12px;--radius-sm:8px;--shadow:0 2px 12px rgba(0,0,0,0.07);
+  --g1:#1B4D2E;--g2:#2D7A4F;--g3:#4CAF82;--gl:#E8F5EE;--gll:#F0FAF4;
+  --a1:#D4870A;--al:#FFF3DC;
+  --r1:#C0392B;--rl:#FDECEA;
+  --t:#1A2E1A;--t2:#4A6B4A;--t3:#8FAF8F;
+  --bg:#F5F7F5;--card:#FFFFFF;--border:#DCE8DC;
+  --shadow:0 2px 16px rgba(27,77,46,0.08);
+  --radius:14px;--radius-sm:9px;
 }
-body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh}
-#app{max-width:720px;margin:0 auto;padding:0 0 100px}
-.header{background:var(--green-dark);padding:16px 20px 12px;position:sticky;top:0;z-index:100}
-.header-inner{display:flex;align-items:center;gap:12px}
-.logo{width:34px;height:34px;background:var(--green-mid);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px}
-.header h1{font-family:var(--font-head);font-size:19px;font-weight:800;color:#fff;letter-spacing:-0.5px}
-.header p{font-size:10px;color:#9dc9a8;font-family:var(--font-mono)}
-.steps{background:#fff;border-bottom:1px solid var(--border);padding:10px 8px 0;display:flex;gap:2px;overflow-x:auto}
-.step-btn{flex:0 0 auto;padding:7px 10px;font-size:10px;font-family:var(--font-mono);color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;display:flex;align-items:center;gap:5px;white-space:nowrap}
-.step-btn.active{color:var(--green);border-bottom-color:var(--green)}
-.step-btn.done{color:var(--green-mid)}
-.step-btn.locked{opacity:.4;cursor:not-allowed}
-.step-num{width:18px;height:18px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--green);flex-shrink:0}
-.step-btn.active .step-num{background:var(--green);color:#fff}
-.step-btn.done .step-num{background:var(--green-mid);color:#fff}
-.content{padding:14px 12px}
+body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;overflow-x:hidden}
+
+/* HEADER */
+.hdr{background:var(--g1);padding:14px 16px 10px;position:sticky;top:0;z-index:200;display:flex;align-items:center;gap:10px}
+.hdr-logo{width:32px;height:32px;background:var(--g2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.hdr-info{flex:1}
+.hdr-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#fff;letter-spacing:-0.3px}
+.hdr-sub{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#7DB897;margin-top:1px}
+.hdr-step{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#A8D5B5;background:rgba(255,255,255,0.1);padding:3px 8px;border-radius:10px;flex-shrink:0}
+
+/* PROGRESS */
+.prog{height:3px;background:rgba(255,255,255,0.15);position:relative}
+.prog-fill{height:100%;background:var(--g3);transition:width 0.4s ease;border-radius:0 2px 2px 0}
+
+/* STEPS NAV */
+.steps-nav{background:#fff;border-bottom:1px solid var(--border);padding:0 8px;overflow-x:auto;display:flex;scrollbar-width:none}
+.steps-nav::-webkit-scrollbar{display:none}
+.step-tab{flex:0 0 auto;padding:10px 11px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--t3);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;transition:all .2s}
+.step-tab.active{color:var(--g1);border-bottom-color:var(--g2);font-weight:500}
+.step-tab.done{color:var(--g3)}
+.step-dot{width:16px;height:16px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--t3);flex-shrink:0;transition:all .2s}
+.step-tab.active .step-dot{background:var(--g2);color:#fff}
+.step-tab.done .step-dot{background:var(--g3);color:#fff}
+
+/* CONTENT */
+.content{padding:14px 14px 100px;max-width:640px;margin:0 auto}
 .screen{display:none}
 .screen.active{display:block}
+
+/* SECTION TITLES */
+.sec-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--g1);margin-bottom:3px}
+.sec-sub{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--t3);margin-bottom:16px}
+
+/* CARDS */
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;box-shadow:var(--shadow)}
-.card-title{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--green-dark);margin-bottom:11px;display:flex;align-items:center;gap:7px}
-.form-group{margin-bottom:12px}
-.form-label{display:block;font-size:11px;font-weight:500;color:var(--text);margin-bottom:4px;font-family:var(--font-mono)}
-.req{color:#b81c1c}
-.form-input,.form-select,.form-textarea{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:var(--font-body);color:var(--text);background:#fff;transition:border .2s;outline:none}
-.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--green-mid)}
-.form-textarea{resize:vertical;min-height:62px}
-.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b8a6b' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.card-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
 
-/* Cultura pills */
-.crop-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.crop-pill{padding:10px 4px;border:1.5px solid var(--border);border-radius:var(--radius);text-align:center;cursor:pointer;transition:all .15s;font-family:var(--font-head)}
-.crop-pill .ico{font-size:22px;display:block;margin-bottom:3px}
-.crop-pill .nm{font-size:10px;color:var(--muted);font-weight:600}
-.crop-pill.active{border-color:var(--green-mid);background:var(--green-light)}
-.crop-pill.active .nm{color:var(--green-dark)}
+/* FORM */
+.field{margin-bottom:12px}
+.label{display:block;font-size:12px;font-weight:700;color:var(--t);margin-bottom:4px}
+.req{color:var(--r1)}
+.input,.select,.textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:'Lato',sans-serif;color:var(--t);background:#FAFCFA;transition:border .2s;outline:none}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--g2);background:#fff}
+.textarea{resize:vertical;min-height:72px}
+.select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234A6B4A'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 
-/* Check grid */
-.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.check-item{display:flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:11px;font-family:var(--font-mono);transition:all .15s}
-.check-item:hover,.check-item.sel{border-color:var(--green-mid);background:var(--green-light)}
-.check-item input{accent-color:var(--green)}
+/* CROPS */
+.crop-row{display:flex;gap:8px;flex-wrap:wrap}
+.crop-btn{flex:1;min-width:80px;padding:12px 8px;border:2px solid var(--border);border-radius:var(--radius);text-align:center;cursor:pointer;transition:all .15s;background:#FAFCFA}
+.crop-btn .ico{font-size:24px;display:block;margin-bottom:4px}
+.crop-btn .nm{font-size:11px;color:var(--t2);font-weight:700;font-family:'IBM Plex Mono',monospace}
+.crop-btn.sel{border-color:var(--g2);background:var(--gl)}
+.crop-btn.sel .nm{color:var(--g1)}
 
-/* Bool btns */
-.bool-row{display:flex;gap:10px}
-.bool-btn{flex:1;padding:11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);text-align:center;cursor:pointer;font-family:var(--font-head);font-weight:600;font-size:14px;transition:all .15s}
-.bool-btn.yes.active{background:#e8f5ee;border-color:var(--green-mid);color:var(--green-dark)}
-.bool-btn.no.active{background:#fdeaea;border-color:#f5b8b8;color:var(--red)}
-
-/* Phenology */
+/* PHENO */
 .pheno-wrap{display:flex;flex-wrap:wrap;gap:5px}
-.pheno-btn{padding:5px 9px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:var(--font-mono);cursor:pointer;transition:all .15s;background:#fff}
-.pheno-btn.active{background:var(--amber-light);border-color:var(--amber);color:var(--amber);font-weight:600}
+.pheno-btn{padding:5px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;font-family:'IBM Plex Mono',monospace;cursor:pointer;background:#fff;color:var(--t2);transition:all .15s}
+.pheno-btn.sel{background:var(--al);border-color:var(--a1);color:var(--a1);font-weight:600}
 
-/* Objetivo btns */
+/* TAGS */
+.tag-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tag{padding:5px 11px;border:1.5px solid var(--border);border-radius:12px;font-size:11px;font-family:'IBM Plex Mono',monospace;cursor:pointer;background:#fff;color:var(--t2);transition:all .15s}
+.tag.sel{background:var(--gl);border-color:var(--g2);color:var(--g1);font-weight:600}
+
+/* BOOL */
+.bool-row{display:flex;gap:10px}
+.bool-btn{flex:1;padding:12px;border:2px solid var(--border);border-radius:var(--radius-sm);text-align:center;cursor:pointer;font-weight:700;font-size:14px;transition:all .15s;background:#FAFCFA}
+.bool-btn.sim{border-color:var(--g2);background:var(--gl);color:var(--g1)}
+.bool-btn.nao{border-color:var(--r1);background:var(--rl);color:var(--r1)}
+
+/* OBJ BUTTONS */
 .obj-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.obj-btn{padding:10px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;text-align:left;transition:all .15s;background:#fff}
-.obj-btn .ot{font-size:12px;font-weight:600;color:var(--text);font-family:var(--font-head)}
-.obj-btn .od{font-size:10px;color:var(--muted);margin-top:2px;font-family:var(--font-mono)}
-.obj-btn.active{background:var(--teal-light);border-color:var(--teal)}
-.obj-btn.active .ot{color:var(--teal)}
+.obj-btn{padding:11px 10px;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;text-align:left;transition:all .15s;background:#FAFCFA;position:relative}
+.obj-btn.sel{border-color:var(--g2);background:var(--gl)}
+.obj-btn.disabled{opacity:.35;cursor:not-allowed}
+.obj-t{font-size:12px;font-weight:700;color:var(--t);font-family:'Syne',sans-serif}
+.obj-btn.sel .obj-t{color:var(--g1)}
+.obj-d{font-size:10px;color:var(--t3);margin-top:2px;font-family:'IBM Plex Mono',monospace}
+.obj-phase{font-size:9px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:4px;background:var(--border);padding:2px 5px;border-radius:4px;display:inline-block}
+.obj-btn.sel .obj-phase{background:rgba(45,122,79,0.15);color:var(--g2)}
 
-/* Upload */
-.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:24px 14px;text-align:center;cursor:pointer;transition:all .2s;background:var(--green-light);position:relative}
-.upload-zone:hover{border-color:var(--green-mid)}
-.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
-.upload-zone .uico{font-size:28px;margin-bottom:8px}
-.upload-zone strong{color:var(--green);display:block;font-size:13px;margin-bottom:3px;font-family:var(--font-head)}
-.upload-zone p{font-size:11px;color:var(--muted);font-family:var(--font-mono)}
-.file-list{margin-top:8px}
-.file-tag{display:flex;align-items:center;gap:6px;padding:5px 9px;background:var(--green-light);border-radius:6px;margin-top:5px;font-size:11px;color:var(--green-dark);font-family:var(--font-mono)}
-.preview-img{width:100%;max-height:220px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--border);margin-top:10px}
+/* FOTO */
+.foto-row{display:flex;gap:10px}
+.foto-btn{flex:1;border:2px dashed var(--border);border-radius:var(--radius);padding:20px 8px;text-align:center;cursor:pointer;transition:all .2s;background:var(--gll);position:relative}
+.foto-btn:hover{border-color:var(--g2)}
+.foto-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.foto-ico{font-size:26px;margin-bottom:6px}
+.foto-lbl{font-size:11px;font-weight:700;color:var(--g1);font-family:'Syne',sans-serif}
+.foto-sub{font-size:10px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:2px}
+.preview{width:100%;max-height:200px;object-fit:cover;border-radius:var(--radius-sm);margin-top:10px;border:1px solid var(--border)}
 
-/* Nav */
-.nav-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:9px;max-width:720px;margin:0 auto;z-index:99}
-.btn{padding:10px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;font-family:var(--font-head);cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
-.btn-primary{background:var(--green);color:#fff;flex:1;justify-content:center}
-.btn-primary:hover{background:var(--green-dark)}
-.btn-primary:disabled{opacity:.45;cursor:not-allowed}
-.btn-outline{background:none;border:1px solid var(--border);color:var(--text)}
-.btn-outline:hover{border-color:var(--green-mid);color:var(--green)}
+/* INFO BOX */
+.info-box{background:var(--gl);border:1px solid var(--g3);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--g1);font-family:'IBM Plex Mono',monospace;margin-bottom:10px;line-height:1.5}
+.warn-box{background:var(--al);border:1px solid var(--a1);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--a1);font-family:'IBM Plex Mono',monospace;margin-bottom:10px}
 
-/* Loading */
-.loading-screen{text-align:center;padding:44px 14px}
-.spinner{width:42px;height:42px;border:4px solid var(--green-light);border-top-color:var(--green-mid);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px}
+/* LAUDO */
+.laudo-header{background:linear-gradient(135deg,var(--g1),var(--g2));border-radius:var(--radius);padding:18px;margin-bottom:10px;color:#fff}
+.laudo-header h2{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;margin-bottom:3px}
+.laudo-header p{font-size:12px;opacity:.8;font-family:'IBM Plex Mono',monospace}
+.laudo-badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:3px 9px;border-radius:10px;font-size:10px;font-family:'IBM Plex Mono',monospace;margin-top:8px}
+.laudo-body{font-size:13px;line-height:1.8;color:var(--t)}
+.laudo-body h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--g1);margin:16px 0 7px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.laudo-body p{margin-bottom:6px}
+.laudo-body ul{padding-left:16px;margin:5px 0}
+.laudo-body li{margin-bottom:3px}
+.laudo-body table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px}
+.laudo-body th{background:var(--gl);padding:6px 8px;text-align:left;border:1px solid var(--border);color:var(--g1);font-weight:700}
+.laudo-body td{padding:6px 8px;border:1px solid var(--border)}
+.laudo-body tr:nth-child(even) td{background:var(--gll)}
+.laudo-body strong{color:var(--g1)}
+
+/* LOADING */
+.loading{text-align:center;padding:40px 20px}
+.spinner{width:44px;height:44px;border:4px solid var(--gl);border-top-color:var(--g2);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-screen h3{font-family:var(--font-head);font-size:16px;color:var(--green-dark);margin-bottom:5px}
-.loading-screen p{font-size:11px;color:var(--muted);font-family:var(--font-mono)}
-.l-steps{margin-top:16px;text-align:left;max-width:300px;margin-left:auto;margin-right:auto}
-.l-step{display:flex;align-items:center;gap:7px;padding:4px 0;font-size:11px;color:var(--muted);font-family:var(--font-mono)}
-.l-step.done{color:var(--green-mid)}
-.l-step.active{color:var(--green-dark);font-weight:500}
-.l-dot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0}
-.l-step.done .l-dot{background:var(--green-mid)}
-.l-step.active .l-dot{background:var(--green);animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.loading h3{font-family:'Syne',sans-serif;font-size:16px;color:var(--g1);margin-bottom:5px}
+.loading p{font-size:12px;color:var(--t3);font-family:'IBM Plex Mono',monospace}
+.loading-steps{margin-top:16px;text-align:left;max-width:280px;margin-left:auto;margin-right:auto}
+.ls{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--t3)}
+.ls.done{color:var(--g2)}
+.ls.cur{color:var(--g1);font-weight:600}
+.ls-dot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0}
+.ls.done .ls-dot{background:var(--g2)}
+.ls.cur .ls-dot{background:var(--g1);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* Resultado */
-.result-header{background:linear-gradient(135deg,var(--green-dark),var(--green-mid));border-radius:var(--radius);padding:16px;margin-bottom:10px;color:#fff}
-.result-header h2{font-family:var(--font-head);font-size:18px;font-weight:800;margin-bottom:3px}
-.result-header p{font-size:11px;opacity:.8;font-family:var(--font-mono)}
-.stadium-badge{display:inline-block;background:rgba(255,255,255,.18);padding:3px 9px;border-radius:20px;font-family:var(--font-mono);font-size:10px;margin-top:7px;border:1px solid rgba(255,255,255,.3)}
-.prose-result{font-size:13px;line-height:1.8;color:var(--text)}
-.prose-result h3{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--green-dark);margin:14px 0 6px;display:flex;align-items:center;gap:5px}
-.prose-result ul{padding-left:14px;margin:5px 0}
-.prose-result li{margin-bottom:3px}
-.prose-result p{margin-bottom:6px}
-.prose-result strong{color:var(--green-dark)}
-.prose-result table{width:100%;border-collapse:collapse;margin:7px 0;font-size:11px}
-.prose-result th{background:var(--green-light);padding:5px 7px;text-align:left;font-weight:600;color:var(--green-dark);border:1px solid var(--border)}
-.prose-result td{padding:5px 7px;border:1px solid var(--border)}
-.prose-result tr:nth-child(even) td{background:#fafcfa}
-.error-box{background:var(--red-light);border:1px solid #f5b8b8;border-radius:var(--radius);padding:12px;font-size:12px;color:var(--red)}
-.info-box{background:var(--blue-light);border:1px solid #b8cef5;border-radius:var(--radius-sm);padding:10px 12px;font-size:11px;color:var(--blue);font-family:var(--font-mono);margin-bottom:10px}
-.progress-bar{height:3px;background:var(--green-light);border-radius:2px;margin-bottom:14px;overflow:hidden}
-.progress-fill{height:100%;background:var(--green-mid);border-radius:2px;transition:width .3s}
-.section-head{font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--green-dark);margin-bottom:3px}
-.section-sub{font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-bottom:14px}
-.tag-cloud{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.tag{padding:3px 9px;border-radius:10px;font-size:11px;font-family:var(--font-mono);background:var(--bg);border:1px solid var(--border);cursor:pointer;transition:all .15s;color:var(--muted)}
-.tag.active{background:var(--teal-light);border-color:var(--teal);color:var(--teal)}
+/* NAV BAR */
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:10px 14px;display:flex;gap:10px;max-width:640px;margin:0 auto;z-index:100}
+.btn{padding:12px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-back{background:none;border:1.5px solid var(--border);color:var(--t2)}
+.btn-next{background:var(--g1);color:#fff;flex:1}
+.btn-next:hover{background:var(--g2)}
+.btn-next:disabled{background:#A8C8A8;cursor:not-allowed}
+.btn-share{background:var(--g2);color:#fff;flex:1}
+.btn-wa{background:#25D366;color:#fff;flex:1}
+.btn-new{background:none;border:1.5px solid var(--border);color:var(--t2);flex:1}
+
+/* NUTRIENTES GRID */
+.nut-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nut-item{border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;background:#FAFCFA}
+.nut-label{font-size:11px;font-weight:700;color:var(--t2);margin-bottom:4px;font-family:'IBM Plex Mono',monospace}
+.nut-input{width:100%;border:none;background:none;font-size:13px;color:var(--t);outline:none;font-family:'Lato',sans-serif}
+
+/* BADGE */
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600}
+.badge-green{background:var(--gl);color:var(--g1)}
+.badge-amber{background:var(--al);color:var(--a1)}
+
+/* DIVIDER */
+hr{border:none;border-top:1px solid var(--border);margin:12px 0}
 </style>
 </head>
 <body>
-<div id="app">
-  <div class="header">
-    <div class="header-inner">
-      <div class="logo">🌱</div>
-      <div>
-        <h1>AgroFísio</h1>
-        <p>protocolo de manejo fisiológico · v3.0</p>
-      </div>
-    </div>
+
+<div class="hdr" id="hdr">
+  <div class="hdr-logo">🌱</div>
+  <div class="hdr-info">
+    <div class="hdr-title">AgroFísio</div>
+    <div class="hdr-sub">protocolo de manejo fisiológico · v4.0</div>
   </div>
-
-  <div class="steps" id="stepsBar"></div>
-
-  <div class="content">
-    <!-- E1: Cultura -->
-    <div class="screen active" id="s0">
-      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
-      <div class="section-head">Etapa 1 — Cultura e Plantio</div>
-      <div class="section-sub">selecione a cultura e preencha os dados da lavoura</div>
-
-      <div class="card">
-        <div class="card-title">🌾 Cultura <span class="req">*</span></div>
-        <div class="crop-grid" id="cropGrid"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📍 Localização</div>
-        <div class="form-group">
-          <label class="form-label">Município <span class="req">*</span></label>
-          <input class="form-input" id="municipio" placeholder="Ex: Sorriso - MT">
-        </div>
-        <div class="grid-2">
-          <div class="form-group">
-            <label class="form-label">Safra <span class="req">*</span></label>
-            <input class="form-input" id="safra" placeholder="Ex: 25/26">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Data de plantio</label>
-            <input type="date" class="form-input" id="dataPlantio">
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🧬 Material genético e sistema</div>
-        <div class="form-group">
-          <label class="form-label">Híbrido / Variedade</label>
-          <input class="form-input" id="hibrido" placeholder="Ex: DM 5958 IPRO, P4285H...">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Espaçamento entre linhas (cm) <span class="req">*</span></label>
-          <input type="number" class="form-input" id="espacamento" placeholder="Ex: 50">
-        </div>
-      </div>
-    </div>
-
-    <!-- E2: Solo -->
-    <div class="screen" id="s1">
-      <div class="progress-bar"><div class="progress-fill" style="width:14%"></div></div>
-      <div class="section-head">Etapa 2 — Análise de Solo</div>
-      <div class="section-sub">opcional — para recomendação nutricional precisa</div>
-
-      <div class="info-box">📌 A análise de solo permite calcular exigência de P, K, Ca, Mg, S e micronutrientes por ha com base nos livros Embrapa e Marschner (2012).</div>
-
-      <div class="card">
-        <div class="card-title">📋 Anexar análise de solo</div>
-        <div class="upload-zone" onclick="triggerFile('soloInput')">
-          <input type="file" id="soloInput" accept=".pdf,image/*" multiple onchange="handleFileUpload(event,'soloFiles','soloList')">
-          <div class="uico">📋</div>
-          <strong>Toque para anexar análise de solo</strong>
-          <p>PDF ou foto · opcional</p>
-        </div>
-        <div class="file-list" id="soloList"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🔢 Ou informe os dados manualmente</div>
-        <div class="grid-2">
-          <div class="form-group"><label class="form-label">pH (CaCl₂)</label><input type="number" step="0.1" class="form-input" id="ph" placeholder="6.0"></div>
-          <div class="form-group"><label class="form-label">MO (%)</label><input type="number" step="0.1" class="form-input" id="mo" placeholder="3.5"></div>
-        </div>
-        <div class="grid-3">
-          <div class="form-group"><label class="form-label">P (mg/dm³)</label><input type="number" class="form-input" id="pSolo" placeholder="25"></div>
-          <div class="form-group"><label class="form-label">K (cmolc/dm³)</label><input type="number" step="0.01" class="form-input" id="kSolo" placeholder="0.35"></div>
-          <div class="form-group"><label class="form-label">V%</label><input type="number" class="form-input" id="vSolo" placeholder="65"></div>
-        </div>
-        <div class="grid-2">
-          <div class="form-group"><label class="form-label">Ca (cmolc/dm³)</label><input type="number" step="0.1" class="form-input" id="caSolo" placeholder="5.0"></div>
-          <div class="form-group"><label class="form-label">Mg (cmolc/dm³)</label><input type="number" step="0.1" class="form-input" id="mgSolo" placeholder="1.5"></div>
-        </div>
-        <div class="grid-2">
-          <div class="form-group"><label class="form-label">B (mg/dm³)</label><input type="number" step="0.1" class="form-input" id="bSolo" placeholder="0.5"></div>
-          <div class="form-group"><label class="form-label">Zn (mg/dm³)</label><input type="number" step="0.1" class="form-input" id="znSolo" placeholder="1.6"></div>
-        </div>
-        <div class="form-group"><label class="form-label">Teor de argila (%)</label><input type="number" class="form-input" id="argila" placeholder="55"></div>
-      </div>
-    </div>
-
-    <!-- E3: Foliar -->
-    <div class="screen" id="s2">
-      <div class="progress-bar"><div class="progress-fill" style="width:28%"></div></div>
-      <div class="section-head">Etapa 3 — Análise Foliar</div>
-      <div class="section-sub">opcional — diagnóstico do estado nutricional atual</div>
-
-      <div class="info-box">🍃 Coleta: 30–50 folhas trifoliadas (4ª–5ª posição do caule) no florescimento pleno — conforme protocolo Embrapa e Marschner (2012).</div>
-
-      <div class="card">
-        <div class="card-title">🍃 Anexar análise foliar</div>
-        <div class="upload-zone" onclick="triggerFile('foliarInput')">
-          <input type="file" id="foliarInput" accept=".pdf,image/*" multiple onchange="handleFileUpload(event,'foliarFiles','foliarList')">
-          <div class="uico">🍃</div>
-          <strong>Toque para anexar análise foliar</strong>
-          <p>PDF ou foto · opcional</p>
-        </div>
-        <div class="file-list" id="foliarList"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📈 Produtividade e sistema</div>
-        <div class="form-group"><label class="form-label">Produtividade esperada (sc/ha ou @/ha)</label><input type="number" class="form-input" id="prodEsp" placeholder="Ex: 65 sc/ha"></div>
-        <div class="form-group"><label class="form-label">Sistema de cultivo</label>
-          <select class="form-select" id="sistema">
-            <option value="plantio_direto">Plantio direto (PD)</option>
-            <option value="convencional">Convencional</option>
-            <option value="irrigado">Irrigado</option>
-            <option value="organico">Orgânico / Biológico</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <!-- E4: Planta -->
-    <div class="screen" id="s3">
-      <div class="progress-bar"><div class="progress-fill" style="width:42%"></div></div>
-      <div class="section-head">Etapa 4 — Estado da Planta</div>
-      <div class="section-sub">foto, estádio fenológico e diagnóstico de estresse</div>
-
-      <div class="card">
-        <div class="card-title">📸 Foto da planta</div>
-        <img id="previewPlanta" class="preview-img" style="display:none;margin-bottom:10px">
-        <div style="display:flex;gap:10px">
-          <div class="upload-zone" style="flex:1" onclick="triggerFile('plantaInputCam')">
-            <input type="file" id="plantaInputCam" accept="image/*" capture="environment" onchange="handlePlantaImg(event)">
-            <div class="uico">📷</div>
-            <strong>Câmera</strong>
-            <p>Tirar foto agora</p>
-          </div>
-          <div class="upload-zone" style="flex:1" onclick="triggerFile('plantaInputGal')">
-            <input type="file" id="plantaInputGal" accept="image/*" onchange="handlePlantaImg(event)">
-            <div class="uico">🖼️</div>
-            <strong>Galeria</strong>
-            <p>Escolher foto</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🌿 O que está visível na foto?</div>
-        <div class="check-grid">
-          <label class="check-item"><input type="checkbox" name="visivel" value="planta inteira"> Planta inteira</label>
-          <label class="check-item"><input type="checkbox" name="visivel" value="folha apical nova"> Folha apical/nova</label>
-          <label class="check-item"><input type="checkbox" name="visivel" value="folha mediana"> Folha mediana</label>
-          <label class="check-item"><input type="checkbox" name="visivel" value="folha basal velha"> Folha basal/velha</label>
-          <label class="check-item"><input type="checkbox" name="visivel" value="vagem ou grão"> Vagem/grão</label>
-          <label class="check-item"><input type="checkbox" name="visivel" value="sistema radicular"> Sistema radicular</label>
-          <label class="check-item"><input type="checkbox" name="visivel" value="flores"> Flores</label>
-          <label class="check-item"><input type="checkbox" name="visivel" value="caule/haste com nódulos"> Caule / nódulos</label>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📊 Estádio fenológico <span class="req">*</span></div>
-        <div class="pheno-wrap" id="phenoWrap"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">⚠️ A planta está em estresse?</div>
-        <div class="bool-row" style="margin-bottom:10px">
-          <div class="bool-btn yes" id="stressYes" onclick="setStress(true)">✅ Sim</div>
-          <div class="bool-btn no active" id="stressNo" onclick="setStress(false)">❌ Não</div>
-        </div>
-        <div id="stressTypes" style="display:none">
-          <label class="form-label" style="margin-bottom:6px">Tipos de estresse identificados:</label>
-          <div class="tag-cloud" id="stressTagCloud"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🔍 Sintomas visuais observados</div>
-        <textarea class="form-textarea" id="sintomas" placeholder="Ex: clorose internerval em folhas basais, bordos necróticos, encurtamento de entrenós, manchas foliares..."></textarea>
-      </div>
-    </div>
-
-    <!-- E5: Campo -->
-    <div class="screen" id="s4">
-      <div class="progress-bar"><div class="progress-fill" style="width:57%"></div></div>
-      <div class="section-head">Etapa 5 — Condições de Campo</div>
-      <div class="section-sub">dados climáticos e edáficos atuais</div>
-
-      <div class="card">
-        <div class="card-title">🌦️ Clima e temperatura</div>
-        <div class="grid-2">
-          <div class="form-group"><label class="form-label">Última chuva (mm)</label><input type="number" class="form-input" id="chuva" placeholder="Ex: 25"></div>
-          <div class="form-group"><label class="form-label">Temperatura (°C)</label><input type="number" class="form-input" id="temp" placeholder="Ex: 32"></div>
-        </div>
-        <div class="form-group"><label class="form-label">Dias desde a última chuva significativa</label><input type="number" class="form-input" id="diasSemChuva" placeholder="Ex: 7"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🌍 Solo e estresse de campo</div>
-        <div class="form-group"><label class="form-label">Teor de argila (%)</label><input type="number" class="form-input" id="argilaCampo" placeholder="Ex: 55"></div>
-        <div class="form-group"><label class="form-label">O campo está em situação de estresse?</label>
-          <div class="bool-row">
-            <div class="bool-btn yes" id="campStressYes" onclick="setCampStress(true)">✅ Sim</div>
-            <div class="bool-btn no active" id="campStressNo" onclick="setCampStress(false)">❌ Não</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">⚡ Estresses e ocorrências no campo</div>
-        <div class="check-grid">
-          <label class="check-item"><input type="checkbox" name="stressCampo" value="granizo com desfolhamento"> Granizo</label>
-          <label class="check-item"><input type="checkbox" name="stressCampo" value="geada"> Geada</label>
-          <label class="check-item"><input type="checkbox" name="stressCampo" value="acamamento por vento"> Acamamento</label>
-          <label class="check-item"><input type="checkbox" name="stressCampo" value="déficit hídrico severo"> Déficit hídrico</label>
-          <label class="check-item"><input type="checkbox" name="stressCampo" value="compactação do solo"> Compactação</label>
-          <label class="check-item"><input type="checkbox" name="stressCampo" value="encharcamento"> Encharcamento</label>
-          <label class="check-item"><input type="checkbox" name="stressCampo" value="alta temperatura (>35°C)"> Alta temperatura</label>
-          <label class="check-item"><input type="checkbox" name="stressCampo" value="nematoide"> Nematoide</label>
-        </div>
-        <div class="form-group" style="margin-top:10px"><label class="form-label">Detalhes e observações</label>
-          <textarea class="form-textarea" id="obsCampo" placeholder="Ex: área com compactação em 15 cm, solo com retenção hídrica baixa..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- E6: Moléstia -->
-    <div class="screen" id="s5">
-      <div class="progress-bar"><div class="progress-fill" style="width:71%"></div></div>
-      <div class="section-head">Etapa 6 — Moléstia por Doença</div>
-      <div class="section-sub">resposta obrigatória — impacta diretamente o protocolo</div>
-
-      <div class="card">
-        <div class="card-title">🔬 Possui moléstia por doença? <span class="req">*</span></div>
-        <div class="bool-row" style="margin-bottom:12px">
-          <div class="bool-btn yes" id="molYes" onclick="setMolestia(true)">✅ Sim</div>
-          <div class="bool-btn no" id="molNo" onclick="setMolestia(false)">❌ Não</div>
-        </div>
-
-        <div id="molestiaDetails" style="display:none">
-          <div class="form-group">
-            <label class="form-label">Doenças identificadas:</label>
-            <div class="tag-cloud">
-              <span class="tag" onclick="toggleTag(this,'doencas')">Ferrugem asiática</span>
-              <span class="tag" onclick="toggleTag(this,'doencas')">Mancha alvo</span>
-              <span class="tag" onclick="toggleTag(this,'doencas')">Antracnose</span>
-              <span class="tag" onclick="toggleTag(this,'doencas')">Oídio</span>
-              <span class="tag" onclick="toggleTag(this,'doencas')">Míldio</span>
-              <span class="tag" onclick="toggleTag(this,'doencas')">Cercosporiose</span>
-              <span class="tag" onclick="toggleTag(this,'doencas')">Phytophthora</span>
-              <span class="tag" onclick="toggleTag(this,'doencas')">Esclerotinia</span>
-              <span class="tag" onclick="toggleTag(this,'doencas')">Mofo branco</span>
-              <span class="tag" onclick="toggleTag(this,'doencas')">Mela/Rizoctoniose</span>
-              <span class="tag" onclick="toggleTag(this,'doencas')">Helmintosporiose</span>
-              <span class="tag" onclick="toggleTag(this,'doencas')">Outra</span>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Severidade estimada</label>
-            <select class="form-select" id="severidade">
-              <option value="leve">Leve (&lt; 10%)</option>
-              <option value="moderada">Moderada (10–30%)</option>
-              <option value="severa">Severa (&gt; 30%)</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- E7: Objetivos -->
-    <div class="screen" id="s6">
-      <div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
-      <div class="section-head">Etapa 7 — Objetivos Fisiológicos</div>
-      <div class="section-sub">selecione um ou mais objetivos para o protocolo</div>
-
-      <div class="card">
-        <div class="card-title">🎯 O que deseja alcançar?</div>
-        <div class="obj-grid" id="objGrid"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📝 Histórico de manejo e aplicações</div>
-        <div class="form-group"><label class="form-label">Adubação de base / cobertura realizada</label>
-          <textarea class="form-textarea" id="adubacao" placeholder="Ex: 300 kg MAP + 150 kg KCl no plantio, ureia 120 kg/ha em V4..."></textarea>
-        </div>
-        <div class="form-group"><label class="form-label">Aplicações foliares anteriores</label>
-          <textarea class="form-textarea" id="foliarHist" placeholder="Ex: boro + zinco V4, bioestimulante na semente..."></textarea>
-        </div>
-        <div class="form-group"><label class="form-label">Observações adicionais</label>
-          <textarea class="form-textarea" id="obsAdic" placeholder="Outras informações relevantes sobre a lavoura..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- E8: Laudo -->
-    <div class="screen" id="s7">
-      <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
-      <div class="section-head">Etapa 8 — Laudo Fisiológico</div>
-      <div class="section-sub">diagnóstico técnico completo baseado nos livros</div>
-
-      <div id="laudoInicio" class="card" style="text-align:center;padding:24px">
-        <div style="font-size:38px;margin-bottom:10px">📄</div>
-        <div style="font-family:var(--font-head);font-size:14px;font-weight:700;margin-bottom:6px">Gerar Laudo Fisiológico Completo</div>
-        <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-bottom:16px;line-height:1.6">Base científica: Taiz & Zeiger, Kerbauy, Marschner (2012),<br>Embrapa Soja, Embrapa Algodão, Fertilidade do Solo</div>
-        <button class="btn btn-primary" style="max-width:260px;margin:0 auto;display:flex" onclick="gerarLaudo()">🔬 Gerar Laudo</button>
-      </div>
-
-      <div id="laudoLoading" class="loading-screen" style="display:none">
-        <div class="spinner"></div>
-        <h3>Analisando fisiologia...</h3>
-        <p>consultando base científica dos livros</p>
-        <div class="l-steps">
-          <div class="l-step done" id="ls1"><div class="l-dot"></div>Identificando estádio e processos ativos</div>
-          <div class="l-step active" id="ls2"><div class="l-dot"></div>Mapeando hormônios e source/sink</div>
-          <div class="l-step" id="ls3"><div class="l-dot"></div>Calculando exigência nutricional (Marschner)</div>
-          <div class="l-step" id="ls4"><div class="l-dot"></div>Diagnosticando estresses e moléstias</div>
-          <div class="l-step" id="ls5"><div class="l-dot"></div>Montando protocolo de manejo fisiológico</div>
-          <div class="l-step" id="ls6"><div class="l-dot"></div>Calculando custo energético e em sc/@/ha</div>
-        </div>
-      </div>
-
-      <div id="laudoResult" style="display:none">
-        <div id="laudoContent"></div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="btn btn-outline" style="flex:1" onclick="copiarLaudo()">📋 Copiar laudo</button>
-          <button class="btn btn-outline" style="flex:1" onclick="novaAnalise()">↩ Nova análise</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div class="hdr-step" id="hdrStep">1/7</div>
 </div>
 
-<div class="nav-bar" id="navBar"></div>
+<div class="prog"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+
+<div class="steps-nav" id="stepsNav"></div>
+
+<div class="content">
+
+  <!-- E1: PRODUTOR -->
+  <div class="screen active" id="s0">
+    <div class="sec-title">Produtor Rural</div>
+    <div class="sec-sub">cadastro do produtor e talhão</div>
+    <div class="card">
+      <div class="card-title">👨‍🌾 Identificação</div>
+      <div class="field"><label class="label">Nome do Produtor <span class="req">*</span></label><input class="input" id="prodNome" placeholder="Ex: João Silva"></div>
+      <div class="grid2">
+        <div class="field"><label class="label">Cidade <span class="req">*</span></label><input class="input" id="prodCidade" placeholder="Ex: Sorriso - MT"></div>
+        <div class="field"><label class="label">Talhão</label><input class="input" id="prodTalhao" placeholder="Ex: Talhão 3A"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Produtividade</div>
+      <div class="grid2">
+        <div class="field"><label class="label">Última produtividade (sc/ha)</label><input class="input" id="prodUltima" placeholder="Ex: 62" type="number"></div>
+        <div class="field"><label class="label">Expectativa (sc/ha) <span class="req">*</span></label><input class="input" id="prodExpect" placeholder="Ex: 70" type="number"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E2: CULTURA E PLANTIO -->
+  <div class="screen" id="s1">
+    <div class="sec-title">Cultura e Plantio</div>
+    <div class="sec-sub">informações da lavoura</div>
+    <div class="card">
+      <div class="card-title">🌾 Cultura <span class="req">*</span></div>
+      <div class="crop-row">
+        <div class="crop-btn" id="crop_soja" onclick="selCrop('soja')"><span class="ico">🫘</span><span class="nm">Soja</span></div>
+        <div class="crop-btn" id="crop_milho" onclick="selCrop('milho')"><span class="ico">🌽</span><span class="nm">Milho</span></div>
+        <div class="crop-btn" id="crop_feijao" onclick="selCrop('feijao')"><span class="ico">🫛</span><span class="nm">Feijão</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 Dados do Plantio</div>
+      <div class="grid2">
+        <div class="field"><label class="label">Safra <span class="req">*</span></label><input class="input" id="safra" placeholder="Ex: 25/26"></div>
+        <div class="field"><label class="label">Data de plantio <span class="req">*</span></label><input type="date" class="input" id="dataPlantio"></div>
+      </div>
+      <div class="field"><label class="label">Variedade / Híbrido <span class="req">*</span></label><input class="input" id="hibrido" placeholder="Ex: DM 5958 IPRO"></div>
+      <div class="field"><label class="label">Adubação realizada <span class="req">*</span></label><textarea class="textarea" id="adubacao" placeholder="Ex: 300 kg/ha MAP no plantio + 150 kg/ha KCl + 30 kg/ha ureia em V4..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- E3: ANÁLISE DE SOLO -->
+  <div class="screen" id="s2">
+    <div class="sec-title">Análise de Solo</div>
+    <div class="sec-sub">opcional — preencha os dados disponíveis</div>
+    <div class="info-box">📋 Insira os dados da sua análise de solo. Campos opcionais — preencha o que tiver disponível.</div>
+    <div class="card">
+      <div class="card-title">⚗️ Macronutrientes e pH</div>
+      <div class="nut-grid">
+        <div class="nut-item"><div class="nut-label">pH (CaCl₂)</div><input class="nut-input" id="ph" placeholder="Ex: 6.0" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">MO (%)</div><input class="nut-input" id="mo" placeholder="Ex: 3.5" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">P (mg/dm³)</div><input class="nut-input" id="pSolo" placeholder="Ex: 25" type="number"></div>
+        <div class="nut-item"><div class="nut-label">K (cmolc/dm³)</div><input class="nut-input" id="kSolo" placeholder="Ex: 0.35" type="number" step="0.01"></div>
+        <div class="nut-item"><div class="nut-label">Ca (cmolc/dm³)</div><input class="nut-input" id="caSolo" placeholder="Ex: 5.0" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">Mg (cmolc/dm³)</div><input class="nut-input" id="mgSolo" placeholder="Ex: 1.5" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">V% (sat. bases)</div><input class="nut-input" id="vSolo" placeholder="Ex: 65" type="number"></div>
+        <div class="nut-item"><div class="nut-label">Argila (%)</div><input class="nut-input" id="argilaSolo" placeholder="Ex: 55" type="number"></div>
+        <div class="nut-item"><div class="nut-label">S (mg/dm³)</div><input class="nut-input" id="sSolo" placeholder="Ex: 10" type="number"></div>
+        <div class="nut-item"><div class="nut-label">CTC (cmolc/dm³)</div><input class="nut-input" id="ctcSolo" placeholder="Ex: 12.5" type="number" step="0.1"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔬 Micronutrientes</div>
+      <div class="nut-grid">
+        <div class="nut-item"><div class="nut-label">B (mg/dm³)</div><input class="nut-input" id="bSolo" placeholder="Ex: 0.5" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">Zn (mg/dm³)</div><input class="nut-input" id="znSolo" placeholder="Ex: 1.6" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">Cu (mg/dm³)</div><input class="nut-input" id="cuSolo" placeholder="Ex: 1.0" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">Mn (mg/dm³)</div><input class="nut-input" id="mnSolo" placeholder="Ex: 5.0" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">Fe (mg/dm³)</div><input class="nut-input" id="feSolo" placeholder="Ex: 35" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">Mo (mg/dm³)</div><input class="nut-input" id="moSolo" placeholder="Ex: 0.1" type="number" step="0.01"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E4: ANÁLISE FOLIAR -->
+  <div class="screen" id="s3">
+    <div class="sec-title">Análise Foliar</div>
+    <div class="sec-sub">opcional — dados do estado nutricional da planta</div>
+    <div class="info-box">🍃 Coleta: 30-50 folhas da 4ª-5ª posição a partir do ápice, no florescimento pleno. Referência: laborsolo.com.br/laudo/quimica-de-solo</div>
+    <div class="card">
+      <div class="card-title">🌿 Macronutrientes Foliares (g/kg)</div>
+      <div class="nut-grid">
+        <div class="nut-item"><div class="nut-label">N (g/kg)</div><input class="nut-input" id="nFoliar" placeholder="Ref: 40-50" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">P (g/kg)</div><input class="nut-input" id="pFoliar" placeholder="Ref: 2.5-4.0" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">K (g/kg)</div><input class="nut-input" id="kFoliar" placeholder="Ref: 17-27" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">Ca (g/kg)</div><input class="nut-input" id="caFoliar" placeholder="Ref: 6-20" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">Mg (g/kg)</div><input class="nut-input" id="mgFoliar" placeholder="Ref: 2.5-5.0" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">S (g/kg)</div><input class="nut-input" id="sFoliar" placeholder="Ref: 2.0-4.0" type="number" step="0.1"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔬 Micronutrientes Foliares (mg/kg)</div>
+      <div class="nut-grid">
+        <div class="nut-item"><div class="nut-label">B (mg/kg)</div><input class="nut-input" id="bFoliar" placeholder="Ref: 30-80" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">Zn (mg/kg)</div><input class="nut-input" id="znFoliar" placeholder="Ref: 25-60" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">Cu (mg/kg)</div><input class="nut-input" id="cuFoliar" placeholder="Ref: 5-20" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">Mn (mg/kg)</div><input class="nut-input" id="mnFoliar" placeholder="Ref: 20-150" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">Fe (mg/kg)</div><input class="nut-input" id="feFoliar" placeholder="Ref: 50-350" type="number" step="0.1"></div>
+        <div class="nut-item"><div class="nut-label">Mo (mg/kg)</div><input class="nut-input" id="moFoliar" placeholder="Ref: 0.5-5" type="number" step="0.01"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E5: PLANTA E CAMPO -->
+  <div class="screen" id="s4">
+    <div class="sec-title">Planta e Campo</div>
+    <div class="sec-sub">foto obrigatória + condições atuais</div>
+
+    <div class="card">
+      <div class="card-title">📸 Foto da Planta <span class="req">*</span></div>
+      <div class="foto-row">
+        <div class="foto-btn" onclick="document.getElementById('fotoCam').click()">
+          <input type="file" id="fotoCam" accept="image/*" capture="environment" onchange="handleFoto(event)">
+          <div class="foto-ico">📷</div>
+          <div class="foto-lbl">Câmera</div>
+          <div class="foto-sub">tirar agora</div>
+        </div>
+        <div class="foto-btn" onclick="document.getElementById('fotoGal').click()">
+          <input type="file" id="fotoGal" accept="image/*" onchange="handleFoto(event)">
+          <div class="foto-ico">🖼️</div>
+          <div class="foto-lbl">Galeria</div>
+          <div class="foto-sub">escolher foto</div>
+        </div>
+      </div>
+      <img id="previewFoto" class="preview" style="display:none">
+      <div id="fotoStatus" style="display:none;margin-top:8px;font-size:11px;color:var(--g2);font-family:'IBM Plex Mono',monospace">✓ Foto carregada e comprimida</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🌿 O que está visível na foto?</div>
+      <div class="tag-wrap" id="visivelTags">
+        <div class="tag" onclick="toggleTag(this,'visivel')">Planta inteira</div>
+        <div class="tag" onclick="toggleTag(this,'visivel')">Folha apical/nova</div>
+        <div class="tag" onclick="toggleTag(this,'visivel')">Folha mediana</div>
+        <div class="tag" onclick="toggleTag(this,'visivel')">Folha basal/velha</div>
+        <div class="tag" onclick="toggleTag(this,'visivel')">Vagem/grão</div>
+        <div class="tag" onclick="toggleTag(this,'visivel')">Sistema radicular</div>
+        <div class="tag" onclick="toggleTag(this,'visivel')">Flores</div>
+        <div class="tag" onclick="toggleTag(this,'visivel')">Caule/nódulos</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 Estádio Fenológico <span class="req">*</span></div>
+      <div class="pheno-wrap" id="phenoWrap"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🌦️ Clima e Campo</div>
+      <div class="grid2">
+        <div class="field"><label class="label">Temperatura (°C)</label><input class="input" id="temp" placeholder="Ex: 32" type="number"></div>
+        <div class="field"><label class="label">Última chuva (mm)</label><input class="input" id="chuva" placeholder="Ex: 25" type="number"></div>
+      </div>
+      <div class="field"><label class="label">Dias sem chuva significativa</label><input class="input" id="diasSemChuva" placeholder="Ex: 7" type="number"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚠️ A planta está em estresse?</div>
+      <div class="bool-row" id="stressRow">
+        <div class="bool-btn" id="stressSimBtn" onclick="setStress(true)">✅ Sim</div>
+        <div class="bool-btn" id="stressNaoBtn" onclick="setStress(false)">❌ Não</div>
+      </div>
+      <div id="stressDetalhes" style="display:none;margin-top:12px">
+        <label class="label">Tipos de estresse:</label>
+        <div class="tag-wrap">
+          <div class="tag" onclick="toggleTag(this,'stress')">Hídrico</div>
+          <div class="tag" onclick="toggleTag(this,'stress')">Térmico</div>
+          <div class="tag" onclick="toggleTag(this,'stress')">Nutricional</div>
+          <div class="tag" onclick="toggleTag(this,'stress')">Biótico</div>
+          <div class="tag" onclick="toggleTag(this,'stress')">Oxidativo</div>
+          <div class="tag" onclick="toggleTag(this,'stress')">Salino</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🌩️ Ocorrências a Campo</div>
+      <div class="tag-wrap">
+        <div class="tag" onclick="toggleTag(this,'ocorr')">Granizo</div>
+        <div class="tag" onclick="toggleTag(this,'ocorr')">Geada</div>
+        <div class="tag" onclick="toggleTag(this,'ocorr')">Acamamento</div>
+        <div class="tag" onclick="toggleTag(this,'ocorr')">Déficit hídrico</div>
+        <div class="tag" onclick="toggleTag(this,'ocorr')">Encharcamento</div>
+        <div class="tag" onclick="toggleTag(this,'ocorr')">Alta temperatura</div>
+        <div class="tag" onclick="toggleTag(this,'ocorr')">Compactação</div>
+        <div class="tag" onclick="toggleTag(this,'ocorr')">Nematoide</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔍 Sintomas Visuais Observados</div>
+      <textarea class="textarea" id="sintomas" placeholder="Ex: clorose internerval em folhas basais, bordos necróticos, encurtamento de entrenós..."></textarea>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔬 Possui moléstia por doença?</div>
+      <div class="bool-row" id="molestiaRow">
+        <div class="bool-btn" id="molSimBtn" onclick="setMolestia(true)">✅ Sim</div>
+        <div class="bool-btn" id="molNaoBtn" onclick="setMolestia(false)">❌ Não</div>
+      </div>
+      <div id="molestiaDetalhes" style="display:none;margin-top:12px">
+        <div class="tag-wrap">
+          <div class="tag" onclick="toggleTag(this,'doenca')">Ferrugem asiática</div>
+          <div class="tag" onclick="toggleTag(this,'doenca')">Mancha alvo</div>
+          <div class="tag" onclick="toggleTag(this,'doenca')">Antracnose</div>
+          <div class="tag" onclick="toggleTag(this,'doenca')">Oídio</div>
+          <div class="tag" onclick="toggleTag(this,'doenca')">Phytophthora</div>
+          <div class="tag" onclick="toggleTag(this,'doenca')">Esclerotinia</div>
+          <div class="tag" onclick="toggleTag(this,'doenca')">Mofo branco</div>
+          <div class="tag" onclick="toggleTag(this,'doenca')">Outra</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E6: LAUDO DIAGNOSE (gerado automaticamente na etapa 5→6) -->
+  <div class="screen" id="s5">
+    <div class="sec-title">Diagnose Fisiológica</div>
+    <div class="sec-sub">análise do estado atual da planta</div>
+    <div id="laudoDiagnose"></div>
+  </div>
+
+  <!-- E7: OBJETIVOS -->
+  <div class="screen" id="s6">
+    <div class="sec-title">Objetivos Fisiológicos</div>
+    <div class="sec-sub">selecione os manejos desejados para este estádio</div>
+    <div class="info-box" id="objInfo">Os objetivos disponíveis são filtrados pelo estádio fenológico atual.</div>
+    <div class="card">
+      <div class="card-title">🎯 Selecione os objetivos</div>
+      <div class="obj-grid" id="objGrid"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">💊 Ferramentas Fisiológicas</div>
+      <div class="info-box" style="margin-bottom:8px">Os manejos abaixo serão usados no protocolo conforme os objetivos selecionados:</div>
+      <div class="tag-wrap">
+        <div class="tag sel">Macronutrientes</div>
+        <div class="tag sel">Micronutrientes (Fe, Zn, Cu, Mn, B)</div>
+        <div class="tag sel">Extrato de algas</div>
+        <div class="tag sel">Aminoácidos (prolina, betaína, glicina)</div>
+        <div class="tag sel">Silício foliar</div>
+        <div class="tag sel">Ácido húmico/fúlvico</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E8: LAUDO FINAL -->
+  <div class="screen" id="s7">
+    <div class="sec-title">Laudo Fisiológico</div>
+    <div class="sec-sub">protocolo completo de manejo</div>
+    <div id="laudoFinal"></div>
+  </div>
+
+</div>
+
+<div class="nav" id="navBar"></div>
 
 <script>
-const STEPS_DEF = [
-  {id:0,label:'Cultura',icon:'🌾'},
-  {id:1,label:'Solo',icon:'📋'},
-  {id:2,label:'Foliar',icon:'🍃'},
-  {id:3,label:'Planta',icon:'📸'},
-  {id:4,label:'Campo',icon:'🌦'},
-  {id:5,label:'Moléstia',icon:'🔬'},
-  {id:6,label:'Objetivos',icon:'🎯'},
-  {id:7,label:'Laudo',icon:'📄'},
-];
+// ─── ESTADO ──────────────────────────────────────────────────────────────────
+const ST = {
+  step: 0,
+  // E1
+  prodNome:'', prodCidade:'', prodTalhao:'', prodUltima:'', prodExpect:'',
+  // E2
+  cultura:'', safra:'', dataPlantio:'', hibrido:'', adubacao:'',
+  // E3 Solo
+  ph:'', mo:'', pSolo:'', kSolo:'', caSolo:'', mgSolo:'', vSolo:'', argilaSolo:'', sSolo:'', ctcSolo:'',
+  bSolo:'', znSolo:'', cuSolo:'', mnSolo:'', feSolo:'', moSolo:'',
+  // E4 Foliar
+  nFoliar:'', pFoliar:'', kFoliar:'', caFoliar:'', mgFoliar:'', sFoliar:'',
+  bFoliar:'', znFoliar:'', cuFoliar:'', mnFoliar:'', feFoliar:'', moFoliar:'',
+  // E5
+  fotoB64:'', estadio:'', temp:'', chuva:'', diasSemChuva:'',
+  stresse: null, tiposStresse:[], ocorrencias:[], sintomas:'',
+  molestia: null, doencas:[],
+  visivel:[],
+  // E7
+  objetivos:[],
+};
 
-const CROPS = [
-  {id:'soja',nm:'Soja',ico:'🫘'},
-  {id:'milho',nm:'Milho',ico:'🌽'},
-  {id:'feijao',nm:'Feijão',ico:'🫛'},
-  {id:'trigo',nm:'Trigo',ico:'🌾'},
-  {id:'algodao',nm:'Algodão',ico:'☁️'},
+const STEPS = [
+  {id:0,lbl:'Produtor',ico:'👨‍🌾'},
+  {id:1,lbl:'Cultura',ico:'🌾'},
+  {id:2,lbl:'Solo',ico:'📋'},
+  {id:3,lbl:'Foliar',ico:'🍃'},
+  {id:4,lbl:'Planta',ico:'📸'},
+  {id:5,lbl:'Diagnose',ico:'🔬'},
+  {id:6,lbl:'Objetivos',ico:'🎯'},
+  {id:7,lbl:'Laudo',ico:'📄'},
 ];
 
 const PHENO = {
   soja:['VE','VC','V1','V2','V3','V4','V5','V6','R1','R2','R3','R4','R5','R5.1','R5.2','R5.3','R5.4','R5.5','R6','R7','R8'],
-  milho:['VE','V1','V2','V3','V4','V5','V6','V7','V8','V9','V10','VT','R1','R2','R3','R4','R5','R6'],
+  milho:['VE','V1','V2','V3','V4','V5','V6','V7','V8','V9','VT','R1','R2','R3','R4','R5','R6'],
   feijao:['VE','VC','V1','V2','V3','V4','R5','R6','R7','R8','R9'],
-  trigo:['Z10','Z11','Z12','Z13','Z20','Z30','Z31','Z32','Z37','Z39','Z41','Z55','Z65','Z71','Z77','Z85','Z92'],
-  algodao:['VE','V1','V2','V3','V4','V5','B1','B2','F1','F2','F3','F4','F5','F6','M'],
 };
 
-const STRESS_TYPES = ['Hídrico','Térmico','Lumínico','Salino','Oxidativo','Nutricional','Biótico','Mecânico'];
-
-const OBJECTIVES = [
-  {id:'raiz',t:'Desenvolvimento radicular',d:'expansão e enraizamento profundo'},
-  {id:'entrenós',t:'Diminuição de entrenós',d:'controle de elongação do caule'},
-  {id:'florescimento',t:'Otimização do florescimento',d:'uniformidade e fixação de flores'},
-  {id:'enchimento',t:'Enchimento de grãos',d:'aumento de peso e qualidade'},
-  {id:'defesa',t:'Defesa celular',d:'fortalecimento ante estresses'},
-  {id:'producao',t:'Aumento de produtividade',d:'maximização de sc ou @/ha'},
-  {id:'qualidade',t:'Qualidade do produto',d:'proteína, óleo, fibra'},
-  {id:'preestresse',t:'Manejo pré-estresse',d:'preparação para adversidades'},
+const OBJETIVOS_DEF = [
+  {id:'raiz', t:'Desenvolvimento radicular', d:'expansão e enraizamento', fases:['VE','VC','V1','V2','V3','V4','V5','V6']},
+  {id:'entrenós', t:'Diminuição de entrenós', d:'controle de elongação', fases:['VE','VC','V1','V2','V3','V4']},
+  {id:'florescimento', t:'Otimização do florescimento', d:'fixação e uniformidade', fases:['V6','R1','R2']},
+  {id:'enchimento', t:'Enchimento de grãos', d:'peso e qualidade', fases:['R1','R2','R3','R4','R5','R5.1']},
+  {id:'defesa', t:'Defesa celular', d:'todo o ciclo', fases:[]},
+  {id:'producao', t:'Aumento de produtividade', d:'maximização sc/ha', fases:['VE','VC','V1','V2','V3','V4','V5','V6','R1','R2','R3','R4']},
+  {id:'qualidade', t:'Qualidade do produto', d:'proteína, óleo, fibra', fases:['R1','R2','R3','R4','R5','R5.1','R5.2','R5.3','R5.4','R5.5']},
+  {id:'preestresse', t:'Manejo pré-estresse', d:'preparação preventiva', fases:[]},
 ];
 
-let ST = {
-  step:0, cultura:'', municipio:'', safra:'', hibrido:'', dataPlantio:'', espacamento:'',
-  soloFiles:[], foliarFiles:[], plantaBase64:'', plantaMime:'',
-  estadioFeno:'', estressePlanta:false, tiposEstresse:[],
-  molestia:null, doencas:[], objetivos:[],
-  estresseCampo:false,
-  laudo:'',
-};
-let loadTimer;
+const WORKER_URL = 'https://agrofisio-api.fisioagri.workers.dev';
 
-// Init
+// ─── INIT ─────────────────────────────────────────────────────────────────────
 function init() {
-  buildStepper();
-  buildCropGrid();
+  buildStepsNav();
   buildPhenoGrid();
-  buildStressTags();
   buildObjGrid();
   renderNav();
 }
 
-function buildStepper() {
-  const bar = document.getElementById('stepsBar');
-  bar.innerHTML = STEPS_DEF.map(s => `
-    <button class="step-btn ${s.id===0?'active':''}" id="sb${s.id}" onclick="tryGoStep(${s.id})">
-      <span class="step-num">${s.id+1}</span>${s.icon} ${s.label}
-    </button>`).join('');
-}
-
-function buildCropGrid() {
-  document.getElementById('cropGrid').innerHTML = CROPS.map(c=>
-    `<div class="crop-pill" id="crop_${c.id}" onclick="selectCrop('${c.id}')">
-      <span class="ico">${c.ico}</span><span class="nm">${c.nm}</span>
+function buildStepsNav() {
+  const nav = document.getElementById('stepsNav');
+  nav.innerHTML = STEPS.map(s => `
+    <div class="step-tab ${s.id===0?'active':''}" id="stab${s.id}" onclick="tryGoto(${s.id})">
+      <span class="step-dot">${s.id+1}</span>${s.ico} ${s.lbl}
     </div>`).join('');
-}
-
-function selectCrop(id) {
-  ST.cultura = id;
-  document.querySelectorAll('.crop-pill').forEach(p=>p.classList.remove('active'));
-  document.getElementById('crop_'+id).classList.add('active');
-  buildPhenoGrid();
-  updateNavBtn();
 }
 
 function buildPhenoGrid() {
   const list = PHENO[ST.cultura] || PHENO.soja;
-  document.getElementById('phenoWrap').innerHTML = list.map(p=>
-    `<div class="pheno-btn ${ST.estadioFeno===p?'active':''}" onclick="selectPheno('${p}')">${p}</div>`).join('');
-}
-
-function selectPheno(p) {
-  ST.estadioFeno = p;
-  document.querySelectorAll('.pheno-btn').forEach(b=>b.classList.toggle('active',b.textContent===p));
-}
-
-function buildStressTags() {
-  document.getElementById('stressTagCloud').innerHTML = STRESS_TYPES.map(t=>
-    `<span class="tag" onclick="toggleStressTag(this,'${t}')">${t}</span>`).join('');
-}
-
-function toggleStressTag(el,val) {
-  const idx = ST.tiposEstresse.indexOf(val);
-  if(idx>=0) ST.tiposEstresse.splice(idx,1); else ST.tiposEstresse.push(val);
-  el.classList.toggle('active');
+  document.getElementById('phenoWrap').innerHTML = list.map(p =>
+    `<div class="pheno-btn ${ST.estadio===p?'sel':''}" onclick="selPheno('${p}')">${p}</div>`
+  ).join('');
 }
 
 function buildObjGrid() {
-  document.getElementById('objGrid').innerHTML = OBJECTIVES.map(o=>
-    `<div class="obj-btn ${ST.objetivos.includes(o.id)?'active':''}" id="obj_${o.id}" onclick="toggleObj('${o.id}')">
-      <div class="ot">${o.t}</div><div class="od">${o.d}</div>
-    </div>`).join('');
+  const estadio = ST.estadio;
+  const grid = document.getElementById('objGrid');
+  grid.innerHTML = OBJETIVOS_DEF.map(o => {
+    const available = o.fases.length===0 || o.fases.includes(estadio) || !estadio;
+    const sel = ST.objetivos.includes(o.id);
+    const phase = o.fases.length===0 ? 'Todo o ciclo' : o.fases[0]+'→'+o.fases[o.fases.length-1];
+    return `<div class="obj-btn ${sel?'sel':''} ${!available?'disabled':''}" 
+      id="obj_${o.id}" onclick="${available?`toggleObj('${o.id}')`:''}" >
+      <div class="obj-t">${o.t}</div>
+      <div class="obj-d">${o.d}</div>
+      <span class="obj-phase">${phase}</span>
+    </div>`;
+  }).join('');
+
+  const info = document.getElementById('objInfo');
+  if(estadio) info.innerHTML = `📊 Estádio atual: <strong>${estadio}</strong> — objetivos disponíveis destacados`;
+}
+
+function selCrop(c) {
+  ST.cultura = c;
+  document.querySelectorAll('.crop-btn').forEach(b => b.classList.remove('sel'));
+  document.getElementById('crop_'+c).classList.add('sel');
+  buildPhenoGrid();
+  updateNav();
+}
+
+function selPheno(p) {
+  ST.estadio = p;
+  document.querySelectorAll('.pheno-btn').forEach(b => b.classList.toggle('sel', b.textContent===p));
+  buildObjGrid();
+  updateNav();
+}
+
+function toggleTag(el, group) {
+  el.classList.toggle('sel');
 }
 
 function toggleObj(id) {
   const idx = ST.objetivos.indexOf(id);
   if(idx>=0) ST.objetivos.splice(idx,1); else ST.objetivos.push(id);
-  document.getElementById('obj_'+id).classList.toggle('active');
-  updateNavBtn();
+  document.getElementById('obj_'+id).classList.toggle('sel');
+  updateNav();
 }
-
-function toggleTag(el,group) { el.classList.toggle('active'); }
 
 function setStress(v) {
-  ST.estressePlanta = v;
-  document.getElementById('stressYes').classList.toggle('active',v);
-  document.getElementById('stressNo').classList.toggle('active',!v);
-  document.getElementById('stressTypes').style.display = v?'block':'none';
-}
-
-function setCampStress(v) {
-  ST.estresseCampo = v;
-  document.getElementById('campStressYes').classList.toggle('active',v);
-  document.getElementById('campStressNo').classList.toggle('active',!v);
+  ST.stresse = v;
+  document.getElementById('stressSimBtn').className = 'bool-btn' + (v?' sim':'');
+  document.getElementById('stressNaoBtn').className = 'bool-btn' + (!v?' nao':'');
+  document.getElementById('stressDetalhes').style.display = v?'block':'none';
+  updateNav();
 }
 
 function setMolestia(v) {
   ST.molestia = v;
-  document.getElementById('molYes').classList.toggle('active',v);
-  document.getElementById('molNo').classList.toggle('active',!v);
-  document.getElementById('molestiaDetails').style.display = v?'block':'none';
-  updateNavBtn();
+  document.getElementById('molSimBtn').className = 'bool-btn' + (v?' sim':'');
+  document.getElementById('molNaoBtn').className = 'bool-btn' + (!v?' nao':'');
+  document.getElementById('molestiaDetalhes').style.display = v?'block':'none';
 }
 
-function triggerFile(id) { document.getElementById(id).click(); }
-
-function handleFileUpload(e,stateKey,listId) {
-  ST[stateKey] = Array.from(e.target.files);
-  const list = document.getElementById(listId);
-  list.innerHTML = ST[stateKey].map(f=>`<div class="file-tag">📄 ${f.name}</div>`).join('');
-}
-
-function handlePlantaImg(e) {
+// ─── FOTO ────────────────────────────────────────────────────────────────────
+async function handleFoto(e) {
   const file = e.target.files[0]; if(!file) return;
-  ST.plantaMime = file.type;
-  const r = new FileReader();
-  r.onload = ev => {
-    ST.plantaBase64 = ev.target.result.split(',')[1];
-    ST.plantaMime = file.type;
-    try {
-      sessionStorage.setItem('af_planta_b64', ST.plantaBase64);
-      sessionStorage.setItem('af_planta_mime', file.type);
-      sessionStorage.setItem('af_planta_src', ev.target.result);
-    } catch(e) {}
-    const img = document.getElementById('previewPlanta');
-    if(img) { img.src = ev.target.result; img.style.display = 'block'; }
+  const reader = new FileReader();
+  reader.onload = async (ev) => {
+    const compressed = await comprimirFoto(ev.target.result);
+    ST.fotoB64 = compressed;
+    const img = document.getElementById('previewFoto');
+    img.src = 'data:image/jpeg;base64,' + compressed;
+    img.style.display = 'block';
+    document.getElementById('fotoStatus').style.display = 'block';
+    updateNav();
   };
-  r.readAsDataURL(file);
+  reader.readAsDataURL(file);
 }
 
-function restaurarFoto() {
-  try {
-    const src = sessionStorage.getItem('af_planta_src');
-    const b64 = sessionStorage.getItem('af_planta_b64');
-    const mime = sessionStorage.getItem('af_planta_mime');
-    if(src && b64) {
-      ST.plantaBase64 = b64;
-      ST.plantaMime = mime || 'image/jpeg';
-      const img = document.getElementById('previewPlanta');
-      if(img) { img.src = src; img.style.display = 'block'; }
-    }
-  } catch(e) {}
-}
-
-function tryGoStep(n) {
-  if(n > ST.step) return; // só volta
-  goStep(n);
-}
-
-function goStep(n) {
-  ST.step = n;
-  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
-  document.querySelectorAll('.step-btn').forEach((b,i)=>{
-    b.classList.toggle('active',i===n);
-    b.classList.toggle('done',i<n);
+async function comprimirFoto(dataUrl) {
+  return new Promise(res => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      const max = 700;
+      if(w > h) { h = Math.round(h*max/w); w = max; }
+      else { w = Math.round(w*max/h); h = max; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      let q = 0.6;
+      let result = canvas.toDataURL('image/jpeg',q).split(',')[1];
+      while(result.length*0.75 > 3000000 && q > 0.1) {
+        q -= 0.1;
+        result = canvas.toDataURL('image/jpeg',q).split(',')[1];
+      }
+      res(result);
+    };
+    img.src = dataUrl;
   });
-  window.scrollTo(0,0);
-  renderNav();
-  if(n===3) setTimeout(restaurarFoto, 100);
+}
+
+// ─── NAVEGAÇÃO ────────────────────────────────────────────────────────────────
+function getTagValues(group) {
+  return [...document.querySelectorAll(`.tag.sel`)].filter(t => {
+    const p = t.closest('[id]');
+    return t.onclick?.toString().includes(group);
+  }).map(t => t.textContent);
+}
+
+function getTagsByGroup(group) {
+  const result = [];
+  document.querySelectorAll('.tag.sel').forEach(t => {
+    if(t.getAttribute('onclick')?.includes(`'${group}'`)) result.push(t.textContent);
+  });
+  return result;
 }
 
 function canNext() {
-  if(ST.step===0) {
-    const c = ST.cultura;
-    const m = document.getElementById('municipio')?.value?.trim();
-    const s = document.getElementById('safra')?.value?.trim();
-    const e = document.getElementById('espacamento')?.value?.trim();
-    return c && m && s && e;
-  }
-  if(ST.step===5) return ST.molestia !== null;
+  if(ST.step===0) return document.getElementById('prodNome').value.trim() && document.getElementById('prodCidade').value.trim() && document.getElementById('prodExpect').value.trim();
+  if(ST.step===1) return ST.cultura && document.getElementById('safra').value.trim() && document.getElementById('dataPlantio').value && document.getElementById('hibrido').value.trim() && document.getElementById('adubacao').value.trim();
+  if(ST.step===4) return ST.fotoB64 && ST.estadio;
   if(ST.step===6) return ST.objetivos.length > 0;
   return true;
 }
 
-function renderNav() {
-  const nav = document.getElementById('navBar');
-  if(ST.step===7) { nav.innerHTML=''; return; }
-  const nextLabel = ST.step===6 ? '📄 Ir para Laudo →' : 'Avançar →';
-  const backBtn = ST.step>0 ? `<button class="btn btn-outline" onclick="goStep(${ST.step-1})">← Voltar</button>` : '';
-  const ok = canNext();
-  nav.innerHTML = `${backBtn}<button class="btn btn-primary" id="btnNext" onclick="nextStep()" ${ok?'':'disabled'}>${nextLabel}</button>`;
-  // Para etapa 0, monitora os inputs obrigatórios
-  if(ST.step===0) {
-    ['municipio','safra','espacamento'].forEach(id=>{
-      document.getElementById(id)?.addEventListener('input', updateNavBtn, {once:false});
-    });
-  }
+function tryGoto(n) {
+  if(n < ST.step) goTo(n);
 }
 
-function updateNavBtn() {
+function goTo(n) {
+  document.querySelectorAll('.screen').forEach((s,i) => s.classList.toggle('active', i===n));
+  STEPS.forEach(s => {
+    const tab = document.getElementById('stab'+s.id);
+    tab.className = 'step-tab' + (s.id===n?' active':s.id<n?' done':'');
+  });
+  ST.step = n;
+  document.getElementById('hdrStep').textContent = `${n+1}/${STEPS.length}`;
+  document.getElementById('progFill').style.width = `${(n/(STEPS.length-1))*100}%`;
+  window.scrollTo(0,0);
+  renderNav();
+}
+
+function updateNav() {
   const btn = document.getElementById('btnNext');
   if(btn) btn.disabled = !canNext();
 }
 
-function nextStep() {
-  if(!canNext()) return;
-  if(ST.step===0){
-    ST.municipio = document.getElementById('municipio').value;
-    ST.safra = document.getElementById('safra').value;
-    ST.hibrido = document.getElementById('hibrido').value;
-    ST.dataPlantio = document.getElementById('dataPlantio').value;
-    ST.espacamento = document.getElementById('espacamento').value;
+function lerCampos() {
+  ST.prodNome = document.getElementById('prodNome').value;
+  ST.prodCidade = document.getElementById('prodCidade').value;
+  ST.prodTalhao = document.getElementById('prodTalhao').value;
+  ST.prodUltima = document.getElementById('prodUltima').value;
+  ST.prodExpect = document.getElementById('prodExpect').value;
+  ST.safra = document.getElementById('safra').value;
+  ST.dataPlantio = document.getElementById('dataPlantio').value;
+  ST.hibrido = document.getElementById('hibrido').value;
+  ST.adubacao = document.getElementById('adubacao').value;
+  ST.ph = document.getElementById('ph').value;
+  ST.mo = document.getElementById('mo').value;
+  ST.pSolo = document.getElementById('pSolo').value;
+  ST.kSolo = document.getElementById('kSolo').value;
+  ST.caSolo = document.getElementById('caSolo').value;
+  ST.mgSolo = document.getElementById('mgSolo').value;
+  ST.vSolo = document.getElementById('vSolo').value;
+  ST.argilaSolo = document.getElementById('argilaSolo').value;
+  ST.sSolo = document.getElementById('sSolo').value;
+  ST.ctcSolo = document.getElementById('ctcSolo').value;
+  ST.bSolo = document.getElementById('bSolo').value;
+  ST.znSolo = document.getElementById('znSolo').value;
+  ST.cuSolo = document.getElementById('cuSolo').value;
+  ST.mnSolo = document.getElementById('mnSolo').value;
+  ST.feSolo = document.getElementById('feSolo').value;
+  ST.nFoliar = document.getElementById('nFoliar').value;
+  ST.pFoliar = document.getElementById('pFoliar').value;
+  ST.kFoliar = document.getElementById('kFoliar').value;
+  ST.caFoliar = document.getElementById('caFoliar').value;
+  ST.mgFoliar = document.getElementById('mgFoliar').value;
+  ST.sFoliar = document.getElementById('sFoliar').value;
+  ST.bFoliar = document.getElementById('bFoliar').value;
+  ST.znFoliar = document.getElementById('znFoliar').value;
+  ST.cuFoliar = document.getElementById('cuFoliar').value;
+  ST.mnFoliar = document.getElementById('mnFoliar').value;
+  ST.feFoliar = document.getElementById('feFoliar').value;
+  ST.temp = document.getElementById('temp').value;
+  ST.chuva = document.getElementById('chuva').value;
+  ST.diasSemChuva = document.getElementById('diasSemChuva').value;
+  ST.sintomas = document.getElementById('sintomas').value;
+  ST.visivel = getTagsByGroup('visivel');
+  ST.tiposStresse = getTagsByGroup('stress');
+  ST.ocorrencias = getTagsByGroup('ocorr');
+  ST.doencas = getTagsByGroup('doenca');
+}
+
+async function nextStep() {
+  lerCampos();
+  if(ST.step === 4) {
+    // Vai para diagnose e gera laudo de diagnose
+    goTo(5);
+    await gerarDiagnose();
+  } else if(ST.step === 6) {
+    // Vai para laudo final
+    goTo(7);
+    await gerarLaudoFinal();
+  } else {
+    goTo(ST.step + 1);
   }
-  goStep(ST.step+1);
 }
 
-function getChecked(name) {
-  return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(c=>c.value).join(', ') || 'nenhum';
+function renderNav() {
+  const nav = document.getElementById('navBar');
+  const ok = canNext();
+
+  if(ST.step === 5) {
+    nav.innerHTML = `
+      <button class="btn btn-back" onclick="goTo(4)">← Voltar</button>
+      <button class="btn btn-next" onclick="goTo(6)">Objetivos →</button>`;
+    return;
+  }
+  if(ST.step === 7) {
+    nav.innerHTML = `
+      <button class="btn btn-new" onclick="location.reload()">↩ Nova análise</button>
+      <button class="btn btn-wa" onclick="compartilhar()">💬 Compartilhar</button>`;
+    return;
+  }
+
+  const backBtn = ST.step > 0 ? `<button class="btn btn-back" onclick="goTo(${ST.step-1})">← Voltar</button>` : '';
+  const nextLabel = ST.step===4 ? '🔬 Gerar Diagnose →' : ST.step===6 ? '📄 Gerar Laudo →' : 'Avançar →';
+  nav.innerHTML = `${backBtn}<button class="btn btn-next" id="btnNext" onclick="nextStep()" ${ok?'':'disabled'}>${nextLabel}</button>`;
+
+  // Monitorar inputs da etapa atual
+  setTimeout(() => {
+    document.querySelectorAll('#s'+ST.step+' .input, #s'+ST.step+' .textarea').forEach(el => {
+      el.addEventListener('input', updateNav);
+    });
+  }, 100);
 }
 
-function getActiveTags(group) {
-  return [...document.querySelectorAll(`.tag.active`)].filter(t=>t.closest(`[id]`)?.id==='molestiaDetails'||true)
-    .map(t=>t.textContent).join(', ') || 'nenhuma';
-}
+// ─── API ─────────────────────────────────────────────────────────────────────
+async function callAPI(prompt, comFoto=false) {
+  const messages = [];
+  const content = [];
+  if(comFoto && ST.fotoB64) {
+    content.push({type:'image', source:{type:'base64', media_type:'image/jpeg', data:ST.fotoB64}});
+  }
+  content.push({type:'text', text:prompt});
+  messages.push({role:'user', content});
 
-function buildSystemPrompt() {
-  return `Você é um especialista em fisiologia vegetal aplicada ao agronegócio brasileiro, com domínio PhD dos seguintes livros científicos:
-
-1. MARSCHNER, H. Mineral Nutrition of Higher Plants. 3ª ed., 2012. — Referência máxima em nutrição mineral.
-2. TAIZ, L.; ZEIGER, E. Fisiologia Vegetal. 3ª ed. — Base hormonal, hídrica, fotossíntese.
-3. KERBAUY, G.B. Fisiologia Vegetal. 2004. — Fitohormônios, metabolismo, source/sink.
-4. EMBRAPA. Correção do Solo e Adubação da Cultura da Soja. Circular Técnica 33, 1996. — Calagem, P, K, micronutrientes para soja.
-5. EMBRAPA. Adubação do Algodoeiro no Ambiente de Cerrado. Comunicado Técnico 375, 2014. — Nutrição do algodão.
-6. EMBRAPA. Uso de Gesso Agrícola nos Solos do Cerrado. Circular Técnica 32, 2005. — Manejo de subsuperfície, Ca, S.
-7. SOUSA & LOBATO. Fertilidade do Solo. SBCS, 2004. — Fertilidade integrada.
-8. NOVAIS et al. Fertilidade do Solo. Viçosa, 2007. — Base química do solo.
-9. Manual de Calagem e Adubação RS/SC, 2016. — Referência regional sul.
-
-════ BASE CIENTÍFICA OBRIGATÓRIA ════
-
-FITOHORMÔNIOS (Kerbauy / Taiz & Zeiger):
-- AUXINA (AIA): produzida no ápice meristemático, transporte polar basípeto (0,5–1,5 cm/h). Elongação celular via afrouxamento de microfibrilas de celulose. Alta concentração inibe raiz, estimula caule. Síntese mediada por Zn a partir do triptofano.
-- GIBERELINAS (GA3): transporte não polarizado, ubíquo. Induz síntese de amilases na aleurona. Promove elongação caulinar, substitui vernalização/fotoperíodo.
-- CITOCININAS (Zeatina no milho): síntese nas RAÍZES, transporte acrópeto via xilema. Divisão celular, quebra dominância apical (antagonismo AIA). Retardam senescência foliar.
-- ETILENO: hormônio gasoso, difunde sem ATP. Maturação de frutos climatéricos, abscisão, epinastia. Sobe em estresses (lesões, fungos, déficit hídrico).
-- ABA: acumula em déficit hídrico. Fecha estômatos (inibe ATPase, bloqueia influxo K+ nas células-guarda). Induz dormência, acelera senescência.
-- BRASSINOESTERÓIDES: esteróides com ampla gama morfológica.
-- ÁCIDO JASMÔNICO / SALICÍLICO: sinalização de defesa contra patógenos e herbívoros.
-
-DÉFICIT HÍDRICO — sequência Hsiao (Taiz & Zeiger Cap. 5):
-1. Crescimento celular afetado primeiro (–0,1 MPa)
-2. Fechamento estomático
-3. Acúmulo de ABA
-4. Acúmulo de prolina e betaínas (ajuste osmótico)
-5. Redução da fotossíntese
-6. Aumento de etileno
-7. Hidrólise de proteínas → aminoácidos livres
-8. Conversão de amido → açúcares solúveis
-9. Redução absorção de nutrientes (menor fluxo de massa)
-Milho: fase crítica = fertilização (pólen + estilete). Desidratação do pólen reduz fecundação em até 50%.
-
-SOURCE/SINK (Kerbauy Cap. 11):
-- FONTES: folhas maduras (>40–50% expansão), órgãos de reserva em mobilização
-- DRENOS: raízes, ápices, folhas jovens, frutos/vagens/grãos
-- Vegetativo: raízes e ápices = drenos dominantes
-- Reprodutivo: grãos/vagens = drenos dominantes
-- Móveis no floema (sintomas em folhas velhas): N, P, K, Mg, S
-- Imóveis no floema (sintomas em folhas novas): Ca, B, Zn, Fe, Mn, Cu
-
-NUTRIÇÃO MINERAL (Marschner 2012 + Embrapa):
-MACRONUTRIENTES:
-- N: aminoácidos, proteínas, clorofila, ácidos nucleicos. Defic: clorose basal (móvel). Soja: 80 kg N FBN (Bradyrhizobium). Algodão: 60–140 kg N/ha conforme produtividade.
-- P: fosforilação (ATP), membranas. Defic: arroxeamento foliar basal. Soja: 60 kg P₂O₅/ha manutenção (3 t/ha). Algodão: 60–135 kg P₂O₅/ha.
-- K: osmorregulação, ativação enzimática, transporte floema. Defic: necrose bordos basais. Soja: 20 kg K₂O/t grãos. Algodão: 130–210 kg K₂O/ha.
-- Ca: parede celular (pectato Ca), sinalização. Imóvel. Defic: folhas apicais enroladas.
-- Mg: núcleo da clorofila. Móvel. Defic: clorose internerval basal.
-- S: metionina, cisteína. Pouco móvel. Defic: clorose em folhas novas. Gesso: 100–200 kg/ha como fonte de S.
-
-MICRONUTRIENTES:
-- B: elongação celular, formação de pólen, parede celular. Imóvel. Defic: broto apical, vagens deformadas. Dose: 1–3 kg B/ha. Foliar: 0,5–1 kg B/ha × 3 aplicações a partir do florescimento.
-- Zn: síntese AIA via triptofano. Imóvel. Defic: folhas novas pequenas, entrenós curtos. Dose: 4–6 kg Zn/ha ou 2 kg Zn/ha se solo >1,6 mg/dm³.
-- Mn: ativação enzimática, fotólise da água (PSII). Imóvel. Defic: clorose internerval folhas jovens. 2,5–6 kg Mn/ha.
-- Fe: síntese de clorofila. Imóvel. Defic: clorose internerval severa folhas novas.
-- Mo: nitrogenase, redutase nitrato. Defic: margem foliar enrolada (soja = "xícara"). 50–250 g Mo/ha.
-- Co: vitamina B12, essencial para Bradyrhizobium. 50–250 g Co/ha.
-
-GASTO ENERGÉTICO DAS CULTURAS (Taiz & Zeiger):
-- Biossíntese de proteínas: ~5 mol ATP/mol aminoácido
-- Fixação de N₂ (BNF soja): 12–16 mol ATP/mol N₂
-- Enchimento de grãos (amido): 3 mol ATP/mol glicose transferida
-- Divisão celular: elevada demanda de citocinas e ATP
-- Resistência a estresses: 20–40% do metabolismo desviado
-
-CALAGEM (Embrapa Soja 1996):
-- pH ideal soja: 5,5–6,0 / V% = 50%
-- pH ideal algodão: próximo a 6,0 / V% = 60%
-- NC (t/ha) = [(V2-V1) × T] / 100
-- Gesso como corretivo subsuperfície: N.G. (kg/ha) = 50 × argila(%) para culturas anuais
-
-BIOFERTILIZANTES (base dos livros):
-- Aminoácidos livres (prolina, betaína): osmoprotetores em déficit hídrico, ativam mecanismos antioxidantes
-- Extrato de algas (Ascophyllum nodosum): fonte de citocininas naturais, auxinas e betaínas
-- Silício foliar: fortalecimento de parede celular, reduz penetração de fungos
-- Ácido húmico + fúlvico: melhora CTC, disponibilidade de micronutrientes, atividade microbiana
-
-Responda SEMPRE em português brasileiro. Use terminologia técnica precisa. NUNCA cite marcas comerciais — apenas gramas ou kg por hectare do nutriente puro, aminoácido ou princípio ativo. Cite o livro/autor base de cada recomendação.`;
-}
-
-async function fileToBase64(file) {
-  return new Promise((res,rej)=>{
-    const r = new FileReader();
-    r.onload = e => res(e.target.result.split(',')[1]);
-    r.onerror = rej;
-    r.readAsDataURL(file);
+  const resp = await fetch(WORKER_URL, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-6',
+      max_tokens:4000,
+      messages,
+    }),
   });
+
+  const rawText = await resp.text();
+  let data;
+  try { data = JSON.parse(rawText); } catch(e) { throw new Error('Resposta inválida do servidor'); }
+  if(data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+  return data.content?.map(b=>b.text||'').join('')||'';
 }
 
-async function comprimirImagem(base64, mime) {
-  return new Promise((res) => {
-    const img = new window.Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      let w = img.width, h = img.height;
-      const maxSize = 800;
-      if(w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
-      else { w = Math.round(w * maxSize / h); h = maxSize; }
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      // Comprime forte até ficar abaixo de 4MB
-      let quality = 0.6;
-      let result = canvas.toDataURL('image/jpeg', quality).split(',')[1];
-      while(result.length * 0.75 > 4000000 && quality > 0.1) {
-        quality -= 0.1;
-        result = canvas.toDataURL('image/jpeg', quality).split(',')[1];
-      }
-      res(result);
-    };
-    img.src = 'data:' + mime + ';base64,' + base64;
-  });
-}
-
-function buildUserPrompt() {
-  const doencasSel = [...document.querySelectorAll('#molestiaDetails .tag.active')].map(t=>t.textContent).join(', ') || 'nenhuma';
-  const stressesCampo = getChecked('stressCampo');
-  const visivel = getChecked('visivel');
-  const severidade = document.getElementById('severidade')?.value || '';
-  const ph = document.getElementById('ph').value;
-  const mo = document.getElementById('mo').value;
-  const pSolo = document.getElementById('pSolo').value;
-  const kSolo = document.getElementById('kSolo').value;
-  const vSolo = document.getElementById('vSolo').value;
-  const caSolo = document.getElementById('caSolo').value;
-  const mgSolo = document.getElementById('mgSolo').value;
-  const bSolo = document.getElementById('bSolo').value;
-  const znSolo = document.getElementById('znSolo').value;
-  const argila = document.getElementById('argila').value || document.getElementById('argilaCampo').value;
-  const prodEsp = document.getElementById('prodEsp').value;
-  const sistema = document.getElementById('sistema').value;
-  const adubacao = document.getElementById('adubacao').value;
-  const foliarHist = document.getElementById('foliarHist').value;
-  const sintomas = document.getElementById('sintomas').value;
-  const obsCampo = document.getElementById('obsCampo').value;
-  const obsAdic = document.getElementById('obsAdic').value;
-
-  return `Analise todos os dados abaixo e gere um LAUDO FISIOLÓGICO COMPLETO E DETALHADO para esta lavoura. Fundamente cada recomendação nos livros científicos de referência.
-
-━━━ IDENTIFICAÇÃO ━━━
-Cultura: ${ST.cultura.toUpperCase()}
-Município: ${ST.municipio}
-Safra: ${ST.safra}
-Híbrido/Variedade: ${ST.hibrido || 'não informado'}
-Data de plantio: ${ST.dataPlantio || 'não informado'}
-Espaçamento: ${ST.espacamento} cm
-Sistema: ${sistema}
-
-━━━ ESTÁDIO FENOLÓGICO ━━━
-Estádio atual: ${ST.estadioFeno || 'não informado'}
-O que está visível: ${visivel}
-Sintomas visuais: ${sintomas || 'nenhum informado'}
-Planta em estresse: ${ST.estressePlanta ? 'SIM — Tipos: '+ST.tiposEstresse.join(', ') : 'NÃO'}
-
-━━━ CONDIÇÕES DE CAMPO ━━━
-Última chuva (mm): ${document.getElementById('chuva').value || 'não informado'}
-Temperatura (°C): ${document.getElementById('temp').value || 'não informado'}
-Dias sem chuva significativa: ${document.getElementById('diasSemChuva').value || 'não informado'}
-Teor de argila (%): ${argila || 'não informado'}
-Estresse de campo: ${ST.estresseCampo ? 'SIM' : 'NÃO'}
-Estresses/ocorrências: ${stressesCampo}
-Observações campo: ${obsCampo || 'nenhuma'}
-
-━━━ ANÁLISE DE SOLO ━━━
-pH (CaCl₂): ${ph || 'não informado'}
-MO (%): ${mo || 'não informado'}
-P (mg/dm³): ${pSolo || 'não informado'}
-K (cmolc/dm³): ${kSolo || 'não informado'}
-V%: ${vSolo || 'não informado'}
-Ca (cmolc/dm³): ${caSolo || 'não informado'}
-Mg (cmolc/dm³): ${mgSolo || 'não informado'}
-B (mg/dm³): ${bSolo || 'não informado'}
-Zn (mg/dm³): ${znSolo || 'não informado'}
-${ST.soloFiles.length > 0 ? 'ARQUIVO DE ANÁLISE DE SOLO: [em anexo — extraia e use os dados nutricionais]' : ''}
-
-━━━ ANÁLISE FOLIAR ━━━
-Produtividade esperada: ${prodEsp || 'não informado'} sc ou @/ha
-${ST.foliarFiles.length > 0 ? 'ARQUIVO DE ANÁLISE FOLIAR: [em anexo — use para diagnóstico nutricional]' : ''}
-
-━━━ FOTO DA PLANTA ━━━
-${ST.plantaBase64 ? 'IMAGEM ANEXADA: analise visualmente os sintomas, coloração, arquitetura e estado geral da planta.' : 'Sem imagem — basear-se nos dados textuais.'}
-
-━━━ MOLÉSTIA ━━━
-Possui moléstia por doença: ${ST.molestia === true ? 'SIM' : ST.molestia === false ? 'NÃO' : 'NÃO INFORMADO'}
-${ST.molestia ? `Doenças: ${doencasSel} | Severidade: ${severidade}` : ''}
-
-━━━ OBJETIVOS FISIOLÓGICOS ━━━
-${ST.objetivos.join(', ') || 'não informados'}
-
-━━━ HISTÓRICO ━━━
-Adubação de base/cobertura: ${adubacao || 'não informado'}
-Aplicações foliares anteriores: ${foliarHist || 'nenhuma'}
-Observações adicionais: ${obsAdic || 'nenhuma'}
-
-━━━ ESTRUTURA OBRIGATÓRIA DO LAUDO ━━━
-Gere em HTML usando <h3>, <p>, <ul>, <li>, <strong>, <table>, <tr>, <th>, <td>:
-
-<h3>⚗️ 1. Processos Metabólicos e Estádio</h3>
-Em 3-4 linhas: estádio atual, processo dominante (C3/C4), dreno principal (source/sink). Sintomas visíveis se houver imagem.
-
-<h3>🧬 2. Mapa Hormonal</h3>
-Tabela resumida com APENAS 5 hormônios mais relevantes neste estádio: Hormônio | Nível (↑↓→) | Função atual | Impacto do estresse. Seja breve.
-
-<h3>🧪 3. Exigência Nutricional</h3>
-Tabela SOMENTE com: K, Mg, Fe, Zn, Cu, Mn, B. Colunas: Nutriente | Dose (g ou kg/ha elemento puro) | Sintoma de deficiência. Sem marcas.
-
-<h3>⚠️ 4. Diagnóstico de Estresses e Deficiências</h3>
-Diagnóstico diferencial (apical vs basal). Sequência de Hsiao se déficit hídrico. Se moléstia = SIM: nutrição de defesa (Si, Ca, P, K).
-
-<h3>💊 5. Protocolo de Manejo Fisiológico por Objetivo</h3>
-Para cada objetivo selecionado, doses em g/ha ou kg/ha de elemento puro. SEM MARCAS COMERCIAIS.
-
-<h3>🌿 6. Protocolo Anti-Doenças</h3>
-(Se moléstia = SIM): Ca em kg/ha, Si foliar em g/ha, P em kg/ha, Mn em g/ha por estádio.
-
-<h3>📈 7. Potencial de Ganho em Produtividade</h3>
-Com base nas correções recomendadas, calcule o ganho esperado em sc/ha ou @/ha usando literatura (Embrapa, Marschner). Mostre os cálculos de forma didática. Ex: corrigir deficiência de B no florescimento aumenta pegamento em X%, equivalente a Y sc/ha adicionais.
-
-<h3>📅 8. Cronograma — Próximas 2 semanas</h3>
-Tabela: Dia | Nutriente (elemento puro) | Dose (g ou kg/ha) | Via | Justificativa.
-
-Complete todas as 8 seções. Nunca cite marcas comerciais. Use apenas g/ha ou kg/ha de elemento puro. Se dado não informado, estime com base nos disponíveis.`;
-}
-
-async function gerarLaudo() {
-  document.getElementById('laudoInicio').style.display='none';
-  document.getElementById('laudoLoading').style.display='block';
-  document.getElementById('laudoResult').style.display='none';
-
-  // Anima loading
-  const lsIds = ['ls1','ls2','ls3','ls4','ls5','ls6'];
-  let li = 1;
-  loadTimer = setInterval(()=>{
-    if(li>=lsIds.length){clearInterval(loadTimer);return;}
-    document.getElementById(lsIds[li-1]).className='l-step done';
-    document.getElementById(lsIds[li]).className='l-step active';
-    li++;
-  }, 5000);
-
-  const userContent = [];
-
-  // Adiciona imagem da planta se houver (comprimida)
-  if(ST.plantaBase64) {
-    const imgComprimida = await comprimirImagem(ST.plantaBase64, ST.plantaMime||'image/jpeg');
-    userContent.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:imgComprimida}});
-  }
-
-  // Adiciona análise de solo se houver
-  if(ST.soloFiles.length>0) {
-    const f = ST.soloFiles[0];
-    const b64 = await fileToBase64(f);
-    if(f.type==='application/pdf') userContent.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}});
-    else { const comp = await comprimirImagem(b64, f.type); userContent.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:comp}}); }
-  }
-
-  // Adiciona análise foliar se houver
-  if(ST.foliarFiles.length>0) {
-    const f = ST.foliarFiles[0];
-    const b64 = await fileToBase64(f);
-    if(f.type==='application/pdf') userContent.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}});
-    else { const comp = await comprimirImagem(b64, f.type); userContent.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:comp}}); }
-  }
-
-  userContent.push({type:'text',text:buildUserPrompt()});
+// ─── DIAGNOSE ────────────────────────────────────────────────────────────────
+async function gerarDiagnose() {
+  const el = document.getElementById('laudoDiagnose');
+  el.innerHTML = `<div class="loading">
+    <div class="spinner"></div>
+    <h3>Gerando diagnose...</h3>
+    <p>analisando foto e dados da planta</p>
+    <div class="loading-steps">
+      <div class="ls done"><div class="ls-dot"></div>Dados coletados</div>
+      <div class="ls cur"><div class="ls-dot"></div>Analisando estádio e processos</div>
+      <div class="ls"><div class="ls-dot"></div>Mapeando hormônios</div>
+      <div class="ls"><div class="ls-dot"></div>Calculando exigência nutricional</div>
+    </div>
+  </div>`;
 
   try {
-    const resp = await fetch('https://agrofisio-api.fisioagri.workers.dev',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-6',
-        max_tokens:16000,
-        system:buildSystemPrompt(),
-        messages:[{role:'user',content:userContent}]
-      })
-    });
-    const rawText = await resp.text();
-    clearInterval(loadTimer);
-    let data;
-    try { data = JSON.parse(rawText); } catch(e) { throw new Error('JSON inválido: ' + rawText.substring(0,100)); }
-    if(data.error) throw new Error('API erro: ' + (data.error.message || JSON.stringify(data.error)));
-    let text = '';
-    if(data.content && Array.isArray(data.content)) {
-      text = data.content.map(b => b.text || '').join('');
-    }
-    if(!text) throw new Error('Sem conteúdo: ' + JSON.stringify(data).substring(0,200));
-    ST.laudo = text;
-    mostrarLaudo(text);
+    const prompt = `Você é especialista em fisiologia vegetal (base: Marschner 2012, Taiz & Zeiger, Kerbauy, Embrapa).
+
+DADOS DA LAVOURA:
+Produtor: ${ST.prodNome} | Cidade: ${ST.prodCidade} | Talhão: ${ST.prodTalhao}
+Cultura: ${ST.cultura} | Safra: ${ST.safra} | Híbrido: ${ST.hibrido}
+Expectativa: ${ST.prodExpect} sc/ha | Última prod.: ${ST.prodUltima} sc/ha
+Adubação: ${ST.adubacao}
+Estádio: ${ST.estadio}
+O que está na foto: ${ST.visivel.join(', ')||'não informado'}
+Temperatura: ${ST.temp}°C | Chuva: ${ST.chuva}mm | Dias sem chuva: ${ST.diasSemChuva}
+Estresse: ${ST.stresse?'SIM — '+ST.tiposStresse.join(', '):'NÃO'}
+Ocorrências: ${ST.ocorrencias.join(', ')||'nenhuma'}
+Sintomas visuais: ${ST.sintomas||'nenhum'}
+Moléstia: ${ST.molestia===true?'SIM — '+ST.doencas.join(', '):ST.molestia===false?'NÃO':'não informado'}
+
+ANÁLISE DE SOLO: pH=${ST.ph||'nd'}, MO=${ST.mo||'nd'}%, P=${ST.pSolo||'nd'}, K=${ST.kSolo||'nd'}, Ca=${ST.caSolo||'nd'}, Mg=${ST.mgSolo||'nd'}, V=${ST.vSolo||'nd'}%, B=${ST.bSolo||'nd'}, Zn=${ST.znSolo||'nd'}, Cu=${ST.cuSolo||'nd'}, Mn=${ST.mnSolo||'nd'}, Fe=${ST.feSolo||'nd'}
+
+ANÁLISE FOLIAR: N=${ST.nFoliar||'nd'}, P=${ST.pFoliar||'nd'}, K=${ST.kFoliar||'nd'}, Ca=${ST.caFoliar||'nd'}, Mg=${ST.mgFoliar||'nd'}, B=${ST.bFoliar||'nd'}, Zn=${ST.znFoliar||'nd'}, Cu=${ST.cuFoliar||'nd'}, Mn=${ST.mnFoliar||'nd'}, Fe=${ST.feFoliar||'nd'}
+
+${ST.fotoB64?'FOTO ANEXADA: analise visualmente os sintomas, coloração e estado geral da planta.':''}
+
+Gere uma DIAGNOSE FISIOLÓGICA RESUMIDA com exatamente 3 seções em HTML:
+
+<h3>⚗️ Processos Metabólicos Ativos</h3>
+Em 4-5 linhas: processo dominante neste estádio, relação source/sink, taxa fotossintética, principais demandas metabólicas. Cite o livro base.
+
+<h3>🧬 Mapa Hormonal</h3>
+Tabela com 5 hormônios mais relevantes: <table><tr><th>Hormônio</th><th>Nível</th><th>Função atual</th><th>Impacto do estresse</th></tr>...</table>
+
+<h3>🧪 Exigência Nutricional Prioritária</h3>
+Tabela apenas com K, Mg, Fe, Zn, Cu, Mn, B: <table><tr><th>Nutriente</th><th>Dose (g ou kg/ha)</th><th>Sintoma de deficiência</th></tr>...</table>
+Use APENAS elemento puro em g/ha ou kg/ha. NUNCA cite marcas.
+
+${ST.stresse?'<h3>⚠️ Diagnose de Estresse</h3>\nDescreva o tipo de estresse, fase na sequência de Hsiao (se hídrico), impacto hormonal e nutricional em 4-5 linhas.':''}
+
+Seja técnico e conciso. Não repita dados já fornecidos.`;
+
+    const texto = await callAPI(prompt, true);
+    el.innerHTML = `
+      <div class="laudo-header">
+        <h2>🔬 Diagnose — ${ST.cultura.toUpperCase()}</h2>
+        <p>${ST.prodNome} · ${ST.prodCidade} · Estádio ${ST.estadio}</p>
+        <span class="laudo-badge">📚 Taiz & Zeiger · Kerbauy · Marschner (2012)</span>
+      </div>
+      <div class="card"><div class="laudo-body">${texto}</div></div>`;
   } catch(e) {
-    clearInterval(loadTimer);
-    document.getElementById('laudoLoading').style.display='none';
-    document.getElementById('laudoResult').style.display='block';
-    document.getElementById('laudoContent').innerHTML=`<div class="error-box"><strong>⚠️ Erro</strong><br>${e.message}<br>Verifique sua conexão.</div>`;
+    el.innerHTML = `<div class="card" style="border-color:var(--r1)"><p style="color:var(--r1)">⚠️ Erro: ${e.message}</p></div>`;
   }
 }
 
-function mostrarLaudo(text) {
-  document.getElementById('laudoLoading').style.display='none';
-  document.getElementById('laudoResult').style.display='block';
-  const emoji = {soja:'🫘',milho:'🌽',feijao:'🫛',trigo:'🌾',algodao:'☁️'}[ST.cultura]||'🌱';
-  const nm = ST.cultura.charAt(0).toUpperCase()+ST.cultura.slice(1);
-  document.getElementById('laudoContent').innerHTML=`
-    <div class="result-header">
-      <h2>${emoji} Laudo Fisiológico — ${nm}</h2>
-      <p>${ST.municipio} · Safra ${ST.safra} · ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}</p>
-      <div class="stadium-badge">📚 Taiz & Zeiger · Kerbauy · Marschner (2012) · Embrapa</div>
+// ─── LAUDO FINAL ─────────────────────────────────────────────────────────────
+async function gerarLaudoFinal() {
+  const el = document.getElementById('laudoFinal');
+  el.innerHTML = `<div class="loading">
+    <div class="spinner"></div>
+    <h3>Gerando protocolo...</h3>
+    <p>montando manejo fisiológico completo</p>
+    <div class="loading-steps">
+      <div class="ls done"><div class="ls-dot"></div>Diagnose concluída</div>
+      <div class="ls done"><div class="ls-dot"></div>Objetivos selecionados</div>
+      <div class="ls cur"><div class="ls-dot"></div>Montando protocolo de manejo</div>
+      <div class="ls"><div class="ls-dot"></div>Calculando ganho em produtividade</div>
+      <div class="ls"><div class="ls-dot"></div>Elaborando cronograma</div>
     </div>
-    <div class="card"><div class="prose-result">${text}</div></div>`;
+  </div>`;
+
+  try {
+    const prompt = `Você é especialista em fisiologia vegetal (base: Marschner 2012, Taiz & Zeiger, Kerbauy, Embrapa).
+
+DADOS:
+Produtor: ${ST.prodNome} | ${ST.prodCidade} | Talhão: ${ST.prodTalhao}
+Cultura: ${ST.cultura} | Safra: ${ST.safra} | Híbrido: ${ST.hibrido}
+Estádio: ${ST.estadio} | Expectativa: ${ST.prodExpect} sc/ha
+Adubação realizada: ${ST.adubacao}
+Estresse: ${ST.stresse?'SIM — '+ST.tiposStresse.join(', '):'NÃO'}
+Moléstia: ${ST.molestia===true?'SIM — '+ST.doencas.join(', '):'NÃO'}
+Ocorrências: ${ST.ocorrencias.join(', ')||'nenhuma'}
+Solo: pH=${ST.ph||'nd'}, K=${ST.kSolo||'nd'}, Mg=${ST.mgSolo||'nd'}, B=${ST.bSolo||'nd'}, Zn=${ST.znSolo||'nd'}, Fe=${ST.feSolo||'nd'}, Mn=${ST.mnSolo||'nd'}, Cu=${ST.cuSolo||'nd'}
+Foliar: K=${ST.kFoliar||'nd'}, Mg=${ST.mgFoliar||'nd'}, B=${ST.bFoliar||'nd'}, Zn=${ST.znFoliar||'nd'}, Fe=${ST.feFoliar||'nd'}
+OBJETIVOS SELECIONADOS: ${ST.objetivos.join(', ')}
+
+Gere o PROTOCOLO FISIOLÓGICO com exatamente 3 seções em HTML:
+
+<h3>💊 Protocolo de Manejo por Objetivo</h3>
+Para cada objetivo selecionado, crie uma sub-seção com:
+- Nome do manejo (extrato de algas, aminoácidos: prolina/betaína/glicina, silício, K, Mg, Fe, Zn, Cu, Mn, B, ácido húmico/fúlvico)
+- Justificativa fisiológica em 2 linhas
+- NUNCA cite marcas comerciais, apenas o princípio ativo ou elemento
+
+<h3>📈 Potencial de Ganho em Produtividade</h3>
+Com base nas correções recomendadas e na literatura (Embrapa, Marschner), calcule o ganho esperado em sc/ha de forma didática. Exemplo: "Correção de deficiência de B no florescimento → aumento de 8-12% no pegamento → +4 a 6 sc/ha". Mostre 3-4 correções com seus ganhos estimados e o ganho total possível.
+
+<h3>📅 Cronograma — Próximas 2 semanas</h3>
+Tabela: <table><tr><th>Dia</th><th>Manejo</th><th>Princípio ativo</th><th>Via</th><th>Justificativa</th></tr>...</table>
+
+${ST.molestia?'<h3>🌿 Protocolo Anti-Doenças</h3>\nNutrição de defesa: Si foliar, Ca, P, Mn em doses em g/ha ou kg/ha elemento puro. Estratégia por estádio em 4-5 linhas.':''}
+
+REGRAS: NUNCA cite marcas. Apenas princípio ativo, elemento puro ou produto genérico (ex: extrato de algas, aminoácidos). Use g/ha ou kg/ha para nutrientes.`;
+
+    const texto = await callAPI(prompt, false);
+    el.innerHTML = `
+      <div class="laudo-header">
+        <h2>📄 Protocolo Fisiológico</h2>
+        <p>${ST.prodNome} · ${ST.cultura.toUpperCase()} · Estádio ${ST.estadio}</p>
+        <span class="laudo-badge">📚 Base: Marschner · Taiz & Zeiger · Kerbauy · Embrapa</span>
+      </div>
+      <div class="card"><div class="laudo-body">${texto}</div></div>`;
+    ST.laudoTexto = el.innerText;
+  } catch(e) {
+    el.innerHTML = `<div class="card" style="border-color:var(--r1)"><p style="color:var(--r1)">⚠️ Erro: ${e.message}</p></div>`;
+  }
 }
 
-function copiarLaudo() {
-  const texto = document.querySelector('.prose-result')?.innerText || ST.laudo;
-  navigator.clipboard.writeText(texto).then(()=>alert('Laudo copiado!'));
+async function compartilhar() {
+  const texto = `🌱 PROTOCOLO FISIOLÓGICO — ${ST.cultura.toUpperCase()}\n\n` +
+    `Produtor: ${ST.prodNome} | ${ST.prodCidade}\n` +
+    `Safra: ${ST.safra} | Estádio: ${ST.estadio}\n` +
+    `Expectativa: ${ST.prodExpect} sc/ha\n\n` +
+    `${ST.laudoTexto||'Laudo gerado pelo AgroFísio v4.0'}\n\n` +
+    `— AgroFísio v4.0`;
+  try {
+    if(navigator.share) {
+      await navigator.share({title:'Laudo AgroFísio', text:texto});
+    } else {
+      await navigator.clipboard.writeText(texto);
+      alert('Laudo copiado! Cole no WhatsApp ou onde preferir.');
+    }
+  } catch(e) { alert('Use o botão de copiar do seu navegador.'); }
 }
 
-function novaAnalise() {
-  ST = {step:0,cultura:'',municipio:'',safra:'',hibrido:'',dataPlantio:'',espacamento:'',soloFiles:[],foliarFiles:[],plantaBase64:'',plantaMime:'',estadioFeno:'',estressePlanta:false,tiposEstresse:[],molestia:null,doencas:[],objetivos:[],estresseCampo:false,laudo:''};
-  document.getElementById('laudoInicio').style.display='block';
-  document.getElementById('laudoResult').style.display='none';
-  document.getElementById('laudoLoading').style.display='none';
-  document.querySelectorAll('.crop-pill').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('input[type=checkbox]').forEach(c=>c.checked=false);
-  document.querySelectorAll('.tag').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.obj-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('previewPlanta').style.display='none';
-  document.getElementById('soloList').innerHTML='';
-  document.getElementById('foliarList').innerHTML='';
-  ['municipio','safra','hibrido','espacamento','ph','mo','pSolo','kSolo','vSolo','caSolo','mgSolo','bSolo','znSolo','argila','prodEsp','sintomas','adubacao','foliarHist','obsAdic','chuva','temp','diasSemChuva','argilaCampo','obsCampo'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el) el.value='';
-  });
-  setStress(false);
-  setCampStress(false);
-  ST.molestia=null;
-  document.getElementById('molYes').classList.remove('active');
-  document.getElementById('molNo').classList.remove('active');
-  document.getElementById('molestiaDetails').style.display='none';
-  goStep(0);
-}
-
+// ─── START ────────────────────────────────────────────────────────────────────
 init();
+
+// Monitorar campos obrigatórios em tempo real
+document.addEventListener('input', updateNav);
+document.addEventListener('change', updateNav);
 </script>
 </body>
 </html>
