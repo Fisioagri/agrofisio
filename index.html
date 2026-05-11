@@ -838,16 +838,19 @@ async function comprimirImagem(base64, mime) {
     img.onload = () => {
       const canvas = document.createElement('canvas');
       let w = img.width, h = img.height;
-      // Reduz até caber em 4MB
-      const maxSize = 1200;
-      if(w > maxSize || h > maxSize) {
-        if(w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
-        else { w = Math.round(w * maxSize / h); h = maxSize; }
-      }
+      const maxSize = 800;
+      if(w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+      else { w = Math.round(w * maxSize / h); h = maxSize; }
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      const compressed = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
-      res(compressed);
+      // Comprime forte até ficar abaixo de 4MB
+      let quality = 0.6;
+      let result = canvas.toDataURL('image/jpeg', quality).split(',')[1];
+      while(result.length * 0.75 > 4000000 && quality > 0.1) {
+        quality -= 0.1;
+        result = canvas.toDataURL('image/jpeg', quality).split(',')[1];
+      }
+      res(result);
     };
     img.src = 'data:' + mime + ';base64,' + base64;
   });
