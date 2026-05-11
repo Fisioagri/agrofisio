@@ -1005,8 +1005,10 @@ async function gerarLaudo() {
     });
     const data = await resp.json();
     clearInterval(loadTimer);
+    // Mostrar erro detalhado da API se houver
+    if(data.error) throw new Error('API: ' + JSON.stringify(data.error));
     const text = data.content?.map(b=>b.text||'').join('')||'';
-    if(!text) throw new Error('Resposta vazia da API');
+    if(!text) throw new Error('Resposta vazia — API retornou: ' + JSON.stringify(data).substring(0,200));
     ST.laudo = text;
     mostrarLaudo(text);
   } catch(e) {
