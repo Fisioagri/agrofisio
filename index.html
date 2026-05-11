@@ -939,41 +939,33 @@ Observações adicionais: ${obsAdic || 'nenhuma'}
 ━━━ ESTRUTURA OBRIGATÓRIA DO LAUDO ━━━
 Gere em HTML usando <h3>, <p>, <ul>, <li>, <strong>, <table>, <tr>, <th>, <td>:
 
-<h3>🌿 1. Diagnóstico Geral e Estádio Fenológico</h3>
-Identifique o estádio com suas características morfológicas. Descreva a relação source/sink predominante (Kerbauy Cap. 11). Se houver imagem, analise visualmente os sintomas.
+<h3>⚗️ 1. Processos Metabólicos Ativos e Estádio</h3>
+Identifique o estádio e liste os processos metabólicos ativos: fotossíntese (C3 vs C4), síntese proteica, relação source/sink. Se houver imagem, analise os sintomas. Base: Taiz & Zeiger, Kerbauy.
 
-<h3>⚗️ 2. Processos Metabólicos Ativos</h3>
-Liste processos em curso: taxa fotossintética (C3 vs C4), síntese proteica, acúmulo de reservas, divisão celular, elongação. Base: Taiz & Zeiger Cap. 7, 8, 12.
-
-<h3>🧬 3. Mapa Hormonal Didático</h3>
-Tabela HTML: Hormônio | Nível atual (↑ Alta / → Moderada / ↓ Baixa) | Função neste estádio | Impacto do estresse detectado.
+<h3>🧬 2. Mapa Hormonal Didático</h3>
+Tabela HTML: Hormônio | Nível (↑↓→) | Função neste estádio | Impacto do estresse.
 Cubra: AIA, GA3, Citocininas, Etileno, ABA, Brassinoesteróides, AJ/AS. Base: Kerbauy Cap. 14-15.
 
-<h3>🧪 4. Exigência Nutricional (g ou kg/ha por elemento puro)</h3>
-Tabela HTML com colunas: Nutriente | Demanda atual (g ou kg/ha elemento puro) | Função fisiológica neste estádio | Mobilidade no floema | Sintoma de deficiência.
-NUNCA use marcas. Use apenas o elemento puro (ex: "150 g B/ha", "5 kg Zn/ha"). Base: Marschner (2012) + Embrapa.
+<h3>🧪 3. Exigência Nutricional (g ou kg/ha por elemento puro)</h3>
+Tabela HTML: Nutriente | Dose (g ou kg/ha) | Função | Mobilidade | Sintoma deficiência.
+NUNCA use marcas. Apenas elemento puro. Base: Marschner (2012) + Embrapa.
 
-<h3>⚠️ 5. Diagnóstico de Estresses e Deficiências</h3>
-Diagnóstico diferencial de deficiências (nutriente, sintoma, localização na planta — apical vs basal). Impacto do déficit hídrico — em qual etapa da sequência de Hsiao está? Impacto hormonal (ABA, etileno). Se moléstia = SIM: diagnóstico de infecção, nutrição de defesa (Si, Ca, P, K, SA).
+<h3>⚠️ 4. Diagnóstico de Estresses e Deficiências</h3>
+Diagnóstico diferencial (apical vs basal). Sequência de Hsiao se déficit hídrico. Se moléstia = SIM: nutrição de defesa (Si, Ca, P, K).
 
-<h3>💊 6. Protocolo de Manejo Fisiológico por Objetivo</h3>
-Para cada objetivo selecionado, gere sub-seção com:
-— Manejo pré-estresse: aminoácidos (prolina, betaína) em g/ha, timing
-— Defesa celular: antioxidantes, poliaminas, vitamina E vegetal — g/ha
-— Desenvolvimento radicular: auxinas endógenas, Zn em g/ha (síntese AIA), Ca subsuperfície
-— Diminuição de entrenós: inibidores de GA3, CCC equivalentes, modo de ação
-— Florescimento/pegamento: B em g/ha, Mo em g/ha, Co em g/ha, boro via foliar
-— Enchimento de grãos: K em kg/ha, Mg em kg/ha, N orgânico em kg/ha
-— Qualidade: S em kg/ha, Zn em g/ha para proteínas
-TODAS AS DOSES EM g/ha OU kg/ha DE ELEMENTO PURO — SEM MARCAS COMERCIAIS.
+<h3>💊 5. Protocolo de Manejo Fisiológico por Objetivo</h3>
+Para cada objetivo selecionado, doses em g/ha ou kg/ha de elemento puro. SEM MARCAS COMERCIAIS.
 
-<h3>🌿 7. Protocolo Anti-Doenças</h3>
-(Se moléstia = SIM ou estresse biótico informado): Ca (fortalecimento parede celular) em kg/ha, Si foliar em g/ha, P em kg/ha (sinalização SA), Mn em g/ha. Estratégia nutricional de defesa por estádio.
+<h3>🌿 6. Protocolo Anti-Doenças</h3>
+(Se moléstia = SIM): Ca em kg/ha, Si foliar em g/ha, P em kg/ha, Mn em g/ha por estádio.
 
-<h3>📅 8. Cronograma de Aplicações — Próximas 2 semanas</h3>
-Tabela: Dia | Produto/nutriente | Dose (g ou kg/ha elemento puro) | Via de aplicação | Justificativa fisiológica.
+<h3>📈 7. Potencial de Ganho em Produtividade</h3>
+Com base nas correções recomendadas, calcule o ganho esperado em sc/ha ou @/ha usando literatura (Embrapa, Marschner). Mostre os cálculos de forma didática. Ex: corrigir deficiência de B no florescimento aumenta pegamento em X%, equivalente a Y sc/ha adicionais.
 
-Seja rigorosamente técnico, cite os livros de referência para cada recomendação, e nunca mencione marcas comerciais. IMPORTANTE: complete TODAS as 9 seções sem interrupção. Não emita alertas, avisos ou mensagens de atenção no meio do laudo. Se algum dado não foi informado, estime com base nos dados disponíveis e indique a estimativa entre parênteses.`;
+<h3>📅 8. Cronograma — Próximas 2 semanas</h3>
+Tabela: Dia | Nutriente (elemento puro) | Dose (g ou kg/ha) | Via | Justificativa.
+
+Complete todas as 8 seções. Nunca cite marcas comerciais. Use apenas g/ha ou kg/ha de elemento puro. Se dado não informado, estime com base nos disponíveis.`;
 }
 
 async function gerarLaudo() {
