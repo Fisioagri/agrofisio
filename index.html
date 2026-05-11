@@ -832,6 +832,27 @@ async function fileToBase64(file) {
   });
 }
 
+async function comprimirImagem(base64, mime) {
+  return new Promise((res) => {
+    const img = new window.Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      // Reduz até caber em 4MB
+      const maxSize = 1200;
+      if(w > maxSize || h > maxSize) {
+        if(w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+        else { w = Math.round(w * maxSize / h); h = maxSize; }
+      }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+      res(compressed);
+    };
+    img.src = 'data:' + mime + ';base64,' + base64;
+  });
+}
+
 function buildUserPrompt() {
   const doencasSel = [...document.querySelectorAll('#molestiaDetails .tag.active')].map(t=>t.textContent).join(', ') || 'nenhuma';
   const stressesCampo = getChecked('stressCampo');
@@ -969,9 +990,10 @@ async function gerarLaudo() {
 
   const userContent = [];
 
-  // Adiciona imagem da planta se houver
+  // Adiciona imagem da planta se houver (comprimida)
   if(ST.plantaBase64) {
-    userContent.push({type:'image',source:{type:'base64',media_type:ST.plantaMime||'image/jpeg',data:ST.plantaBase64}});
+    const imgComprimida = await comprimirImagem(ST.plantaBase64, ST.plantaMime||'image/jpeg');
+    userContent.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:imgComprimida}});
   }
 
   // Adiciona análise de solo se houver
