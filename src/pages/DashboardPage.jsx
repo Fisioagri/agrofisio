@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import AppLayout from '../layouts/AppLayout'
 import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../contexts/LanguageContext'
-import { listLaudos } from '../services/laudoService'
+import { listLaudos, deleteLaudo } from '../services/laudoService'
 import Spinner from '../components/ui/Spinner'
 
 const CROP_ICO = { soja: '🫘', milho: '🌽', feijao: '🫛' }
@@ -12,8 +12,9 @@ export default function DashboardPage() {
   const { profile } = useAuth()
   const { t, lang } = useLanguage()
   const navigate = useNavigate()
-  const [laudos, setLaudos]   = useState([])
-  const [loading, setLoading] = useState(true)
+  const [laudos, setLaudos]     = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [deleting, setDeleting] = useState(null)
 
   useEffect(() => {
     listLaudos()
@@ -21,6 +22,18 @@ export default function DashboardPage() {
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
+
+  async function handleDelete(e, id) {
+    e.stopPropagation()
+    const msg = lang === 'en'
+      ? 'Delete this report?'
+      : 'Excluir este laudo?'
+    if (!window.confirm(msg)) return
+    setDeleting(id)
+    await deleteLaudo(id).catch(() => {})
+    setLaudos(prev => prev.filter(l => l.id !== id))
+    setDeleting(null)
+  }
 
   return (
     <AppLayout>
@@ -76,17 +89,27 @@ export default function DashboardPage() {
                       {(l.cultura || '').toUpperCase()} · Estádio {l.estadio} · Safra {l.safra}
                     </p>
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="font-mono text-[10px] text-ink-400">
-                      {new Date(l.created_at).toLocaleDateString(lang === 'en' ? 'en-US' : 'pt-BR', {
-                        day: '2-digit', month: 'short'
-                      })}
-                    </p>
-                    <p className="font-mono text-[10px] text-ink-300 mt-0.5">
-                      {new Date(l.created_at).toLocaleTimeString(lang === 'en' ? 'en-US' : 'pt-BR', {
-                        hour: '2-digit', minute: '2-digit'
-                      })}
-                    </p>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="text-right">
+                      <p className="font-mono text-[10px] text-ink-400">
+                        {new Date(l.created_at).toLocaleDateString(lang === 'en' ? 'en-US' : 'pt-BR', {
+                          day: '2-digit', month: 'short'
+                        })}
+                      </p>
+                      <p className="font-mono text-[10px] text-ink-300 mt-0.5">
+                        {new Date(l.created_at).toLocaleTimeString(lang === 'en' ? 'en-US' : 'pt-BR', {
+                          hour: '2-digit', minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+                    <button
+                      onClick={e => handleDelete(e, l.id)}
+                      disabled={deleting === l.id}
+                      className="w-7 h-7 flex items-center justify-center rounded-md text-ink-300
+                        hover:text-danger-600 hover:bg-danger-50 transition-colors"
+                    >
+                      {deleting === l.id ? '…' : '🗑'}
+                    </button>
                   </div>
                 </button>
               ))}
