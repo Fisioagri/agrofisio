@@ -1,5 +1,11 @@
 const WORKER_URL = import.meta.env.VITE_WORKER_URL
 
+const RETRY_DELAYS = [8000, 15000, 25000] // ms entre tentativas
+
+async function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms))
+}
+
 export async function callClaude(prompt, imageB64 = null, maxTokens = 4000) {
   const content = []
 
@@ -11,25 +17,49 @@ export async function callClaude(prompt, imageB64 = null, maxTokens = 4000) {
   }
   content.push({ type: 'text', text: prompt })
 
-  const resp = await fetch(WORKER_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: maxTokens,
-      messages: [{ role: 'user', content }],
-    }),
+  const body = JSON.stringify({
+    model: 'claude-sonnet-4-6',
+    max_tokens: maxTokens,
+    messages: [{ role: 'user', content }],
   })
 
-  const rawText = await resp.text()
-  let data
-  try {
-    data = JSON.parse(rawText)
-  } catch {
-    const preview = rawText.slice(0, 120)
-    throw new Error(`Servidor retornou resposta inválida (HTTP ${resp.status}): ${preview}`)
+  let lastError
+  for (let attempt = 0; attempt <= RETRY_DELAYS.length; attempt++) {
+    if (attempt > 0) {
+      await sleep(RETRY_DELAYS[attempt - 1])
+    }
+
+    let resp
+    try {
+      resp = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+      })
+    } catch (e) {
+      lastError = new Error('Falha na conexão: ' + e.message)
+      continue
+    }
+
+    const rawText = await resp.text()
+    let data
+    try {
+      data = JSON.parse(rawText)
+    } catch {
+      const preview = rawText.slice(0, 120)
+      lastError = new Error(`Servidor retornou resposta inválida (HTTP ${resp.status}): ${preview}`)
+      continue
+    }
+
+    if (data.error) {
+      const isOverloaded = data.error.type === 'overloaded_error' || resp.status === 529
+      lastError = new Error(data.error.message || JSON.stringify(data.error))
+      if (isOverloaded && attempt < RETRY_DELAYS.length) continue
+      throw lastError
+    }
+
+    return data.content?.map(b => b.text || '').join('') || ''
   }
 
-  if (data.error) throw new Error(data.error.message || JSON.stringify(data.error))
-  return data.content?.map(b => b.text || '').join('') || ''
+  throw lastError
 }
