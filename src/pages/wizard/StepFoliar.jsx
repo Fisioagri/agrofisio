@@ -1,7 +1,10 @@
+import { useState } from 'react'
 import { useWizard } from '../../hooks/useWizard'
+import { useLanguage } from '../../contexts/LanguageContext'
 import Card from '../../components/ui/Card'
 import InfoBox from '../../components/ui/InfoBox'
 import NutrientsGrid from '../../components/NutrientsGrid'
+import AnalysisPhotoUpload from '../../components/AnalysisPhotoUpload'
 
 const MACRO = [
   { id: 'nFoliar',  label: 'N (g/kg)',  placeholder: 'Ref: 40-50',  step: '0.1' },
@@ -23,26 +26,63 @@ const MICRO = [
 
 export default function StepFoliar() {
   const { data, update } = useWizard()
+  const { t } = useLanguage()
+  const f = t.foliar
+  const [tab, setTab] = useState('photo')
+
+  function handleFill(extracted) {
+    update(extracted)
+    setTab('manual')
+  }
 
   return (
     <>
       <div className="mb-4">
-        <h2 className="font-display font-bold text-xl text-brand-900">Análise Foliar</h2>
-        <p className="font-mono text-[11px] text-ink-400 mt-0.5">opcional — dados do estado nutricional da planta</p>
+        <h2 className="font-display font-bold text-xl text-brand-900">{f.title}</h2>
+        <p className="font-mono text-[11px] text-ink-400 mt-0.5">{f.subtitle}</p>
       </div>
 
-      <InfoBox>
-        🍃 Coleta: 30-50 folhas da 4ª-5ª posição a partir do ápice, no florescimento pleno.
-        Referência: laborsolo.com.br/laudo/quimica-de-solo
-      </InfoBox>
+      <TabSwitcher tab={tab} onChange={setTab} labels={[f.photoTab, f.manualTab]} />
 
-      <Card title="🌿 Macronutrientes Foliares (g/kg)">
-        <NutrientsGrid fields={MACRO} values={data} onChange={(id, v) => update({ [id]: v })} />
-      </Card>
+      {tab === 'photo' && (
+        <Card title={f.photoCard}>
+          <AnalysisPhotoUpload type="foliar" onFill={handleFill} />
+        </Card>
+      )}
 
-      <Card title="🔬 Micronutrientes Foliares (mg/kg)">
-        <NutrientsGrid fields={MICRO} values={data} onChange={(id, v) => update({ [id]: v })} />
-      </Card>
+      {tab === 'manual' && (
+        <>
+          <InfoBox>{f.info}</InfoBox>
+          <Card title={f.cardMacro}>
+            <NutrientsGrid fields={MACRO} values={data} onChange={(id, v) => update({ [id]: v })} />
+          </Card>
+          <Card title={f.cardMicro}>
+            <NutrientsGrid fields={MICRO} values={data} onChange={(id, v) => update({ [id]: v })} />
+          </Card>
+        </>
+      )}
     </>
+  )
+}
+
+function TabSwitcher({ tab, onChange, labels }) {
+  const tabs = [
+    { id: 'photo',  label: labels[0] },
+    { id: 'manual', label: labels[1] },
+  ]
+  return (
+    <div className="flex gap-1 bg-surface-border rounded-card p-1 mb-4">
+      {tabs.map(t => (
+        <button
+          key={t.id}
+          type="button"
+          onClick={() => onChange(t.id)}
+          className={`flex-1 py-2 rounded-sm font-mono text-xs transition-all
+            ${tab === t.id ? 'bg-white shadow-sm text-brand-900 font-semibold' : 'text-ink-400 hover:text-ink-600'}`}
+        >
+          {t.label}
+        </button>
+      ))}
+    </div>
   )
 }

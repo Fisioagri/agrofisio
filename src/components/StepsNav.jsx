@@ -1,8 +1,10 @@
 import { useWizard } from '../hooks/useWizard'
+import { useLanguage } from '../contexts/LanguageContext'
 import { STEPS } from '../constants/wizard'
 
 export default function StepsNav() {
   const { step, setStep } = useWizard()
+  const { t } = useLanguage()
 
   return (
     <nav className="bg-white border-b border-surface-border px-2 overflow-x-auto flex [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -26,7 +28,7 @@ export default function StepsNav() {
               ${!isActive && !isDone ? 'bg-surface-border text-ink-400' : ''}`}>
               {s.id + 1}
             </span>
-            {s.ico} {s.lbl}
+            {s.ico} {t.steps[s.id]}
           </button>
         )
       })}

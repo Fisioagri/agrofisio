@@ -1,4 +1,8 @@
+import { useLanguage } from '../contexts/LanguageContext'
+
 export default function BoolSelect({ value, onChange, children }) {
+  const { t } = useLanguage()
+
   return (
     <div>
       <div className="flex gap-2.5">
@@ -10,7 +14,7 @@ export default function BoolSelect({ value, onChange, children }) {
               ? 'border-brand-700 bg-brand-100 text-brand-900'
               : 'border-surface-border bg-surface-input text-ink-600'}`}
         >
-          ✅ Sim
+          {t.boolSelect.yes}
         </button>
         <button
           type="button"
@@ -20,7 +24,7 @@ export default function BoolSelect({ value, onChange, children }) {
               ? 'border-danger-600 bg-danger-50 text-danger-600'
               : 'border-surface-border bg-surface-input text-ink-600'}`}
         >
-          ❌ Não
+          {t.boolSelect.no}
         </button>
       </div>
       {value === true && children && (

@@ -1,6 +1,9 @@
+import { useLanguage } from '../contexts/LanguageContext'
 import { OBJETIVOS_DEF } from '../constants/wizard'
 
 export default function ObjectivesGrid({ estadio, selected, onChange }) {
+  const { lang, t } = useLanguage()
+
   function toggle(id) {
     const next = selected.includes(id)
       ? selected.filter(x => x !== id)
@@ -13,7 +16,12 @@ export default function ObjectivesGrid({ estadio, selected, onChange }) {
       {OBJETIVOS_DEF.map(o => {
         const available = o.fases.length === 0 || o.fases.includes(estadio) || !estadio
         const isSel = selected.includes(o.id)
-        const phaseLabel = o.fases.length === 0 ? 'Todo o ciclo' : `${o.fases[0]}→${o.fases[o.fases.length - 1]}`
+        const phaseLabel = o.fases.length === 0
+          ? (lang === 'en' ? 'Full cycle' : 'Todo o ciclo')
+          : `${o.fases[0]}→${o.fases[o.fases.length - 1]}`
+
+        const label = t.objetivos.objs[o.id]?.t || o.t
+        const desc  = t.objetivos.objs[o.id]?.d || o.d
 
         return (
           <button
@@ -26,9 +34,9 @@ export default function ObjectivesGrid({ estadio, selected, onChange }) {
               ${!available ? 'opacity-35 cursor-not-allowed' : 'cursor-pointer hover:border-ink-400'}`}
           >
             <div className={`font-display text-xs font-bold ${isSel ? 'text-brand-900' : 'text-ink-900'}`}>
-              {o.t}
+              {label}
             </div>
-            <div className="font-mono text-[10px] text-ink-400 mt-0.5">{o.d}</div>
+            <div className="font-mono text-[10px] text-ink-400 mt-0.5">{desc}</div>
             <span className={`inline-block mt-1 font-mono text-[9px] px-1.5 py-0.5 rounded
               ${isSel ? 'bg-brand-700/15 text-brand-700' : 'bg-surface-border text-ink-400'}`}>
               {phaseLabel}

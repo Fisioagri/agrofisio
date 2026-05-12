@@ -1,10 +1,14 @@
+import { useLanguage } from '../contexts/LanguageContext'
+
 const CROPS = [
-  { id: 'soja',   ico: '🫘', label: 'Soja'   },
-  { id: 'milho',  ico: '🌽', label: 'Milho'  },
-  { id: 'feijao', ico: '🫛', label: 'Feijão' },
+  { id: 'soja',   ico: '🫘', key: 'soja'   },
+  { id: 'milho',  ico: '🌽', key: 'milho'  },
+  { id: 'feijao', ico: '🫛', key: 'feijao' },
 ]
 
 export default function CropSelector({ value, onChange }) {
+  const { t } = useLanguage()
+
   return (
     <div className="flex gap-2 flex-wrap">
       {CROPS.map(c => (
@@ -19,7 +23,7 @@ export default function CropSelector({ value, onChange }) {
         >
           <span className="block text-2xl mb-1">{c.ico}</span>
           <span className={`font-mono text-[11px] font-bold ${value === c.id ? 'text-brand-900' : 'text-ink-600'}`}>
-            {c.label}
+            {t.cultura[c.key]}
           </span>
         </button>
       ))}

@@ -1,107 +1,150 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useWizard } from '../../hooks/useWizard'
+import { useLanguage } from '../../contexts/LanguageContext'
 import { callClaude } from '../../services/api'
 import LoadingLaudo from '../../components/LoadingLaudo'
 import LaudoView from '../../components/LaudoView'
 import InfoBox from '../../components/ui/InfoBox'
+import Button from '../../components/ui/Button'
 
-const LOADING_STEPS = [
-  { label: 'Dados coletados',                status: 'done'    },
-  { label: 'Analisando estádio e processos', status: 'current' },
-  { label: 'Mapeando hormônios',             status: 'pending' },
-  { label: 'Calculando exigência nutricional',status: 'pending' },
-]
+// ─── CHAMADA 1: Condição + Mapa Hormonal (com foto) ──────────────────────────
+function buildPrompt1(d, promptLang) {
+  const solo = `pH=${d.ph||'nd'}, MO=${d.mo||'nd'}%, P=${d.pSolo||'nd'}, K=${d.kSolo||'nd'}, Ca=${d.caSolo||'nd'}, Mg=${d.mgSolo||'nd'}, S=${d.sSolo||'nd'}, Al=${d.alSolo||'nd'}, V%=${d.vSolo||'nd'}, B=${d.bSolo||'nd'}, Zn=${d.znSolo||'nd'}, Cu=${d.cuSolo||'nd'}, Mn=${d.mnSolo||'nd'}, Fe=${d.feSolo||'nd'}`
+  const foliar = `N=${d.nFoliar||'nd'}, P=${d.pFoliar||'nd'}, K=${d.kFoliar||'nd'}, Ca=${d.caFoliar||'nd'}, Mg=${d.mgFoliar||'nd'}, S=${d.sFoliar||'nd'}, B=${d.bFoliar||'nd'}, Zn=${d.znFoliar||'nd'}, Cu=${d.cuFoliar||'nd'}, Mn=${d.mnFoliar||'nd'}, Fe=${d.feFoliar||'nd'}`
 
-function buildPrompt(d) {
-  return `Você é especialista em fisiologia vegetal (base: Marschner 2012, Taiz & Zeiger, Kerbauy, Embrapa).
+  return `${promptLang}
+Especialista sênior em fisiologia vegetal. Base: Marschner (2012), Taiz & Zeiger (2017), Kerbauy (2008), Embrapa.
 
-DADOS DA LAVOURA:
-Produtor: ${d.prodNome} | Cidade: ${d.prodCidade} | Talhão: ${d.prodTalhao}
-Cultura: ${d.cultura} | Safra: ${d.safra} | Híbrido: ${d.hibrido}
-Expectativa: ${d.prodExpect} sc/ha | Última prod.: ${d.prodUltima} sc/ha
+LAVOURA: ${d.prodNome} | ${d.prodCidade} | ${d.cultura} | ${d.hibrido} | Safra ${d.safra}
+Estádio: ${d.estadio} | Expectativa: ${d.prodExpect} sc/ha | Última prod.: ${d.prodUltima||'nd'} sc/ha
 Adubação: ${d.adubacao}
-Estádio: ${d.estadio}
-O que está na foto: ${d.visivel.join(', ') || 'não informado'}
-Temperatura: ${d.temp}°C | Chuva: ${d.chuva}mm | Dias sem chuva: ${d.diasSemChuva}
+Visível na foto: ${d.visivel.join(', ')||'não informado'}
 Estresse: ${d.stresse ? 'SIM — ' + d.tiposStresse.join(', ') : 'NÃO'}
-Ocorrências: ${d.ocorrencias.join(', ') || 'nenhuma'}
-Sintomas visuais: ${d.sintomas || 'nenhum'}
-Moléstia: ${d.molestia === true ? 'SIM — ' + d.doencas.join(', ') : d.molestia === false ? 'NÃO' : 'não informado'}
+Sintomas: ${d.sintomas||'nenhum'}
+SOLO: ${solo}
+FOLIAR: ${foliar}
+${d.fotoB64 ? 'FOTO ANEXADA: analise visualmente coloração, sintomas e arquitetura da planta.' : ''}
 
-ANÁLISE DE SOLO: pH=${d.ph||'nd'}, MO=${d.mo||'nd'}%, P=${d.pSolo||'nd'}, K=${d.kSolo||'nd'}, Ca=${d.caSolo||'nd'}, Mg=${d.mgSolo||'nd'}, V=${d.vSolo||'nd'}%, B=${d.bSolo||'nd'}, Zn=${d.znSolo||'nd'}, Cu=${d.cuSolo||'nd'}, Mn=${d.mnSolo||'nd'}, Fe=${d.feSolo||'nd'}
+Gere SOMENTE as seções 1 e 2 em HTML:
 
-ANÁLISE FOLIAR: N=${d.nFoliar||'nd'}, P=${d.pFoliar||'nd'}, K=${d.kFoliar||'nd'}, Ca=${d.caFoliar||'nd'}, Mg=${d.mgFoliar||'nd'}, B=${d.bFoliar||'nd'}, Zn=${d.znFoliar||'nd'}, Cu=${d.cuFoliar||'nd'}, Mn=${d.mnFoliar||'nd'}, Fe=${d.feFoliar||'nd'}
+<h3>🌿 1. Condição Fisiológica — Estádio ${d.estadio}</h3>
+5-6 linhas técnicas: processos metabólicos dominantes, relação source/sink, atividade fotossintética, demandas energéticas e nutricionais. Citar referência científica. Mencionar expectativa de ${d.prodExpect} sc/ha.
+${d.fotoB64 ? 'Descrever também o que é observável na foto: coloração, arquitetura, sintomas visíveis.' : ''}
 
-${d.fotoB64 ? 'FOTO ANEXADA: analise visualmente os sintomas, coloração e estado geral da planta.' : ''}
+<h3>🧬 2. Mapa Hormonal</h3>
+<table><tr><th>Hormônio</th><th>Nível</th><th>Função no Estádio</th><th>Impacto sob Estresse</th><th>Nutriente Relacionado</th></tr>...</table>
+Incluir: Auxina, Citocinina, Giberelina, Etileno, ABA, Brasinoesteroide, Jasmonato (7 linhas).`
+}
 
-Gere uma DIAGNOSE FISIOLÓGICA RESUMIDA com exatamente 3 seções em HTML:
+// ─── CHAMADA 2: Nutrição + Estresse + Gargalos (sem foto) ────────────────────
+function buildPrompt2(d, promptLang) {
+  const solo = `pH=${d.ph||'nd'}, MO=${d.mo||'nd'}%, P=${d.pSolo||'nd'}, K=${d.kSolo||'nd'}, Ca=${d.caSolo||'nd'}, Mg=${d.mgSolo||'nd'}, S=${d.sSolo||'nd'}, Al=${d.alSolo||'nd'}, H+Al=${d.hAlSolo||'nd'}, CTC=${d.ctcSolo||'nd'}, V%=${d.vSolo||'nd'}, Sat.Al=${d.satAlSolo||'nd'}%, Argila=${d.argilaSolo||'nd'}%, B=${d.bSolo||'nd'}, Zn=${d.znSolo||'nd'}, Cu=${d.cuSolo||'nd'}, Mn=${d.mnSolo||'nd'}, Fe=${d.feSolo||'nd'}`
+  const foliar = `N=${d.nFoliar||'nd'}, P=${d.pFoliar||'nd'}, K=${d.kFoliar||'nd'}, Ca=${d.caFoliar||'nd'}, Mg=${d.mgFoliar||'nd'}, S=${d.sFoliar||'nd'}, B=${d.bFoliar||'nd'}, Zn=${d.znFoliar||'nd'}, Cu=${d.cuFoliar||'nd'}, Mn=${d.mnFoliar||'nd'}, Fe=${d.feFoliar||'nd'}`
 
-<h3>⚗️ Processos Metabólicos Ativos</h3>
-Em 4-5 linhas: processo dominante neste estádio, relação source/sink, taxa fotossintética, principais demandas metabólicas. Cite o livro base.
+  return `${promptLang}
+Especialista sênior em fisiologia vegetal. Base: Marschner (2012), Taiz & Zeiger (2017), Kerbauy (2008), Embrapa.
 
-<h3>🧬 Mapa Hormonal</h3>
-Tabela com 5 hormônios mais relevantes: <table><tr><th>Hormônio</th><th>Nível</th><th>Função atual</th><th>Impacto do estresse</th></tr>...</table>
+LAVOURA: ${d.prodNome} | ${d.cultura} | Estádio ${d.estadio} | Expectativa: ${d.prodExpect} sc/ha
+Estresse: ${d.stresse ? 'SIM — ' + d.tiposStresse.join(', ') : 'NÃO'}
+Ocorrências: ${[...d.ocorrencias, d.outrasOcorrencias].filter(Boolean).join(', ')||'nenhuma'}
+Sintomas: ${d.sintomas||'nenhum'}
+Moléstia: ${d.molestia === true ? 'SIM — ' + d.doencas.join(', ') : 'NÃO'}
+SOLO: ${solo}
+FOLIAR: ${foliar}
 
-<h3>🧪 Exigência Nutricional Prioritária</h3>
-Tabela apenas com K, Mg, Fe, Zn, Cu, Mn, B: <table><tr><th>Nutriente</th><th>Dose (g ou kg/ha)</th><th>Sintoma de deficiência</th></tr>...</table>
-Use APENAS elemento puro em g/ha ou kg/ha. NUNCA cite marcas.
+Gere SOMENTE as seções 3${d.stresse ? ', 4' : ''} e ${d.stresse ? '5' : '4'} em HTML:
 
-${d.stresse ? '<h3>⚠️ Diagnose de Estresse</h3>\nDescreva o tipo de estresse, fase na sequência de Hsiao (se hídrico), impacto hormonal e nutricional em 4-5 linhas.' : ''}
+<h3>🧪 3. Exigência Nutricional do Estádio</h3>
+<table><tr><th>Nutriente</th><th>Dose Elemento Puro</th><th>Função Fisiológica Atual</th><th>Sintoma de Deficiência</th><th>Status na Análise</th></tr>...</table>
+Incluir N, P, K, Ca, Mg, S, Fe, Zn, Cu, Mn, B, Mo. Dose em g/ha ou kg/ha. Status: ✅ Adequado / ⚠️ Limite / ❌ Deficiente / — sem dado.
+NUNCA cite marcas comerciais.
 
-Seja técnico e conciso. Não repita dados já fornecidos.`
+${d.stresse ? `<h3>⚠️ 4. Diagnose de Estresse — ${d.tiposStresse.join(' + ')}</h3>
+Mecanismo de dano celular, cascata hormonal (ABA, etileno, jasmonato), nutrientes mais afetados, impacto no estádio ${d.estadio}. 5-6 linhas técnicas.` : ''}
+
+<h3>${d.stresse ? '5' : '4'}. 🔴 Gargalos Fisiológicos e Riscos Produtivos</h3>
+3-5 principais gargalos baseados em todos os dados. Formato:
+<ul><li><strong>[Gargalo]:</strong> descrição → impacto (-X a -Y sc/ha) → urgência: 🔴 Alta / 🟡 Média / 🟢 Baixa</li></ul>
+Síntese final: risco total estimado sem intervenção.`
 }
 
 export default function StepDiagnose() {
   const { data, laudoDiagnoseHtml, setDiagnoseHtml } = useWizard()
+  const { t } = useLanguage()
+  const started = useRef(false)
+  const [error, setError]   = useState(null)
+  const [fase, setFase]     = useState(0)
 
   useEffect(() => {
-    if (laudoDiagnoseHtml) return
+    if (laudoDiagnoseHtml || started.current) return
+    started.current = true
     generate()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function generate() {
+    setError(null)
     setDiagnoseHtml('__loading__')
     try {
-      const html = await callClaude(buildPrompt(data), data.fotoB64 || null)
-      setDiagnoseHtml(html)
+      setFase(1)
+      const html1 = await callClaude(buildPrompt1(data, t.promptLang), data.fotoB64 || null, 3500)
+
+      setFase(2)
+      const html2 = await callClaude(buildPrompt2(data, t.promptLang), null, 3500)
+
+      setDiagnoseHtml(html1 + html2)
+      setFase(0)
     } catch (e) {
-      setDiagnoseHtml(`<p style="color:#C0392B">⚠️ Erro: ${e.message}</p>`)
+      setDiagnoseHtml(null)
+      started.current = false
+      setFase(0)
+      setError(e.message)
     }
   }
 
-  if (!laudoDiagnoseHtml || laudoDiagnoseHtml === '__loading__') {
-    return (
-      <>
-        <div className="mb-4">
-          <h2 className="font-display font-bold text-xl text-brand-900">Diagnose Fisiológica</h2>
-          <p className="font-mono text-[11px] text-ink-400 mt-0.5">análise do estado atual da planta</p>
-        </div>
-        <div className="bg-white border border-surface-border rounded-card shadow-card">
-          <LoadingLaudo
-            title="Gerando diagnose..."
-            subtitle="analisando foto e dados da planta"
-            steps={LOADING_STEPS}
-          />
-        </div>
-      </>
-    )
-  }
+  const isLoading = !laudoDiagnoseHtml || laudoDiagnoseHtml === '__loading__'
+
+  const steps = [
+    { label: t.diagnose.loadingSteps[0], status: 'done' },
+    { label: t.diagnose.loadingSteps[1], status: fase === 1 ? 'current' : fase > 1 ? 'done' : 'pending' },
+    { label: t.diagnose.loadingSteps[2], status: fase === 1 ? 'pending' : fase === 2 ? 'current' : fase > 2 ? 'done' : 'pending' },
+    { label: t.diagnose.loadingSteps[3], status: fase === 2 ? 'current' : fase > 2 ? 'done' : 'pending' },
+    { label: t.diagnose.loadingSteps[4], status: fase === 2 ? 'pending' : 'pending' },
+  ]
 
   return (
     <>
       <div className="mb-4">
-        <h2 className="font-display font-bold text-xl text-brand-900">Diagnose Fisiológica</h2>
-        <p className="font-mono text-[11px] text-ink-400 mt-0.5">análise do estado atual da planta</p>
+        <h2 className="font-display font-bold text-xl text-brand-900">{t.diagnose.title}</h2>
+        <p className="font-mono text-[11px] text-ink-400 mt-0.5">{t.diagnose.subtitle}</p>
       </div>
-      <LaudoView
-        title={`🔬 Diagnose — ${(data.cultura || '').toUpperCase()}`}
-        subtitle={`${data.prodNome} · ${data.prodCidade} · Estádio ${data.estadio}`}
-        badge="📚 Taiz & Zeiger · Kerbauy · Marschner (2012)"
-        html={laudoDiagnoseHtml}
-      />
-      <InfoBox variant="amber" >
-        ✅ Diagnose concluída. Avance para selecionar os objetivos fisiológicos.
-      </InfoBox>
+
+      {error ? (
+        <div className="bg-white border border-danger-600 rounded-card p-5 shadow-card text-center space-y-3">
+          <p className="text-2xl">⚠️</p>
+          <p className="font-mono text-xs text-danger-600">{error}</p>
+          <Button onClick={generate} fullWidth>🔄 Tentar novamente</Button>
+        </div>
+      ) : isLoading ? (
+        <div className="bg-white border border-surface-border rounded-card shadow-card">
+          <LoadingLaudo
+            title={t.diagnose.loading}
+            subtitle={t.diagnose.loadingSub}
+            steps={steps}
+          />
+        </div>
+      ) : (
+        <>
+          <LaudoView
+            title={`🔬 Diagnose — ${(data.cultura || '').toUpperCase()}`}
+            subtitle={`${data.prodNome} · ${data.prodCidade} · Estádio ${data.estadio}`}
+            badge="📚 Marschner (2012) · Taiz & Zeiger (2017) · Kerbauy · Embrapa"
+            html={laudoDiagnoseHtml}
+          />
+          <InfoBox variant="amber">
+            {t.diagnose.done}
+          </InfoBox>
+        </>
+      )}
     </>
   )
 }

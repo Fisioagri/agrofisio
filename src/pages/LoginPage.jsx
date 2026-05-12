@@ -1,15 +1,17 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { signIn } from '../services/authService'
+import { useLanguage } from '../contexts/LanguageContext'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 
 export default function LoginPage() {
-  const [email, setEmail]     = useState('')
+  const { lang, setLang, t } = useLanguage()
+  const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError]     = useState('')
-  const [loading, setLoading] = useState(false)
-  const navigate              = useNavigate()
+  const [error, setError]       = useState('')
+  const [loading, setLoading]   = useState(false)
+  const navigate                = useNavigate()
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -19,7 +21,7 @@ export default function LoginPage() {
       await signIn(email, password)
       navigate('/')
     } catch (err) {
-      setError(err.message || 'Erro ao entrar. Verifique e-mail e senha.')
+      setError(err.message || t.login.error)
     } finally {
       setLoading(false)
     }
@@ -28,18 +30,40 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-surface-bg flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
+        {/* Language selector */}
+        <div className="flex justify-center gap-2 mb-6">
+          <button
+            onClick={() => setLang('pt')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border font-mono text-xs transition-all
+              ${lang === 'pt'
+                ? 'bg-brand-900 border-brand-900 text-white font-semibold'
+                : 'bg-white border-surface-border text-ink-400 hover:border-ink-400'}`}
+          >
+            🇧🇷 PT
+          </button>
+          <button
+            onClick={() => setLang('en')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border font-mono text-xs transition-all
+              ${lang === 'en'
+                ? 'bg-brand-900 border-brand-900 text-white font-semibold'
+                : 'bg-white border-surface-border text-ink-400 hover:border-ink-400'}`}
+          >
+            🇺🇸 EN
+          </button>
+        </div>
+
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-brand-900 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
             🌱
           </div>
           <h1 className="font-display font-extrabold text-2xl text-brand-900">AgroFísio</h1>
-          <p className="font-mono text-xs text-ink-400 mt-1">protocolo de manejo fisiológico · v4.0</p>
+          <p className="font-mono text-xs text-ink-400 mt-1">{t.login.subtitle}</p>
         </div>
 
         <div className="bg-white border border-surface-border rounded-card shadow-card p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="E-mail"
+              label={t.login.email}
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
@@ -47,7 +71,7 @@ export default function LoginPage() {
               required
             />
             <Input
-              label="Senha"
+              label={t.login.password}
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
@@ -60,7 +84,7 @@ export default function LoginPage() {
               </p>
             )}
             <Button type="submit" loading={loading} fullWidth>
-              Entrar
+              {t.login.submit}
             </Button>
           </form>
         </div>

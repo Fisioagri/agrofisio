@@ -1,4 +1,5 @@
 import { useWizard } from '../../hooks/useWizard'
+import { useLanguage } from '../../contexts/LanguageContext'
 import Card from '../../components/ui/Card'
 import Input from '../../components/ui/Input'
 import Textarea from '../../components/ui/Textarea'
@@ -6,11 +7,6 @@ import PhotoUpload from '../../components/PhotoUpload'
 import PhenoSelector from '../../components/PhenoSelector'
 import TagGroup from '../../components/TagGroup'
 import BoolSelect from '../../components/BoolSelect'
-
-const VISIVEL_TAGS = ['Planta inteira','Folha apical/nova','Folha mediana','Folha basal/velha','Vagem/grão','Sistema radicular','Flores','Caule/nódulos']
-const STRESS_TAGS  = ['Hídrico','Térmico','Nutricional','Biótico','Oxidativo','Salino']
-const OCORR_TAGS   = ['Granizo','Geada','Acamamento','Déficit hídrico','Encharcamento','Alta temperatura','Compactação','Nematoide']
-const DOENCA_TAGS  = ['Ferrugem asiática','Mancha alvo','Antracnose','Oídio','Phytophthora','Esclerotinia','Mofo branco','Outra']
 
 function compressAndSave(file, onDone) {
   if (!file) return
@@ -39,8 +35,11 @@ function compressAndSave(file, onDone) {
 
 export default function StepPlanta() {
   const { data, update } = useWizard()
+  const { t } = useLanguage()
+  const p = t.planta
 
   const photoPreview = data.fotoB64 ? `data:image/jpeg;base64,${data.fotoB64}` : null
+  const temOutros    = data.ocorrencias.includes(t.tags.ocorr[8]) || data.ocorrencias.includes('Outros') || data.ocorrencias.includes('Others')
 
   function f(key) {
     return { value: data[key], onChange: e => update({ [key]: e.target.value }) }
@@ -49,57 +48,86 @@ export default function StepPlanta() {
   return (
     <>
       <div className="mb-4">
-        <h2 className="font-display font-bold text-xl text-brand-900">Planta e Campo</h2>
-        <p className="font-mono text-[11px] text-ink-400 mt-0.5">foto obrigatória + condições atuais</p>
+        <h2 className="font-display font-bold text-xl text-brand-900">{p.title}</h2>
+        <p className="font-mono text-[11px] text-ink-400 mt-0.5">{p.subtitle}</p>
       </div>
 
-      <Card title="📸 Foto da Planta *">
+      <Card title={p.cardPhoto}>
         <PhotoUpload
           preview={photoPreview}
           onFile={file => compressAndSave(file, b64 => update({ fotoB64: b64 }))}
         />
       </Card>
 
-      <Card title="🌿 O que está visível na foto?">
-        <TagGroup tags={VISIVEL_TAGS} selected={data.visivel} onChange={v => update({ visivel: v })} />
+      <Card title={p.cardVisible}>
+        <TagGroup
+          tags={t.tags.visivel}
+          selected={data.visivel}
+          onChange={v => update({ visivel: v })}
+        />
       </Card>
 
-      <Card title="📊 Estádio Fenológico *">
-        <PhenoSelector cultura={data.cultura} value={data.estadio} onChange={v => update({ estadio: v })} />
+      <Card title={p.cardPheno}>
+        <PhenoSelector
+          cultura={data.cultura}
+          value={data.estadio}
+          onChange={v => update({ estadio: v })}
+        />
       </Card>
 
-      <Card title="🌦️ Clima e Campo">
+      <Card title={p.cardClimate}>
         <div className="grid grid-cols-2 gap-2.5">
-          <Input label="Temperatura (°C)"  type="number" placeholder="Ex: 32" {...f('temp')} />
-          <Input label="Última chuva (mm)" type="number" placeholder="Ex: 25" {...f('chuva')} />
+          <Input label={p.temp}  type="number" placeholder={p.tempPh} {...f('temp')} />
+          <Input label={p.rain} type="number" placeholder={p.rainPh} {...f('chuva')} />
         </div>
-        <Input label="Dias sem chuva significativa" type="number" placeholder="Ex: 7" {...f('diasSemChuva')} />
+        <Input label={p.dryDays} type="number" placeholder={p.dryPh} {...f('diasSemChuva')} />
       </Card>
 
-      <Card title="⚠️ A planta está em estresse?">
+      <Card title={p.cardStress}>
         <BoolSelect value={data.stresse} onChange={v => update({ stresse: v })}>
           <div>
-            <p className="text-xs font-bold text-ink-900 mb-1.5">Tipos de estresse:</p>
-            <TagGroup tags={STRESS_TAGS} selected={data.tiposStresse} onChange={v => update({ tiposStresse: v })} />
+            <p className="text-xs font-bold text-ink-900 mb-1.5">{p.stressTypes}</p>
+            <TagGroup
+              tags={t.tags.stress}
+              selected={data.tiposStresse}
+              onChange={v => update({ tiposStresse: v })}
+            />
           </div>
         </BoolSelect>
       </Card>
 
-      <Card title="🌩️ Ocorrências a Campo">
-        <TagGroup tags={OCORR_TAGS} selected={data.ocorrencias} onChange={v => update({ ocorrencias: v })} />
+      <Card title={p.cardOcorr}>
+        <TagGroup
+          tags={t.tags.ocorr}
+          selected={data.ocorrencias}
+          onChange={v => update({ ocorrencias: v })}
+        />
+        {temOutros && (
+          <div className="mt-3">
+            <Textarea
+              placeholder={p.outrosPh}
+              value={data.outrasOcorrencias}
+              onChange={e => update({ outrasOcorrencias: e.target.value })}
+            />
+          </div>
+        )}
       </Card>
 
-      <Card title="🔍 Sintomas Visuais Observados">
+      <Card title={p.cardSymptoms}>
         <Textarea
-          placeholder="Ex: clorose internerval em folhas basais, bordos necróticos, encurtamento de entrenós..."
+          placeholder={p.symptomsPh}
           value={data.sintomas}
           onChange={e => update({ sintomas: e.target.value })}
         />
       </Card>
 
-      <Card title="🔬 Possui moléstia por doença?">
+      <Card title={p.cardDisease}>
         <BoolSelect value={data.molestia} onChange={v => update({ molestia: v })}>
-          <TagGroup tags={DOENCA_TAGS} selected={data.doencas} onChange={v => update({ doencas: v })} />
+          <TagGroup
+            tags={t.tags.doenca}
+            selected={data.doencas}
+            onChange={v => update({ doencas: v })}
+          />
         </BoolSelect>
       </Card>
     </>

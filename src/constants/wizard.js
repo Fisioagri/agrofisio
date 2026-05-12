@@ -33,15 +33,15 @@ export const INITIAL_STATE = {
   cultura: '', safra: '', dataPlantio: '', hibrido: '', adubacao: '',
   // Step 3 – Solo
   ph: '', mo: '', pSolo: '', kSolo: '', caSolo: '', mgSolo: '',
-  vSolo: '', argilaSolo: '', sSolo: '', ctcSolo: '',
-  bSolo: '', znSolo: '', cuSolo: '', mnSolo: '', feSolo: '', moSolo: '',
+  sSolo: '', alSolo: '', hAlSolo: '', ctcSolo: '', vSolo: '', satAlSolo: '',
+  argilaSolo: '', bSolo: '', znSolo: '', cuSolo: '', mnSolo: '', feSolo: '', moSolo: '',
   // Step 4 – Foliar
   nFoliar: '', pFoliar: '', kFoliar: '', caFoliar: '', mgFoliar: '', sFoliar: '',
   bFoliar: '', znFoliar: '', cuFoliar: '', mnFoliar: '', feFoliar: '', moFoliar: '',
   // Step 5 – Planta
   fotoB64: '', estadio: '', temp: '', chuva: '', diasSemChuva: '',
-  stresse: null, tiposStresse: [], ocorrencias: [], sintomas: '',
-  molestia: null, doencas: [], visivel: [],
+  stresse: null, tiposStresse: [], ocorrencias: [], outrasOcorrencias: '',
+  sintomas: '', molestia: null, doencas: [], visivel: [],
   // Step 7 – Objetivos
   objetivos: [],
 }

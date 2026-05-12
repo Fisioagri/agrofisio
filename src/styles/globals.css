@@ -14,22 +14,37 @@
 /* Estilos para o HTML gerado pela IA nos laudos */
 @layer components {
   .laudo-body h3 {
-    @apply font-display text-base font-bold text-brand-900 mt-4 mb-2 pb-1 border-b border-surface-border;
+    @apply font-display text-[15px] font-bold text-brand-900 mt-5 mb-2.5 pb-1.5 border-b-2 border-brand-100;
   }
-  .laudo-body p   { @apply mb-1.5 text-sm leading-relaxed; }
-  .laudo-body ul  { @apply pl-4 my-1.5; }
-  .laudo-body li  { @apply mb-1 text-sm; }
-  .laudo-body strong { @apply text-brand-900; }
+  .laudo-body h4 {
+    @apply font-display text-[13px] font-bold text-ink-600 mt-3 mb-1.5;
+  }
+  .laudo-body p   { @apply mb-2 text-sm leading-relaxed text-ink-900; }
+  .laudo-body ul  { @apply pl-4 my-2 space-y-1; }
+  .laudo-body ol  { @apply pl-4 my-2 space-y-1; }
+  .laudo-body li  { @apply text-sm leading-relaxed text-ink-900; }
+  .laudo-body strong { @apply text-brand-900 font-bold; }
+  .laudo-body em     { @apply text-ink-600 not-italic font-semibold; }
   .laudo-body table {
-    @apply w-full border-collapse my-2 text-xs;
+    @apply w-full border-collapse my-3 text-xs rounded-sm overflow-hidden;
   }
   .laudo-body th {
-    @apply bg-brand-100 px-2 py-1.5 text-left border border-surface-border text-brand-900 font-bold;
+    @apply bg-brand-900 text-white px-2.5 py-2 text-left font-mono text-[10px] uppercase tracking-wider;
   }
   .laudo-body td {
-    @apply px-2 py-1.5 border border-surface-border;
+    @apply px-2.5 py-2 border-b border-surface-border text-ink-900;
   }
   .laudo-body tr:nth-child(even) td {
     @apply bg-brand-50;
   }
+  .laudo-body tr:hover td {
+    @apply bg-brand-100;
+  }
+}
+
+@media print {
+  header, nav, .fixed, button { display: none !important; }
+  body { background: white !important; }
+  .laudo-body th { background: #0A3D2E !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .laudo-body tr:nth-child(even) td { background: #f0fdf4 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }

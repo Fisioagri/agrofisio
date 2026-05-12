@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useWizard } from '../hooks/useWizard'
+import { useLanguage } from '../contexts/LanguageContext'
 import { STEPS } from '../constants/wizard'
 
 function canProceed(step, data) {
@@ -10,7 +11,7 @@ function canProceed(step, data) {
   return true
 }
 
-function shareReport(data, laudoFinalHtml) {
+function shareReport(data, laudoFinalHtml, shareTitle) {
   const text = laudoFinalHtml
     ? laudoFinalHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
     : 'Laudo gerado pelo AgroFísio v4.0'
@@ -21,7 +22,7 @@ function shareReport(data, laudoFinalHtml) {
     `Expectativa: ${data.prodExpect} sc/ha\n\n${text}\n\n— AgroFísio v4.0`
 
   if (navigator.share) {
-    navigator.share({ title: 'Laudo AgroFísio', text: msg }).catch(() => {})
+    navigator.share({ title: shareTitle, text: msg }).catch(() => {})
   } else {
     navigator.clipboard.writeText(msg)
       .then(() => alert('Laudo copiado! Cole no WhatsApp ou onde preferir.'))
@@ -31,26 +32,25 @@ function shareReport(data, laudoFinalHtml) {
 
 export default function BottomNav() {
   const { step, setStep, data, laudoFinalHtml, reset } = useWizard()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const ok = canProceed(step, data)
 
   const base = 'flex-1 py-3 px-5 rounded-sm font-display font-bold text-sm flex items-center justify-center gap-1.5 transition-all'
 
-  // Step 5 — Diagnose: só navegação, sem botão gerar
   if (step === 5) {
     return (
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-surface-border p-3 flex gap-2.5 max-w-2xl mx-auto z-50">
         <button onClick={() => setStep(4)} className={`${base} bg-transparent border-[1.5px] border-surface-border text-ink-600`}>
-          ← Voltar
+          {t.common.back}
         </button>
         <button onClick={() => setStep(6)} className={`${base} bg-brand-900 text-white hover:bg-brand-700`}>
-          Objetivos →
+          {t.bottomNav.objectives}
         </button>
       </div>
     )
   }
 
-  // Step 7 — Laudo final: nova análise + compartilhar
   if (step === 7) {
     return (
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-surface-border p-3 flex gap-2.5 max-w-2xl mx-auto z-50">
@@ -58,28 +58,28 @@ export default function BottomNav() {
           onClick={() => { reset(); navigate('/') }}
           className={`${base} bg-transparent border-[1.5px] border-surface-border text-ink-600`}
         >
-          ↩ Nova análise
+          {t.bottomNav.newAnalysis}
         </button>
         <button
-          onClick={() => shareReport(data, laudoFinalHtml)}
+          onClick={() => shareReport(data, laudoFinalHtml, 'AgroFísio Report')}
           className={`${base} bg-[#25D366] text-white hover:opacity-90`}
         >
-          💬 Compartilhar
+          {t.bottomNav.share}
         </button>
       </div>
     )
   }
 
   const nextLabel =
-    step === 4 ? '🔬 Gerar Diagnose →' :
-    step === 6 ? '📄 Gerar Laudo →' :
-    'Avançar →'
+    step === 4 ? t.bottomNav.generateDiagnose :
+    step === 6 ? t.bottomNav.generateReport :
+    t.common.next
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-surface-border p-3 flex gap-2.5 max-w-2xl mx-auto z-50">
       {step > 0 && (
         <button onClick={() => setStep(step - 1)} className={`${base} bg-transparent border-[1.5px] border-surface-border text-ink-600`}>
-          ← Voltar
+          {t.common.back}
         </button>
       )}
       <button

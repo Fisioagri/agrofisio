@@ -34,10 +34,14 @@ export async function listUsers() {
 // Para criação real de usuários em produção, use uma Supabase Edge Function
 // com a service_role key para evitar efeitos colaterais de sessão.
 export async function createUser(email, password, name, role = 'user') {
+  const redirectTo = window.location.origin
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { name, role } },
+    options: {
+      data: { name, role },
+      emailRedirectTo: redirectTo,
+    },
   })
   if (error) throw error
   return data

@@ -1,16 +1,19 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { useLanguage } from '../contexts/LanguageContext'
 import { signOut } from '../services/authService'
-
-const NAV = [
-  { to: '/',        icon: '🏠', label: 'Dashboard' },
-  { to: '/wizard',  icon: '🌱', label: 'Nova Análise' },
-  { to: '/settings',icon: '⚙️', label: 'Configurações' },
-]
 
 export default function AppLayout({ children }) {
   const { isAdmin } = useAuth()
+  const { lang, setLang, t } = useLanguage()
   const { pathname } = useLocation()
+
+  const NAV = [
+    { to: '/',         icon: '🏠', label: t.nav.dashboard  },
+    { to: '/wizard',   icon: '🌱', label: t.nav.wizard      },
+    { to: '/settings', icon: '⚙️', label: t.nav.settings    },
+    ...(isAdmin ? [{ to: '/users', icon: '👥', label: t.nav.users }] : []),
+  ]
 
   return (
     <div className="min-h-screen bg-surface-bg flex flex-col">
@@ -20,18 +23,36 @@ export default function AppLayout({ children }) {
         </div>
         <div className="flex-1">
           <div className="font-display font-extrabold text-white text-base leading-tight">AgroFísio</div>
-          <div className="font-mono text-[9px] text-brand-400 mt-0.5">protocolo de manejo fisiológico · v4.0</div>
+          <div className="font-mono text-[9px] text-brand-400 mt-0.5">{t.header.subtitle}</div>
         </div>
-        <button
-          onClick={signOut}
-          className="font-mono text-[10px] text-brand-400 hover:text-white transition-colors"
-        >
-          sair
-        </button>
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1">
+            <button
+              onClick={() => setLang('pt')}
+              className={`px-2 py-0.5 rounded font-mono text-[10px] transition-all
+                ${lang === 'pt' ? 'bg-white text-brand-900 font-bold' : 'text-brand-400 hover:text-white'}`}
+            >
+              🇧🇷
+            </button>
+            <button
+              onClick={() => setLang('en')}
+              className={`px-2 py-0.5 rounded font-mono text-[10px] transition-all
+                ${lang === 'en' ? 'bg-white text-brand-900 font-bold' : 'text-brand-400 hover:text-white'}`}
+            >
+              🇺🇸
+            </button>
+          </div>
+          <button
+            onClick={signOut}
+            className="font-mono text-[10px] text-brand-400 hover:text-white transition-colors"
+          >
+            {t.nav.logout}
+          </button>
+        </div>
       </header>
 
       <nav className="bg-white border-b border-surface-border flex px-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {[...NAV, ...(isAdmin ? [{ to: '/users', icon: '👥', label: 'Usuários' }] : [])].map(item => (
+        {NAV.map(item => (
           <Link
             key={item.to}
             to={item.to}
