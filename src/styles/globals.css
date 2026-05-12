@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply font-sans bg-surface-bg text-ink-900 min-h-screen overflow-x-hidden;
+  }
+}
+
+/* Estilos para o HTML gerado pela IA nos laudos */
+@layer components {
+  .laudo-body h3 {
+    @apply font-display text-base font-bold text-brand-900 mt-4 mb-2 pb-1 border-b border-surface-border;
+  }
+  .laudo-body p   { @apply mb-1.5 text-sm leading-relaxed; }
+  .laudo-body ul  { @apply pl-4 my-1.5; }
+  .laudo-body li  { @apply mb-1 text-sm; }
+  .laudo-body strong { @apply text-brand-900; }
+  .laudo-body table {
+    @apply w-full border-collapse my-2 text-xs;
+  }
+  .laudo-body th {
+    @apply bg-brand-100 px-2 py-1.5 text-left border border-surface-border text-brand-900 font-bold;
+  }
+  .laudo-body td {
+    @apply px-2 py-1.5 border border-surface-border;
+  }
+  .laudo-body tr:nth-child(even) td {
+    @apply bg-brand-50;
+  }
+}
