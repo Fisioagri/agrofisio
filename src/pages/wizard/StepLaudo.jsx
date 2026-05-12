@@ -76,21 +76,16 @@ Cinco blocos, cada um com 2-4 itens objetivos:
 
 <strong>Macronutrientes:</strong> elementos indicados → função fisiológica atual no estádio ${d.estadio}.
 <strong>Micronutrientes:</strong> elementos indicados → função e antagonismos a evitar.
-<strong>Aminoácidos (Taiz & Zeiger, 2017; Marschner, 2012):</strong>
-Selecionar os aminoácidos pertinentes ao estádio ${d.estadio} e aos objetivos (${d.objetivos.join(', ')}) entre: prolina (proteção osmótica — estresse hídrico), glicina betaína (ajuste osmótico térmico), glicina (precursor clorofila — fotossíntese), triptofano (precursor IAA — crescimento celular e divisão), glutamina/glutamato (assimilação de N via GS/GOGAT — metabolismo proteico), arginina (síntese de poliaminas — divisão e elongação celular), metionina (precursor etileno e ciclo SAM — sinalização), cisteína (síntese glutationa — defesa antioxidante), fenilalanina (precursor lignina e flavonoides — resistência), asparagina (transporte e armazenamento de N — enchimento de grãos).
-Citar apenas os fisiologicamente ativos no estádio atual. 1 linha por aminoácido selecionado: nome → função → benefício esperado.
+<strong>Aminoácidos (Taiz & Zeiger, 2017; Marschner, 2012):</strong> selecionar 3-5 entre: prolina, glicina betaína, glicina, triptofano, glutamina, arginina, metionina, cisteína, fenilalanina, asparagina — apenas os pertinentes ao estádio ${d.estadio} e objetivos. 1 linha: nome → função → benefício.
 <strong>Extratos de Algas:</strong> betaínas, citocininas naturais, polissacarídeos — funções no estádio atual.
-<strong>Bioestimulantes:</strong> ácido húmico/fúlvico, silício foliar — mecanismo de ação e benefício.
+<strong>Bioestimulantes:</strong> ácido húmico/fúlvico, silício foliar — mecanismo e benefício.
 SEM doses. SEM marcas comerciais.
 
 <h3>📈 7. Resultado Esperado</h3>
-Tabela com 6-8 intervenções nutricionais, incluindo obrigatoriamente N e P, além dos demais nutrientes com deficiência ou limite detectados na análise foliar:
-<table><tr><th>Nutriente / Intervenção</th><th>Dose Foliar Indicada (elem. puro)</th><th>Mecanismo Fisiológico</th><th>Ganho Estimado (sc/ha)</th><th>Prazo de Resposta</th></tr>...</table>
-Dose Foliar Indicada: baseada nos valores da análise foliar do ctx acima. Se deficiente → dose corretiva (g ou kg/ha de elem. puro). Se adequado → "Manutenção preventiva". Se nd → dose preventiva padrão.
-
-<strong>Projeção total com protocolo completo:</strong> +X a +Y sc/ha.
-<strong>Viabilidade da meta ${d.prodExpect} sc/ha:</strong> avaliação técnica em 2-3 linhas.
-<strong>Estabilidade produtiva:</strong> mitigação de riscos identificados na seção 4.`
+Tabela 5-6 linhas — incluir obrigatoriamente N e P — demais: nutrientes com ❌ ou ⚠️ na foliar:
+<table><tr><th>Nutriente</th><th>Dose Foliar (elem. puro)</th><th>Mecanismo Fisiológico</th><th>Ganho (sc/ha)</th><th>Prazo</th></tr>...</table>
+Dose: se deficiente → corretiva (g ou kg/ha); se adequado → "preventiva"; se nd → padrão.
+<strong>Projeção total:</strong> +X a +Y sc/ha. <strong>Meta ${d.prodExpect} sc/ha:</strong> 2 linhas. <strong>Estabilidade:</strong> riscos mitigados.`
 }
 
 export default function StepLaudo() {

@@ -55,15 +55,13 @@ FOLIAR: ${foliar}
 Gere SOMENTE as seções 3${d.stresse ? ', 4' : ''} e ${d.stresse ? '5' : '4'} em HTML:
 
 <h3>🧪 3. Exigência Nutricional e Diagnose Foliar</h3>
-Tabela com N, P, K, Ca, Mg, S, Fe, Zn, Cu, Mn, B, Mo:
-<table><tr><th>Nutriente</th><th>Dose Total (kg-g/ha)</th><th>Função Fisiológica no Estádio</th><th>Sintoma de Deficiência</th><th>Status Foliar</th><th>Eficiência Foliar</th><th>Dose Foliar Indicada</th></tr>...</table>
-Status Foliar: ✅ Adequado / ⚠️ Limite / ❌ Deficiente / — sem dado.
-Eficiência Foliar (Marschner, 2012): ✅ Alta absorção foliar / ⚠️ Média / ❌ Baixa eficiência foliar.
-Dose Foliar Indicada: baseada na deficiência detectada na análise foliar acima (g ou kg de elemento puro/ha). Se status = nd, indicar dose preventiva padrão. Se adequado, escrever "—".
-
-<strong>⚠️ Antagonismos Nutricionais Críticos (Marschner, 2012):</strong>
-Baseado nos nutrientes com deficiência ou limite detectados, listar 3-4 antagonismos relevantes para aplicação foliar conjunta:
-<ul><li><strong>[Nutriente A] × [Nutriente B]:</strong> mecanismo do antagonismo → recomendação (separar tanque / intervalo mínimo)</li></ul>
+<table><tr><th>Nutriente</th><th>Dose Total</th><th>Função no Estádio</th><th>Status Foliar</th><th>Efic. Foliar</th><th>Dose Foliar (elem. puro)</th></tr>...</table>
+N, P, K, Ca, Mg, S, Fe, Zn, Cu, Mn, B, Mo. Dose em g ou kg/ha.
+Status: ✅ Adequado / ⚠️ Limite / ❌ Deficiente / — sem dado.
+Efic. Foliar (Marschner): ✅ Alta / ⚠️ Média / ❌ Baixa.
+Dose Foliar: se ❌ → dose corretiva; se ⚠️ → dose preventiva; se ✅ → —; se nd → preventiva padrão.
+<strong>⚠️ Antagonismos (Marschner, 2012):</strong> 3 pares críticos para aplicação foliar conjunta:
+<ul><li><strong>[A]×[B]:</strong> mecanismo → separar tanque ou intervalo mínimo</li></ul>
 NUNCA cite marcas comerciais.
 
 ${d.stresse ? `<h3>⚠️ 4. Diagnose de Estresse — ${d.tiposStresse.join(' + ')}</h3>
