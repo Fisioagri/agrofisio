@@ -1,8 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
-  <rect width="192" height="192" rx="36" fill="#0A3D2E"/>
-  <rect x="91" y="108" width="10" height="42" rx="5" fill="#4ADE80"/>
-  <ellipse cx="96" cy="76" rx="20" ry="34" fill="#22C55E"/>
-  <ellipse cx="69" cy="95" rx="28" ry="12" fill="#22C55E" transform="rotate(-25 69 95)"/>
-  <ellipse cx="123" cy="95" rx="28" ry="12" fill="#16A34A" transform="rotate(25 123 95)"/>
-  <ellipse cx="96" cy="66" rx="8" ry="16" fill="#86EFAC" opacity="0.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="90" fill="#0A3D2E"/>
+
+  <!-- Main stem -->
+  <line x1="256" y1="462" x2="256" y2="335" stroke="#4ADE80" stroke-width="20" stroke-linecap="round"/>
+
+  <!-- Petioles -->
+  <line x1="254" y1="340" x2="210" y2="315" stroke="#4ADE80" stroke-width="13" stroke-linecap="round"/>
+  <line x1="258" y1="340" x2="302" y2="315" stroke="#4ADE80" stroke-width="13" stroke-linecap="round"/>
+  <line x1="256" y1="336" x2="256" y2="294" stroke="#4ADE80" stroke-width="13" stroke-linecap="round"/>
+
+  <!-- Left leaf -->
+  <g transform="translate(140,262) rotate(-52)">
+    <path d="M 0,-90 C 36,-85 60,-48 60,0 C 60,50 36,84 0,90 C -36,84 -60,50 -60,0 C -60,-48 -36,-85 0,-90 Z" fill="#22C55E"/>
+    <line x1="0" y1="-76" x2="0" y2="76" stroke="#15803D" stroke-width="3.5" stroke-linecap="round" opacity="0.8"/>
+    <line x1="0" y1="-32" x2="-44" y2="-6"  stroke="#15803D" stroke-width="2" opacity="0.55"/>
+    <line x1="0" y1="-32" x2=" 44" y2="-6"  stroke="#15803D" stroke-width="2" opacity="0.55"/>
+    <line x1="0" y1=" 18" x2="-48" y2=" 44" stroke="#15803D" stroke-width="2" opacity="0.55"/>
+    <line x1="0" y1=" 18" x2=" 48" y2=" 44" stroke="#15803D" stroke-width="2" opacity="0.55"/>
+  </g>
+
+  <!-- Right leaf -->
+  <g transform="translate(372,262) rotate(52)">
+    <path d="M 0,-90 C 36,-85 60,-48 60,0 C 60,50 36,84 0,90 C -36,84 -60,50 -60,0 C -60,-48 -36,-85 0,-90 Z" fill="#22C55E"/>
+    <line x1="0" y1="-76" x2="0" y2="76" stroke="#15803D" stroke-width="3.5" stroke-linecap="round" opacity="0.8"/>
+    <line x1="0" y1="-32" x2="-44" y2="-6"  stroke="#15803D" stroke-width="2" opacity="0.55"/>
+    <line x1="0" y1="-32" x2=" 44" y2="-6"  stroke="#15803D" stroke-width="2" opacity="0.55"/>
+    <line x1="0" y1=" 18" x2="-48" y2=" 44" stroke="#15803D" stroke-width="2" opacity="0.55"/>
+    <line x1="0" y1=" 18" x2=" 48" y2=" 44" stroke="#15803D" stroke-width="2" opacity="0.55"/>
+  </g>
+
+  <!-- Terminal leaf (top center, slightly larger and lighter) -->
+  <g transform="translate(256,192)">
+    <path d="M 0,-102 C 42,-96 70,-54 70,0 C 70,57 42,96 0,102 C -42,96 -70,57 -70,0 C -70,-54 -42,-96 0,-102 Z" fill="#4ADE80"/>
+    <line x1="0" y1="-86" x2="0" y2="86" stroke="#22C55E" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+    <line x1="0" y1="-38" x2="-50" y2="-8"  stroke="#22C55E" stroke-width="2.5" opacity="0.55"/>
+    <line x1="0" y1="-38" x2=" 50" y2="-8"  stroke="#22C55E" stroke-width="2.5" opacity="0.55"/>
+    <line x1="0" y1=" 20" x2="-56" y2=" 52" stroke="#22C55E" stroke-width="2.5" opacity="0.55"/>
+    <line x1="0" y1=" 20" x2=" 56" y2=" 52" stroke="#22C55E" stroke-width="2.5" opacity="0.55"/>
+  </g>
 </svg>
