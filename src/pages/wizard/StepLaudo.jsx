@@ -71,21 +71,17 @@ OBJETIVOS SELECIONADOS: ${d.objetivos.join(', ')}
 
 Gere SOMENTE as seções 6 e 7 do laudo técnico em HTML. Seja objetivo e técnico.
 
-<h3>💊 6. Protocolo Fisiológico Sugerido</h3>
-Cinco blocos, cada um com 2-4 itens objetivos:
-
-<strong>Macronutrientes:</strong> elementos indicados → função fisiológica atual no estádio ${d.estadio}.
-<strong>Micronutrientes:</strong> elementos indicados → função e antagonismos a evitar.
-<strong>Aminoácidos (Taiz & Zeiger, 2017; Marschner, 2012):</strong> selecionar 3-5 entre: prolina, glicina betaína, glicina, triptofano, glutamina, arginina, metionina, cisteína, fenilalanina, asparagina — apenas os pertinentes ao estádio ${d.estadio} e objetivos. 1 linha: nome → função → benefício.
-<strong>Extratos de Algas:</strong> betaínas, citocininas naturais, polissacarídeos — funções no estádio atual.
-<strong>Bioestimulantes:</strong> ácido húmico/fúlvico, silício foliar — mecanismo e benefício.
-SEM doses. SEM marcas comerciais.
-
+<h3>💊 6. Protocolo Fisiológico</h3>
+<strong>Macronutrientes:</strong>elementos→função no estádio ${d.estadio}.
+<strong>Micronutrientes:</strong>elementos→função e antagonismos.
+<strong>Aminoácidos:</strong>3-4 entre prolina,betaína,glicina,triptofano,glutamina,arginina,metionina,cisteína,fenilalanina,asparagina — pertinentes ao estádio e objetivos. Nome→função→benefício.
+<strong>Algas:</strong>betaínas,citocininas,polissacarídeos→função.
+<strong>Bioestimulantes:</strong>húmico/fúlvico,silício→mecanismo.
+Sem doses. Sem marcas.
 <h3>📈 7. Resultado Esperado</h3>
-Tabela 5-6 linhas — incluir obrigatoriamente N e P — demais: nutrientes com ❌ ou ⚠️ na foliar:
-<table><tr><th>Nutriente</th><th>Dose Foliar (elem. puro)</th><th>Mecanismo Fisiológico</th><th>Ganho (sc/ha)</th><th>Prazo</th></tr>...</table>
-Dose: se deficiente → corretiva (g ou kg/ha); se adequado → "preventiva"; se nd → padrão.
-<strong>Projeção total:</strong> +X a +Y sc/ha. <strong>Meta ${d.prodExpect} sc/ha:</strong> 2 linhas. <strong>Estabilidade:</strong> riscos mitigados.`
+<table><tr><th>Nutriente</th><th>Dose Foliar</th><th>Mecanismo</th><th>Ganho(sc/ha)</th><th>Prazo</th></tr></table>
+5 linhas. N e P obrigatórios. Dose foliar(g/kg/ha):corretiva se❌,preventiva se⚠️,padrão se nd.
+Projeção:+X a +Y sc/ha. Meta ${d.prodExpect} sc/ha:2 linhas.`
 }
 
 export default function StepLaudo() {

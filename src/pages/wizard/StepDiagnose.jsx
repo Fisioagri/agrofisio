@@ -54,23 +54,13 @@ FOLIAR: ${foliar}
 
 Gere SOMENTE as seções 3${d.stresse ? ', 4' : ''} e ${d.stresse ? '5' : '4'} em HTML:
 
-<h3>🧪 3. Exigência Nutricional e Diagnose Foliar</h3>
-<table><tr><th>Nutriente</th><th>Dose Total</th><th>Função no Estádio</th><th>Status Foliar</th><th>Efic. Foliar</th><th>Dose Foliar (elem. puro)</th></tr>...</table>
-N, P, K, Ca, Mg, S, Fe, Zn, Cu, Mn, B, Mo. Dose em g ou kg/ha.
-Status: ✅ Adequado / ⚠️ Limite / ❌ Deficiente / — sem dado.
-Efic. Foliar (Marschner): ✅ Alta / ⚠️ Média / ❌ Baixa.
-Dose Foliar: se ❌ → dose corretiva; se ⚠️ → dose preventiva; se ✅ → —; se nd → preventiva padrão.
-<strong>⚠️ Antagonismos (Marschner, 2012):</strong> 3 pares críticos para aplicação foliar conjunta:
-<ul><li><strong>[A]×[B]:</strong> mecanismo → separar tanque ou intervalo mínimo</li></ul>
-NUNCA cite marcas comerciais.
-
-${d.stresse ? `<h3>⚠️ 4. Diagnose de Estresse — ${d.tiposStresse.join(' + ')}</h3>
-Mecanismo de dano celular, cascata hormonal (ABA, etileno, jasmonato), nutrientes mais afetados, impacto no estádio ${d.estadio}. 5-6 linhas técnicas.` : ''}
-
-<h3>${d.stresse ? '5' : '4'}. 🔴 Gargalos Fisiológicos e Riscos Produtivos</h3>
-3-5 principais gargalos baseados em todos os dados. Formato:
-<ul><li><strong>[Gargalo]:</strong> descrição → impacto (-X a -Y sc/ha) → urgência: 🔴 Alta / 🟡 Média / 🟢 Baixa</li></ul>
-Síntese final: risco total estimado sem intervenção.`
+<h3>🧪 3. Exigência Nutricional</h3>
+Tabela N,P,K,Ca,Mg,S,Fe,Zn,Cu,Mn,B,Mo: <table><tr><th>Nutriente</th><th>Dose</th><th>Função</th><th>Status</th><th>Efic.Foliar</th><th>Dose Foliar</th></tr></table>
+Status:✅/⚠️/❌/—. Efic.Foliar:✅Alta/⚠️Média/❌Baixa. Dose Foliar(g ou kg/ha):corretiva❌,preventiva⚠️,—✅.
+Antagonismos: 3 pares <ul><li><strong>A×B:</strong>mecanismo→intervalo</li></ul>Sem marcas.
+${d.stresse ? `<h3>⚠️ 4. Estresse — ${d.tiposStresse.join('+')} </h3>Dano celular, hormônios (ABA/etileno/jasmonato), nutrientes afetados. 4 linhas.` : ''}
+<h3>${d.stresse ? '5' : '4'}. 🔴 Gargalos</h3>
+<ul><li><strong>[Gargalo]:</strong>descrição→impacto(-X sc/ha)→🔴/🟡/🟢</li></ul>3-4 itens. Risco total sem intervenção.`
 }
 
 export default function StepDiagnose() {
