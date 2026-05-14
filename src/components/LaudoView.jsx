@@ -103,6 +103,13 @@ export default function LaudoView({ title, subtitle, badge, html, showPrint = fa
           className="laudo-body text-sm text-ink-900 leading-relaxed"
           dangerouslySetInnerHTML={{ __html: html }}
         />
+        <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-sm">
+          <p className="font-mono text-[10px] text-amber-700 leading-relaxed">
+            ⚠️ {lang === 'en'
+              ? 'Protocol generated with AI assistance (Claude — Anthropic) based on Marschner (2012), Taiz & Zeiger (2017) and Embrapa. Recommendations must be validated by a licensed agronomist before application. The technical responsible is the signatory of this report.'
+              : 'Protocolo gerado com auxílio de IA (Claude — Anthropic) baseado em Marschner (2012), Taiz & Zeiger (2017) e Embrapa. As recomendações devem ser validadas por engenheiro agrônomo habilitado antes da aplicação. O responsável técnico é o signatário deste laudo.'}
+          </p>
+        </div>
       </div>
     </div>
   )

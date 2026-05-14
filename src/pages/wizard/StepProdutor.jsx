@@ -3,6 +3,33 @@ import { useLanguage } from '../../contexts/LanguageContext'
 import Card from '../../components/ui/Card'
 import Input from '../../components/ui/Input'
 
+const MAX_SC = 200
+
+function ProdInput({ label, required, placeholder, value, onChange }) {
+  const num = value !== '' && value !== undefined ? parseFloat(value) : null
+  const hasError = num !== null && !isNaN(num) && (num < 0 || num > MAX_SC)
+  return (
+    <div>
+      <Input
+        label={label}
+        required={required}
+        type="number"
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        min={0}
+        max={MAX_SC}
+        className={hasError ? 'border-danger-400 bg-red-50' : ''}
+      />
+      {hasError && (
+        <p className="font-mono text-[10px] text-danger-500 mt-0.5">
+          Valor fora do intervalo (0–{MAX_SC} sc/ha)
+        </p>
+      )}
+    </div>
+  )
+}
+
 export default function StepProdutor() {
   const { data, update } = useWizard()
   const { t } = useLanguage()
@@ -29,19 +56,8 @@ export default function StepProdutor() {
 
       <Card title={p.cardProd}>
         <div className="grid grid-cols-2 gap-2.5">
-          <Input
-            label={p.lastProd}
-            type="number"
-            placeholder={p.lastPh}
-            {...field('prodUltima')}
-          />
-          <Input
-            label={p.expectation}
-            required
-            type="number"
-            placeholder={p.expectPh}
-            {...field('prodExpect')}
-          />
+          <ProdInput label={p.lastProd} placeholder={p.lastPh} {...field('prodUltima')} />
+          <ProdInput label={p.expectation} required placeholder={p.expectPh} {...field('prodExpect')} />
         </div>
       </Card>
     </>

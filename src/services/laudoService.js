@@ -13,13 +13,14 @@ export async function saveLaudo({ userId, data, diagnoseHtml, laudoHtml }) {
   if (error) throw error
 }
 
-export async function listLaudos() {
-  const { data, error } = await supabase
+export async function listLaudos({ limit = 10, offset = 0 } = {}) {
+  const { data, error, count } = await supabase
     .from('laudos')
-    .select('id, produtor_nome, cultura, estadio, safra, created_at')
+    .select('id, produtor_nome, cultura, estadio, safra, created_at', { count: 'exact' })
     .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1)
   if (error) throw error
-  return data
+  return { data, count }
 }
 
 export async function getLaudo(id) {

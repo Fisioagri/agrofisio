@@ -7,21 +7,21 @@ import NutrientsGrid from '../../components/NutrientsGrid'
 import AnalysisPhotoUpload from '../../components/AnalysisPhotoUpload'
 
 const MACRO = [
-  { id: 'nFoliar',  label: 'N (g/kg)',  placeholder: 'Ref: 40-50',  step: '0.1' },
-  { id: 'pFoliar',  label: 'P (g/kg)',  placeholder: 'Ref: 2.5-4.0',step: '0.1' },
-  { id: 'kFoliar',  label: 'K (g/kg)',  placeholder: 'Ref: 17-27',  step: '0.1' },
-  { id: 'caFoliar', label: 'Ca (g/kg)', placeholder: 'Ref: 6-20',   step: '0.1' },
-  { id: 'mgFoliar', label: 'Mg (g/kg)', placeholder: 'Ref: 2.5-5.0',step: '0.1' },
-  { id: 'sFoliar',  label: 'S (g/kg)',  placeholder: 'Ref: 2.0-4.0',step: '0.1' },
+  { id: 'nFoliar',  label: 'N (g/kg)',  placeholder: 'Ref: 40-50',   step: '0.1',  min: 0, max: 100 },
+  { id: 'pFoliar',  label: 'P (g/kg)',  placeholder: 'Ref: 2.5-4.0', step: '0.1',  min: 0, max: 50  },
+  { id: 'kFoliar',  label: 'K (g/kg)',  placeholder: 'Ref: 17-27',   step: '0.1',  min: 0, max: 100 },
+  { id: 'caFoliar', label: 'Ca (g/kg)', placeholder: 'Ref: 6-20',    step: '0.1',  min: 0, max: 100 },
+  { id: 'mgFoliar', label: 'Mg (g/kg)', placeholder: 'Ref: 2.5-5.0', step: '0.1',  min: 0, max: 100 },
+  { id: 'sFoliar',  label: 'S (g/kg)',  placeholder: 'Ref: 2.0-4.0', step: '0.1',  min: 0, max: 50  },
 ]
 
 const MICRO = [
-  { id: 'bFoliar',  label: 'B (mg/kg)',  placeholder: 'Ref: 30-80',  step: '0.1'  },
-  { id: 'znFoliar', label: 'Zn (mg/kg)', placeholder: 'Ref: 25-60',  step: '0.1'  },
-  { id: 'cuFoliar', label: 'Cu (mg/kg)', placeholder: 'Ref: 5-20',   step: '0.1'  },
-  { id: 'mnFoliar', label: 'Mn (mg/kg)', placeholder: 'Ref: 20-150', step: '0.1'  },
-  { id: 'feFoliar', label: 'Fe (mg/kg)', placeholder: 'Ref: 50-350', step: '0.1'  },
-  { id: 'moFoliar', label: 'Mo (mg/kg)', placeholder: 'Ref: 0.5-5',  step: '0.01' },
+  { id: 'bFoliar',  label: 'B (mg/kg)',  placeholder: 'Ref: 30-80',   step: '0.1',  min: 0, max: 500  },
+  { id: 'znFoliar', label: 'Zn (mg/kg)', placeholder: 'Ref: 25-60',   step: '0.1',  min: 0, max: 500  },
+  { id: 'cuFoliar', label: 'Cu (mg/kg)', placeholder: 'Ref: 5-20',    step: '0.1',  min: 0, max: 100  },
+  { id: 'mnFoliar', label: 'Mn (mg/kg)', placeholder: 'Ref: 20-150',  step: '0.1',  min: 0, max: 1000 },
+  { id: 'feFoliar', label: 'Fe (mg/kg)', placeholder: 'Ref: 50-350',  step: '0.1',  min: 0, max: 2000 },
+  { id: 'moFoliar', label: 'Mo (mg/kg)', placeholder: 'Ref: 0.5-5',   step: '0.01', min: 0, max: 50   },
 ]
 
 export default function StepFoliar() {

@@ -19,7 +19,7 @@ export default function Header() {
           AgroFísio
         </div>
         <div className="font-mono text-[9px] text-brand-400 mt-0.5">
-          protocolo de manejo fisiológico · v4.0
+          protocolo de manejo fisiológico · v4.1
         </div>
       </div>
       <div className="font-mono text-[10px] text-brand-400 bg-white/10 px-2 py-1 rounded-full flex-shrink-0">

@@ -7,28 +7,28 @@ import NutrientsGrid from '../../components/NutrientsGrid'
 import AnalysisPhotoUpload from '../../components/AnalysisPhotoUpload'
 
 const MACRO = [
-  { id: 'ph',        label: 'pH (CaCl₂)',      placeholder: 'Ex: 6.0',  step: '0.1'  },
-  { id: 'mo',        label: 'MO (%)',           placeholder: 'Ex: 3.5',  step: '0.1'  },
-  { id: 'pSolo',     label: 'P (mg/dm³)',       placeholder: 'Ex: 25'                 },
-  { id: 'kSolo',     label: 'K (cmolc/dm³)',    placeholder: 'Ex: 0.35', step: '0.01' },
-  { id: 'caSolo',    label: 'Ca (cmolc/dm³)',   placeholder: 'Ex: 5.0',  step: '0.1'  },
-  { id: 'mgSolo',    label: 'Mg (cmolc/dm³)',   placeholder: 'Ex: 1.5',  step: '0.1'  },
-  { id: 'sSolo',     label: 'S (mg/dm³)',       placeholder: 'Ex: 10'                 },
-  { id: 'alSolo',    label: 'Al (cmolc/dm³)',   placeholder: 'Ex: 0.1',  step: '0.1'  },
-  { id: 'hAlSolo',   label: 'H+Al (cmolc/dm³)',placeholder: 'Ex: 4.5',  step: '0.1'  },
-  { id: 'ctcSolo',   label: 'CTC (cmolc/dm³)',  placeholder: 'Ex: 12.5', step: '0.1'  },
-  { id: 'vSolo',     label: 'V% (sat. bases)',  placeholder: 'Ex: 65'                 },
-  { id: 'satAlSolo', label: 'Sat. Al (%)',      placeholder: 'Ex: 2'                  },
-  { id: 'argilaSolo',label: 'Argila (%)',        placeholder: 'Ex: 55'                 },
+  { id: 'ph',        label: 'pH (CaCl₂)',       placeholder: 'Ex: 6.0',  step: '0.1',  min: 3,   max: 9    },
+  { id: 'mo',        label: 'MO (%)',            placeholder: 'Ex: 3.5',  step: '0.1',  min: 0,   max: 100  },
+  { id: 'pSolo',     label: 'P (mg/dm³)',        placeholder: 'Ex: 25',                 min: 0,   max: 500  },
+  { id: 'kSolo',     label: 'K (cmolc/dm³)',     placeholder: 'Ex: 0.35', step: '0.01', min: 0,   max: 5    },
+  { id: 'caSolo',    label: 'Ca (cmolc/dm³)',    placeholder: 'Ex: 5.0',  step: '0.1',  min: 0,   max: 30   },
+  { id: 'mgSolo',    label: 'Mg (cmolc/dm³)',    placeholder: 'Ex: 1.5',  step: '0.1',  min: 0,   max: 15   },
+  { id: 'sSolo',     label: 'S (mg/dm³)',        placeholder: 'Ex: 10',                 min: 0,   max: 200  },
+  { id: 'alSolo',    label: 'Al (cmolc/dm³)',    placeholder: 'Ex: 0.1',  step: '0.1',  min: 0,   max: 10   },
+  { id: 'hAlSolo',   label: 'H+Al (cmolc/dm³)', placeholder: 'Ex: 4.5',  step: '0.1',  min: 0,   max: 30   },
+  { id: 'ctcSolo',   label: 'CTC (cmolc/dm³)',   placeholder: 'Ex: 12.5', step: '0.1',  min: 0,   max: 80   },
+  { id: 'vSolo',     label: 'V% (sat. bases)',   placeholder: 'Ex: 65',                 min: 0,   max: 100  },
+  { id: 'satAlSolo', label: 'Sat. Al (%)',        placeholder: 'Ex: 2',                  min: 0,   max: 100  },
+  { id: 'argilaSolo',label: 'Argila (%)',         placeholder: 'Ex: 55',                 min: 0,   max: 100  },
 ]
 
 const MICRO = [
-  { id: 'bSolo',  label: 'B (mg/dm³)',  placeholder: 'Ex: 0.5',  step: '0.1'  },
-  { id: 'znSolo', label: 'Zn (mg/dm³)', placeholder: 'Ex: 1.6',  step: '0.1'  },
-  { id: 'cuSolo', label: 'Cu (mg/dm³)', placeholder: 'Ex: 1.0',  step: '0.1'  },
-  { id: 'mnSolo', label: 'Mn (mg/dm³)', placeholder: 'Ex: 5.0',  step: '0.1'  },
-  { id: 'feSolo', label: 'Fe (mg/dm³)', placeholder: 'Ex: 35',   step: '0.1'  },
-  { id: 'moSolo', label: 'Mo (mg/dm³)', placeholder: 'Ex: 0.1',  step: '0.01' },
+  { id: 'bSolo',  label: 'B (mg/dm³)',  placeholder: 'Ex: 0.5',  step: '0.1',  min: 0, max: 10   },
+  { id: 'znSolo', label: 'Zn (mg/dm³)', placeholder: 'Ex: 1.6',  step: '0.1',  min: 0, max: 50   },
+  { id: 'cuSolo', label: 'Cu (mg/dm³)', placeholder: 'Ex: 1.0',  step: '0.1',  min: 0, max: 50   },
+  { id: 'mnSolo', label: 'Mn (mg/dm³)', placeholder: 'Ex: 5.0',  step: '0.1',  min: 0, max: 200  },
+  { id: 'feSolo', label: 'Fe (mg/dm³)', placeholder: 'Ex: 35',   step: '0.1',  min: 0, max: 1000 },
+  { id: 'moSolo', label: 'Mo (mg/dm³)', placeholder: 'Ex: 0.1',  step: '0.01', min: 0, max: 5    },
 ]
 
 export default function StepSolo() {

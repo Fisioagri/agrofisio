@@ -14,12 +14,12 @@ function canProceed(step, data) {
 function shareReport(data, laudoFinalHtml, shareTitle) {
   const text = laudoFinalHtml
     ? laudoFinalHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
-    : 'Laudo gerado pelo AgroFísio v4.0'
+    : 'Laudo gerado pelo AgroFísio v4.1'
 
   const msg = `🌱 PROTOCOLO FISIOLÓGICO — ${(data.cultura || '').toUpperCase()}\n\n` +
     `Produtor: ${data.prodNome} | ${data.prodCidade}\n` +
     `Safra: ${data.safra} | Estádio: ${data.estadio}\n` +
-    `Expectativa: ${data.prodExpect} sc/ha\n\n${text}\n\n— AgroFísio v4.0`
+    `Expectativa: ${data.prodExpect} sc/ha\n\n${text}\n\n— AgroFísio v4.1`
 
   if (navigator.share) {
     navigator.share({ title: shareTitle, text: msg }).catch(() => {})
