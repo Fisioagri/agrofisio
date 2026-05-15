@@ -1,6 +1,6 @@
 const WORKER_URL = import.meta.env.VITE_WORKER_URL
 
-const RETRY_DELAYS = [8000, 15000, 25000] // ms entre tentativas
+const RETRY_DELAYS = [12000, 22000, 35000] // ms entre tentativas
 
 async function sleep(ms) {
   return new Promise(r => setTimeout(r, ms))

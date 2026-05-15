@@ -26,10 +26,8 @@ export default function StepDiagnose() {
     setLoading(true)
     setDiagnoseHtml('__loading__')
     try {
-      const [html1, html2] = await Promise.all([
-        callClaude(buildDiagnosePrompt1(data, t.promptLang), data.fotoB64 || null, 3500),
-        callClaude(buildDiagnosePrompt2(data, t.promptLang), null, 3500),
-      ])
+      const html1 = await callClaude(buildDiagnosePrompt1(data, t.promptLang), data.fotoB64 || null, 2500)
+      const html2 = await callClaude(buildDiagnosePrompt2(data, t.promptLang), null, 2500)
       setDiagnoseHtml(html1 + html2)
     } catch (e) {
       setDiagnoseHtml(null)

@@ -34,8 +34,8 @@ Gere SOMENTE as seções 1 e 2 em HTML:
 ${d.fotoB64 ? 'Descrever também o observável na foto: coloração, arquitetura, sintomas.' : ''}
 
 <h3>🧬 2. Mapa Hormonal</h3>
-<table><tr><th>Hormônio</th><th>Nível</th><th>Função no Estádio</th><th>Impacto sob Estresse</th><th>Nutriente Relacionado</th></tr>...</table>
-Incluir: Auxina, Citocinina, Giberelina, Etileno, ABA, Brasinoesteroide, Jasmonato.`
+<table><tr><th>Hormônio</th><th>Ação no Estádio</th><th>Nutriente-chave</th></tr>...</table>
+Incluir: Auxina, Citocinina, Giberelina, Etileno, ABA. 5 linhas.`
 }
 
 export function buildDiagnosePrompt2(d, lang) {
