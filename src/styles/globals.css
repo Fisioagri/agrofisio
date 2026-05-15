@@ -25,14 +25,27 @@
   .laudo-body li  { @apply text-sm leading-relaxed text-ink-900; }
   .laudo-body strong { @apply text-brand-900 font-bold; }
   .laudo-body em     { @apply text-ink-600 not-italic font-semibold; }
+  .laudo-body .tbl-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 12px 0;
+    border-radius: 4px;
+  }
   .laudo-body table {
-    @apply w-full border-collapse my-3 text-xs rounded-sm overflow-hidden;
+    @apply border-collapse text-xs;
+    min-width: 100%;
+    border-radius: 4px;
+    overflow: hidden;
   }
   .laudo-body th {
     @apply bg-brand-900 text-white px-2.5 py-2 text-left font-mono text-[10px] uppercase tracking-wider;
+    white-space: nowrap;
   }
   .laudo-body td {
     @apply px-2.5 py-2 border-b border-surface-border text-ink-900;
+    min-width: 72px;
+    max-width: 240px;
+    word-break: break-word;
   }
   .laudo-body tr:nth-child(even) td {
     @apply bg-brand-50;

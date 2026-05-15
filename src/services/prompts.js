@@ -11,6 +11,23 @@ async function getKnowledge(cultura, lang) {
 // lang = t.promptLang (either PT or EN instruction string)
 function isEn(lang) { return lang.includes('ENGLISH') }
 
+// Strips HTML tags from diagnose output → compact plain-text for correction prompt
+function diagnoseSummary(html, max = 2000) {
+  if (!html) return ''
+  return html
+    .replace(/<\/tr>/gi, '\n')
+    .replace(/<\/?th[^>]*>/gi, ' ')
+    .replace(/<\/?td[^>]*>/gi, ' | ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/\n[ \t]+/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+    .substring(0, max)
+}
+
 function ctx(d, lang) {
   const en = isEn(lang)
   return `${en ? 'FARM' : 'LAVOURA'}: ${d.prodNome} | ${d.prodCidade} | ${d.cultura} | ${d.hibrido} | ${en ? 'Season' : 'Safra'} ${d.safra}
@@ -247,6 +264,8 @@ export async function buildCorrecaoPrompt(d, diagnoseHtml, lang) {
   const refs = buildRefContext(d.cultura, en)
   const knowledge = await getKnowledge(d.cultura, lang)
 
+  const diagSummary = diagnoseSummary(diagnoseHtml)
+
   return `${lang}
 ${base(lang)}
 ${en ? 'FARM' : 'LAVOURA'}: ${d.prodNome} | ${d.cultura} | ${en ? 'Stage' : 'Estádio'} ${d.estadio} | ${en ? 'Expected' : 'Expectativa'}: ${d.prodExpect} sc/ha
@@ -256,42 +275,40 @@ FOLIAR: ${foliarCtx}
 
 ${refs}
 ${knowledge}
-${en ? 'DIAGNOSIS (use as basis — HTML):' : 'DIAGNOSE (use como base — HTML):'}
-${diagnoseHtml}
-
+${diagSummary ? `${en ? 'DIAGNOSIS SUMMARY (nutrient status from previous step):' : 'RESUMO DA DIAGNOSE (status dos nutrientes da etapa anterior):'}\n${diagSummary}\n` : ''}
 ${en
-  ? `Based on the diagnosis above, generate a COMPLETE nutritional correction protocol as pure HTML.
+  ? `Generate a COMPLETE nutritional correction protocol as pure HTML (no markdown).
 
 MANDATORY RULES:
-1. Include ALL nutrients with ❌Deficient or ⚠️Borderline status from the diagnosis
-2. The "Dose" column is MANDATORY — never leave blank. Use the reference doses provided above.
-   Examples of correct format: "2 kg/ha bórax (11% B)" | "300 g/ha sulfato de Zn via foliar" | "30 kg/ha N-ureia"
-3. Always specify: amount + unit + source material (no commercial brand names)
-4. Via: Soil / Foliar / Both — choose the most efficient for current stage ${d.estadio}
-5. Timing: indicate phenological window (e.g., "R1–R2" or "immediately" or "next application")
+1. Evaluate ALL 12 nutrients (N,P,K,Ca,Mg,S,B,Zn,Cu,Mn,Fe,Mo) — use the soil/foliar data above vs. the reference ranges
+2. Mark each with the correct status: ❌Deficient / ⚠️Borderline / ✅Adequate
+3. The "Dose" column is MANDATORY for ❌ and ⚠️ — never leave blank.
+   Use the corrective doses above. Format: "2 kg/ha bórax (11% B)" | "300 g/ha sulfato de Zn foliar"
+4. Always specify: amount + unit + active ingredient. No commercial brand names.
+5. Via: Soil / Foliar / Both — choose most efficient for stage ${d.estadio}
+6. Timing: phenological window (e.g. "R1–R2", "immediately", "next application")
+7. Rows in EXACT order: N, P, K, Ca, Mg, S, B, Zn, Cu, Mn, Fe, Mo
 
 <h3>💊 Nutritional Correction Protocol</h3>
-<table><tr><th>Nutrient</th><th>Status</th><th>Via</th><th>Dose</th><th>Source (active ingredient)</th><th>Timing</th><th>Note</th></tr>...</table>
-
-After the table add:
-<h4>Priority order:</h4> — numbered list of corrections from most to least urgent, with brief justification.
-<h4>Technical observations:</h4> — 2-3 lines on nutrient antagonisms and application synergies.`
-  : `Com base na diagnose acima, gere um protocolo COMPLETO de correção nutricional em HTML puro.
+<table><tr><th>Nutrient</th><th>Status</th><th>Via</th><th>Dose</th><th>Active Ingredient</th><th>Timing</th><th>Note</th></tr>...</table>
+<h4>Priority order:</h4><ol>...</ol>
+<h4>Technical observations:</h4><p>2-3 lines on key antagonisms and application synergies.</p>`
+  : `Gere um protocolo COMPLETO de correção nutricional em HTML puro (sem markdown).
 
 REGRAS OBRIGATÓRIAS:
-1. Inclua TODOS os nutrientes com status ❌Deficiente ou ⚠️Limite/Borderline da diagnose
-2. A coluna "Dose" é OBRIGATÓRIA — nunca deixar em branco. Use as doses de referência fornecidas acima.
-   Exemplos de formato correto: "2 kg/ha de bórax (11% B)" | "300 g/ha de sulfato de Zn via foliar" | "30 kg/ha de N-ureia"
-3. Especifique sempre: quantidade + unidade + ingrediente ativo (sem marcas comerciais)
-4. Via: Solo / Foliar / Ambos — escolha a mais eficiente para o estádio atual ${d.estadio}
-5. Momento: indique a janela fenológica (ex: "R1–R2" ou "imediato" ou "próxima aplicação")
+1. Avalie TODOS os 12 nutrientes (N,P,K,Ca,Mg,S,B,Zn,Cu,Mn,Fe,Mo) — use os dados solo/foliar acima vs. as faixas de referência
+2. Marque cada um com o status correto: ❌Deficiente / ⚠️Limite / ✅Adequado
+3. A coluna "Dose" é OBRIGATÓRIA para ❌ e ⚠️ — nunca deixar em branco.
+   Use as doses corretivas acima. Formato: "2 kg/ha de bórax (11% B)" | "300 g/ha de sulfato de Zn foliar"
+4. Especifique sempre: quantidade + unidade + ingrediente ativo. Sem marcas comerciais.
+5. Via: Solo / Foliar / Ambos — escolha mais eficiente para o estádio ${d.estadio}
+6. Momento: janela fenológica (ex: "R1–R2", "imediato", "próxima aplicação")
+7. Linhas em ORDEM EXATA: N, P, K, Ca, Mg, S, B, Zn, Cu, Mn, Fe, Mo
 
 <h3>💊 Protocolo de Correção Nutricional</h3>
-<table><tr><th>Nutriente</th><th>Status</th><th>Via</th><th>Dose</th><th>Fonte (ingrediente ativo)</th><th>Momento</th><th>Observação</th></tr>...</table>
-
-Após a tabela adicione:
-<h4>Ordem de prioridade:</h4> — lista numerada das correções da mais para a menos urgente, com breve justificativa.
-<h4>Observações técnicas:</h4> — 2-3 linhas sobre antagonismos entre nutrientes e sinergias de aplicação.`}`
+<table><tr><th>Nutriente</th><th>Status</th><th>Via</th><th>Dose</th><th>Ingrediente Ativo</th><th>Momento</th><th>Observação</th></tr>...</table>
+<h4>Ordem de prioridade:</h4><ol>...</ol>
+<h4>Observações técnicas:</h4><p>2-3 linhas sobre antagonismos-chave e sinergias de aplicação.</p>`}`
 }
 
 export async function buildManipPrompt(d, manipOptions, lang) {

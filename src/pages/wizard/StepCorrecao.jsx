@@ -33,7 +33,10 @@ export default function StepCorrecao() {
       const html = await callClaude(
         await buildCorrecaoPrompt(data, laudoDiagnoseHtml || '', t.promptLang),
         null,
-        4000
+        5000
+      )
+      if (!html?.trim()) throw new Error(
+        lang === 'en' ? 'Empty response. Please try again.' : 'Resposta vazia. Tente novamente.'
       )
       setCorrecaoHtml(html)
     } catch (e) {

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
 
 function sanitize(html) {
@@ -12,6 +12,17 @@ export default function LaudoView({ title, subtitle, badge, html, showPrint = fa
   const { lang } = useLanguage()
   const contentRef = useRef(null)
   const [generating, setGenerating] = useState(false)
+
+  useEffect(() => {
+    if (!contentRef.current) return
+    contentRef.current.querySelectorAll('table').forEach(table => {
+      if (table.parentElement?.classList.contains('tbl-scroll')) return
+      const wrap = document.createElement('div')
+      wrap.className = 'tbl-scroll'
+      table.parentNode.insertBefore(wrap, table)
+      wrap.appendChild(table)
+    })
+  }, [html])
 
   async function handlePDF() {
     if (generating) return
