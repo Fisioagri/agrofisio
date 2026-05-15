@@ -138,6 +138,138 @@ ${en
 ${en ? 'NEVER cite brands.' : 'NUNCA citar marcas.'}`
 }
 
+export function buildDiagnoseOption01Prompt(d, lang) {
+  const en = isEn(lang)
+  const solo   = `pH=${d.ph||'nd'}, MO=${d.mo||'nd'}%, P=${d.pSolo||'nd'}, K=${d.kSolo||'nd'}, Ca=${d.caSolo||'nd'}, Mg=${d.mgSolo||'nd'}, S=${d.sSolo||'nd'}, Al=${d.alSolo||'nd'}, H+Al=${d.hAlSolo||'nd'}, CTC=${d.ctcSolo||'nd'}, V%=${d.vSolo||'nd'}, Sat.Al=${d.satAlSolo||'nd'}%, B=${d.bSolo||'nd'}, Zn=${d.znSolo||'nd'}, Cu=${d.cuSolo||'nd'}, Mn=${d.mnSolo||'nd'}, Fe=${d.feSolo||'nd'}`
+  const foliar = `N=${d.nFoliar||'nd'}, P=${d.pFoliar||'nd'}, K=${d.kFoliar||'nd'}, Ca=${d.caFoliar||'nd'}, Mg=${d.mgFoliar||'nd'}, S=${d.sFoliar||'nd'}, B=${d.bFoliar||'nd'}, Zn=${d.znFoliar||'nd'}, Cu=${d.cuFoliar||'nd'}, Mn=${d.mnFoliar||'nd'}, Fe=${d.feFoliar||'nd'}`
+
+  return `${lang}
+${en ? 'Expert in plant physiology.' : 'Especialista em fisiologia vegetal.'} ${en ? 'Based on: Marschner (2012), Taiz & Zeiger (2017).' : 'Base: Marschner (2012), Taiz & Zeiger (2017).'}
+${en ? 'FARM' : 'LAVOURA'}: ${d.prodNome} | ${d.prodCidade} | ${d.cultura} | ${d.hibrido} | ${en ? 'Season' : 'Safra'} ${d.safra}
+${en ? 'Stage' : 'Estádio'}: ${d.estadio} | ${en ? 'Expected' : 'Expectativa'}: ${d.prodExpect} sc/ha
+${en ? 'Symptoms' : 'Sintomas'}: ${d.sintomas||(en ? 'none' : 'nenhum')}
+${d.fotoB64 ? (en ? 'PHOTO ATTACHED: correlate visual symptoms with analytical data.' : 'FOTO ANEXADA: correlacione sintomas visuais com dados analíticos.') : ''}
+SOIL: ${solo}
+FOLIAR: ${foliar}
+
+${en ? 'Generate deficiency/toxicity diagnosis in HTML:' : 'Gere diagnose de deficiência/toxidez em HTML:'}
+
+<h3>🔬 ${en ? 'Deficiency/Toxicity Diagnosis' : 'Diagnose de Deficiência/Toxidez'}</h3>
+${en
+  ? `Table: Nutrient | Soil | Foliar | Diagnosis (✅Adequate/⚠️Borderline/❌Deficient/☠️Toxic) | Visual Symptom | Priority (🔴🟡🟢)
+Base on analytical data + photo to correlate visual symptoms.
+After the table: "Main findings:" — 3-4 lines of technical conclusion.`
+  : `Tabela: Nutriente | Solo | Foliar | Diagnose (✅Adequado/⚠️Limite/❌Deficiente/☠️Tóxico) | Sintoma Visual | Prioridade (🔴🟡🟢)
+Baseie-se nos dados analíticos + foto para correlacionar sintomas visuais.
+Após a tabela: "Principais achados:" — 3-4 linhas de conclusão técnica.`}`
+}
+
+export function buildDiagnoseOption02Prompt(d, lang) {
+  const en = isEn(lang)
+  return `${lang}
+${base(lang)}
+${en ? 'FARM' : 'LAVOURA'}: ${d.prodNome} | ${d.cultura} | ${en ? 'Stage' : 'Estádio'} ${d.estadio} | ${en ? 'Expected' : 'Expectativa'}: ${d.prodExpect} sc/ha
+${en ? 'Stress' : 'Estresse'}: ${d.stresse ? (en ? 'YES — ' : 'SIM — ') + d.tiposStresse.join(', ') : (en ? 'NO' : 'NÃO')}
+${en ? 'Fertilization' : 'Adubação'}: ${d.adubacao}
+
+${en ? `Generate hormonal map in HTML:` : `Gere mapa hormonal em HTML:`}
+
+<h3>🧬 ${en ? `Hormonal Map — Stage ${d.estadio}` : `Mapa Hormonal — Estádio ${d.estadio}`}</h3>
+${en
+  ? `Table: Hormone | Current Status | Action at Stage | Key Nutrient | Management Implication
+Include: Auxin, Cytokinin, Gibberellin, Ethylene, ABA, Brassinosteroid, Jasmonate.
+Base: Kerbauy (2008), Taiz & Zeiger Ch. 19-23.`
+  : `Tabela: Hormônio | Status Atual | Ação no Estádio | Nutriente-Chave | Implicação de Manejo
+Incluir: Auxina, Citocinina, Giberelina, Etileno, ABA, Brassinoesteroide, Jasmonato.
+Base: Kerbauy (2008), Taiz & Zeiger Cap. 19-23.`}`
+}
+
+export function buildDiagnoseOption03Prompt(d, lang) {
+  const en = isEn(lang)
+  const solo   = `pH=${d.ph||'nd'}, MO=${d.mo||'nd'}%, P=${d.pSolo||'nd'}, K=${d.kSolo||'nd'}, Ca=${d.caSolo||'nd'}, Mg=${d.mgSolo||'nd'}, S=${d.sSolo||'nd'}, Al=${d.alSolo||'nd'}, H+Al=${d.hAlSolo||'nd'}, CTC=${d.ctcSolo||'nd'}, V%=${d.vSolo||'nd'}, Sat.Al=${d.satAlSolo||'nd'}%, B=${d.bSolo||'nd'}, Zn=${d.znSolo||'nd'}, Cu=${d.cuSolo||'nd'}, Mn=${d.mnSolo||'nd'}, Fe=${d.feSolo||'nd'}`
+  const foliar = `N=${d.nFoliar||'nd'}, P=${d.pFoliar||'nd'}, K=${d.kFoliar||'nd'}, Ca=${d.caFoliar||'nd'}, Mg=${d.mgFoliar||'nd'}, S=${d.sFoliar||'nd'}, B=${d.bFoliar||'nd'}, Zn=${d.znFoliar||'nd'}, Cu=${d.cuFoliar||'nd'}, Mn=${d.mnFoliar||'nd'}, Fe=${d.feFoliar||'nd'}`
+
+  return `${lang}
+${base(lang)}
+${en ? 'FARM' : 'LAVOURA'}: ${d.prodNome} | ${d.cultura} | ${en ? 'Stage' : 'Estádio'} ${d.estadio}
+SOIL: ${solo}
+FOLIAR: ${foliar}
+
+${en ? 'Generate nutritional map in HTML:' : 'Gere mapa nutricional em HTML:'}
+
+<h3>🗺️ ${en ? 'Nutritional Map' : 'Mapa Nutricional'}</h3>
+${en
+  ? `Table: Nutrient | Soil Value | Soil Ref. | Foliar Value | Foliar Ref. | Status | Physiological Impact
+Include N, P, K, Ca, Mg, S, B, Zn, Cu, Mn, Fe, Mo. Status: ✅/⚠️/❌/—`
+  : `Tabela: Nutriente | Valor Solo | Ref. Solo | Valor Foliar | Ref. Foliar | Status | Impacto Fisiológico
+Incluir N, P, K, Ca, Mg, S, B, Zn, Cu, Mn, Fe, Mo. Status: ✅/⚠️/❌/—`}`
+}
+
+export function buildCorrecaoPrompt(d, diagnoseHtml, lang) {
+  const en = isEn(lang)
+  const soloCtx = `pH=${d.ph||'nd'}, MO=${d.mo||'nd'}%, P=${d.pSolo||'nd'}, K=${d.kSolo||'nd'}, Ca=${d.caSolo||'nd'}, Mg=${d.mgSolo||'nd'}`
+  const foliarCtx = `N=${d.nFoliar||'nd'}, P=${d.pFoliar||'nd'}, K=${d.kFoliar||'nd'}, Ca=${d.caFoliar||'nd'}, Mg=${d.mgFoliar||'nd'}`
+
+  return `${lang}
+${base(lang)}
+${en ? 'FARM' : 'LAVOURA'}: ${d.prodNome} | ${d.cultura} | ${en ? 'Stage' : 'Estádio'} ${d.estadio} | ${en ? 'Expected' : 'Expectativa'}: ${d.prodExpect} sc/ha
+${en ? 'Fertilization' : 'Adubação'}: ${d.adubacao}
+SOIL (${en ? 'summary' : 'resumo'}): ${soloCtx}
+FOLIAR (${en ? 'summary' : 'resumo'}): ${foliarCtx}
+
+${en ? 'DIAGNOSIS CONTEXT (HTML):' : 'CONTEXTO DA DIAGNOSE (HTML):'}
+${diagnoseHtml}
+
+${en
+  ? 'Based on the diagnosis above, generate nutritional correction protocol in HTML:'
+  : 'Com base na diagnose acima, gere protocolo de correção nutricional em HTML:'}
+
+<h3>💊 ${en ? 'Nutritional Correction Protocol' : 'Protocolo de Correção Nutricional'}</h3>
+${en
+  ? `For each nutrient with deficiency (❌ or ⚠️):
+Table: Nutrient | Via (Soil/Foliar/Both) | Indicative Dose | Source | Timing | Observation
+No commercial brands.`
+  : `Para cada nutriente com deficiência (❌ ou ⚠️):
+Tabela: Nutriente | Via (Solo/Foliar/Ambos) | Dose Indicativa | Fonte | Momento | Observação
+Sem marcas comerciais.`}`
+}
+
+export function buildManipPrompt(d, manipOptions, lang) {
+  const en = isEn(lang)
+  const optionLabels = {
+    raiz:       en ? 'Root Growth'            : 'Crescimento de Raiz',
+    defesa:     en ? 'Cell Defense'           : 'Defesa Celular',
+    prestresse: en ? 'Pre-Stress Management'  : 'Manejo Pré-Estresse',
+    enchimento: en ? 'Grain Filling'          : 'Enchimento de Grão',
+    floral:     en ? 'Floral Setting'         : 'Pegamento Floral',
+  }
+  const selectedLabels = manipOptions.map(o => optionLabels[o] || o).join(', ')
+
+  return `${lang}
+${base(lang)}
+${en ? 'FARM' : 'LAVOURA'}: ${d.prodNome} | ${d.cultura} | ${en ? 'Stage' : 'Estádio'} ${d.estadio} | ${en ? 'Expected' : 'Expectativa'}: ${d.prodExpect} sc/ha
+${en ? 'Fertilization' : 'Adubação'}: ${d.adubacao}
+${en ? 'Stress' : 'Estresse'}: ${d.stresse ? (en ? 'YES — ' : 'SIM — ') + d.tiposStresse.join(', ') : (en ? 'NO' : 'NÃO')}
+
+${en ? `Selected objectives: ${selectedLabels}` : `Objetivos selecionados: ${selectedLabels}`}
+
+${en
+  ? 'For each selected objective, generate a concise HTML block (3-4 lines):'
+  : 'Para cada objetivo selecionado, gere um bloco HTML resumido (3-4 linhas):'}
+${manipOptions.map(o => `<h3>🌿 ${optionLabels[o] || o}</h3>`).join('\n')}
+${en
+  ? `For each block include:
+- Main physiological mechanism
+- Involved nutrients and what each one does
+- Expected change in plant/productivity
+Be technical and concise. Base: Kerbauy, Taiz & Zeiger, Marschner.`
+  : `Para cada bloco incluir:
+- Mecanismo fisiológico principal
+- Nutrientes envolvidos e o que cada um faz
+- Mudança esperada na planta/produtividade
+Seja técnico e conciso. Base: Kerbauy, Taiz & Zeiger, Marschner.`}`
+}
+
 export function buildLaudoPrompt3(d, lang) {
   const en = isEn(lang)
   return `${lang}

@@ -16,7 +16,7 @@ export default {
     dashboard: 'Dashboard', wizard: 'Nova Análise',
     settings: 'Configurações', users: 'Usuários', logout: 'sair',
   },
-  steps: ['Produtor','Cultura','Solo','Foliar','Planta','Diagnose','Objetivos','Laudo'],
+  steps: ['Produtor','Cultura','Solo','Foliar','Planta','Diagnose','Correção','Fisiologia'],
   bottomNav: {
     objectives: 'Objetivos →',
     newAnalysis: '↩ Nova análise', share: '💬 Compartilhar',

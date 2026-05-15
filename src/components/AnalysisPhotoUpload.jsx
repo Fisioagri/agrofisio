@@ -18,6 +18,8 @@ JSON esperado (use exatamente estas chaves):
 {"nFoliar":null,"pFoliar":null,"kFoliar":null,"caFoliar":null,"mgFoliar":null,"sFoliar":null,"bFoliar":null,"znFoliar":null,"cuFoliar":null,"mnFoliar":null,"feFoliar":null,"moFoliar":null}`,
 }
 
+const MAX_PDF_BYTES = 10 * 1024 * 1024 // 10 MB
+
 function extractJSON(text) {
   // Non-greedy match to get the first complete JSON object
   const match = text.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)?\}/)
@@ -60,6 +62,38 @@ export default function AnalysisPhotoUpload({ type, onFill }) {
     }
   }
 
+  async function handlePDF(file) {
+    if (!file) return
+    if (file.size > MAX_PDF_BYTES) {
+      setStatus('error')
+      setErrorMsg(lang === 'en' ? 'PDF exceeds 10 MB limit.' : 'PDF excede o limite de 10 MB.')
+      return
+    }
+    setStatus('reading')
+    setErrorMsg('')
+    try {
+      const pdfB64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = e => {
+          const dataUrl = e.target.result
+          resolve(dataUrl.split(',')[1])
+        }
+        reader.onerror = () => reject(new Error('Erro ao ler o PDF'))
+        reader.readAsDataURL(file)
+      })
+      const response = await callClaude(PROMPTS[type], null, 1000, pdfB64)
+      const raw = extractJSON(response)
+      const filled = Object.fromEntries(
+        Object.entries(raw).filter(([, v]) => v !== null && v !== '')
+      )
+      onFill(filled)
+      setStatus('done')
+    } catch (e) {
+      setStatus('error')
+      setErrorMsg(e.message || 'Erro ao processar PDF')
+    }
+  }
+
   function handleRetake() {
     setStatus(null)
     setPreview(null)
@@ -75,13 +109,22 @@ export default function AnalysisPhotoUpload({ type, onFill }) {
             title={ap.camera}
             sub={ap.cameraSub}
             capture="environment"
+            accept="image/*"
             onChange={e => handleFile(e.target.files[0])}
           />
           <PhotoLabel
             icon="🖼️"
             title={ap.gallery}
             sub={ap.gallerySub}
+            accept="image/*"
             onChange={e => handleFile(e.target.files[0])}
+          />
+          <PhotoLabel
+            icon="📄"
+            title="PDF"
+            sub={lang === 'en' ? 'lab report' : 'laudo PDF'}
+            accept="application/pdf"
+            onChange={e => handlePDF(e.target.files[0])}
           />
         </div>
       )}
@@ -127,13 +170,13 @@ export default function AnalysisPhotoUpload({ type, onFill }) {
   )
 }
 
-function PhotoLabel({ icon, title, sub, capture, onChange }) {
+function PhotoLabel({ icon, title, sub, capture, accept, onChange }) {
   return (
     <label className="flex-1 border-2 border-dashed border-surface-border rounded-card py-5 px-2
       text-center cursor-pointer hover:border-brand-700 transition-colors bg-brand-50">
       <input
         type="file"
-        accept="image/*"
+        accept={accept || 'image/*'}
         capture={capture}
         className="hidden"
         onChange={onChange}

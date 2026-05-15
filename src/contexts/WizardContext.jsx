@@ -7,7 +7,8 @@ export function WizardProvider({ children }) {
   const [step, setStep]                       = useState(0)
   const [data, setData]                       = useState(INITIAL_STATE)
   const [laudoDiagnoseHtml, setDiagnoseHtml]  = useState(null)
-  const [laudoFinalHtml, setFinalHtml]        = useState(null)
+  const [correcaoHtml, setCorrecaoHtml]       = useState(null)
+  const [manipHtml, setManipHtml]             = useState(null)
 
   function update(fields) {
     setData(prev => ({ ...prev, ...fields }))
@@ -17,7 +18,8 @@ export function WizardProvider({ children }) {
     setStep(0)
     setData(INITIAL_STATE)
     setDiagnoseHtml(null)
-    setFinalHtml(null)
+    setCorrecaoHtml(null)
+    setManipHtml(null)
   }
 
   return (
@@ -25,7 +27,8 @@ export function WizardProvider({ children }) {
       step, setStep,
       data, update,
       laudoDiagnoseHtml, setDiagnoseHtml,
-      laudoFinalHtml,    setFinalHtml,
+      correcaoHtml,      setCorrecaoHtml,
+      manipHtml,         setManipHtml,
       reset,
     }}>
       {children}

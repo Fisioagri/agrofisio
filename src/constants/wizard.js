@@ -5,8 +5,8 @@ export const STEPS = [
   { id: 3, lbl: 'Foliar',    ico: '🍃'  },
   { id: 4, lbl: 'Planta',    ico: '📸'  },
   { id: 5, lbl: 'Diagnose',  ico: '🔬'  },
-  { id: 6, lbl: 'Objetivos', ico: '🎯'  },
-  { id: 7, lbl: 'Laudo',     ico: '📄'  },
+  { id: 6, lbl: 'Correção',  ico: '💊'  },
+  { id: 7, lbl: 'Fisiologia',ico: '🧬'  },
 ]
 
 export const PHENO = {
@@ -42,6 +42,8 @@ export const INITIAL_STATE = {
   fotoB64: '', estadio: '', temp: '', chuva: '', diasSemChuva: '',
   stresse: null, tiposStresse: [], ocorrencias: [], outrasOcorrencias: '',
   sintomas: '', molestia: null, doencas: [], visivel: [],
-  // Step 7 – Objetivos
-  objetivos: [],
+  // Step 5 – Diagnose options
+  diagnoseOptions: [],  // ['01', '02', '03']
+  // Step 7 – Fisiologia manipulação
+  manipOptions: [],     // 'raiz','defesa','prestresse','enchimento','floral'
 }

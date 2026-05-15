@@ -6,8 +6,15 @@ async function sleep(ms) {
   return new Promise(r => setTimeout(r, ms))
 }
 
-export async function callClaude(prompt, imageB64 = null, maxTokens = 4000) {
+export async function callClaude(prompt, imageB64 = null, maxTokens = 4000, pdfB64 = null) {
   const content = []
+
+  if (pdfB64) {
+    content.push({
+      type: 'document',
+      source: { type: 'base64', media_type: 'application/pdf', data: pdfB64 },
+    })
+  }
 
   if (imageB64) {
     content.push({
