@@ -41,9 +41,9 @@ export default function StepFisiologia() {
     setLoading(true)
     try {
       const html = await callClaude(
-        buildManipPrompt(data, selected, t.promptLang),
+        await buildManipPrompt(data, selected, t.promptLang),
         null,
-        3000
+        4000
       )
       setManipHtml(html)
       // Save to Supabase

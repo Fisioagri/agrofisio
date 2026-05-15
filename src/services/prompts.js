@@ -171,12 +171,14 @@ ${en ? 'Generate deficiency/toxicity diagnosis as HTML (no markdown, pure HTML t
 <h3>🔬 ${en ? 'Deficiency/Toxicity Diagnosis' : 'Diagnose de Deficiência/Toxidez'}</h3>
 ${en
   ? `<table><tr><th>Nutrient</th><th>Soil (measured)</th><th>Soil Ref.</th><th>Foliar (measured)</th><th>Foliar Ref.</th><th>Status</th><th>Visual Symptom</th><th>Priority</th></tr>...</table>
+MANDATORY: rows in EXACT sequence — 1.N 2.P 3.K 4.Ca 5.Mg 6.S 7.B 8.Zn 9.Cu 10.Mn 11.Fe 12.Mo — do not reorder.
 Status: ✅Adequate / ⚠️Borderline / ❌Deficient / ☠️Toxic. Priority: 🔴High/🟡Medium/🟢Low.
-Use the reference values provided above. Include: N,P,K,Ca,Mg,S,B,Zn,Cu,Mn,Fe,Mo.
+Use the reference values provided above.
 After the table add: <h4>Main findings:</h4> — 3-4 technical lines correlating soil, foliar and visual symptoms.`
   : `<table><tr><th>Nutriente</th><th>Solo (medido)</th><th>Ref. Solo</th><th>Foliar (medido)</th><th>Ref. Foliar</th><th>Status</th><th>Sintoma Visual</th><th>Prioridade</th></tr>...</table>
+OBRIGATÓRIO: linhas em ORDEM EXATA — 1.N 2.P 3.K 4.Ca 5.Mg 6.S 7.B 8.Zn 9.Cu 10.Mn 11.Fe 12.Mo — não reordenar.
 Status: ✅Adequado / ⚠️Limite / ❌Deficiente / ☠️Tóxico. Prioridade: 🔴Alta/🟡Média/🟢Baixa.
-Use os valores de referência fornecidos acima. Incluir: N,P,K,Ca,Mg,S,B,Zn,Cu,Mn,Fe,Mo.
+Use os valores de referência fornecidos acima.
 Após a tabela adicione: <h4>Principais achados:</h4> — 3-4 linhas técnicas correlacionando solo, foliar e sintomas visuais.`}`
 }
 
@@ -193,14 +195,20 @@ ${en ? 'Generate hormonal map as pure HTML (no markdown):' : 'Gere mapa hormonal
 
 <h3>🧬 ${en ? `Hormonal Map — Stage ${d.estadio}` : `Mapa Hormonal — Estádio ${d.estadio}`}</h3>
 ${en
-  ? `<table><tr><th>Hormone</th><th>Status</th><th>Action at Stage</th><th>Key Nutrient</th><th>Management Implication</th></tr>...</table>
+  ? `<table><tr><th>Hormone</th><th>Status</th><th>Action at Stage</th><th>Macronutrients Involved</th><th>Micronutrients Involved</th><th>Management Implication</th></tr>...</table>
 Include: Auxin, Cytokinin, Gibberellin, Ethylene, ABA, Brassinosteroid, Jasmonate.
-For each hormone: describe current synthesis/activity level, interaction with nutrients, and practical management implication.
-Base: Kerbauy (2008), Taiz & Zeiger Ch. 19-23.`
-  : `<table><tr><th>Hormônio</th><th>Status</th><th>Ação no Estádio</th><th>Nutriente-Chave</th><th>Implicação de Manejo</th></tr>...</table>
+For each hormone: describe current synthesis/activity level at stage ${d.estadio}.
+Macronutrients involved: list N/P/K/Ca/Mg/S that directly participate in synthesis, transport or signaling — with brief role in parentheses (e.g. "N (tryptophan precursor)", "K (membrane polarity)").
+Micronutrients involved: list B/Zn/Cu/Mn/Fe/Mo with specific role (e.g. "Zn (IAA biosynthesis)", "Fe (ACC oxidase cofactor)").
+Management implication: 1 concise line on which nutrient to apply to modulate this hormone.
+Base: Kerbauy (2008), Taiz & Zeiger Ch. 19-23, Marschner (2012).`
+  : `<table><tr><th>Hormônio</th><th>Status</th><th>Ação no Estádio</th><th>Macronutrientes Envolvidos</th><th>Micronutrientes Envolvidos</th><th>Implicação de Manejo</th></tr>...</table>
 Incluir: Auxina, Citocinina, Giberelina, Etileno, ABA, Brassinoesteroide, Jasmonato.
-Para cada hormônio: descrever nível atual de síntese/atividade, interação com nutrientes e implicação prática de manejo.
-Base: Kerbauy (2008), Taiz & Zeiger Cap. 19-23.`}`
+Para cada hormônio: descrever nível atual de síntese/atividade no estádio ${d.estadio}.
+Macronutrientes envolvidos: listar N/P/K/Ca/Mg/S que participam diretamente da síntese, transporte ou sinalização — com função resumida entre parênteses (ex: "N (precursor do triptofano)", "K (polaridade de membrana)").
+Micronutrientes envolvidos: listar B/Zn/Cu/Mn/Fe/Mo com papel específico (ex: "Zn (biossíntese de IAA)", "Fe (cofator da ACC oxidase)").
+Implicação de manejo: 1 linha concisa sobre qual nutriente aplicar para modular este hormônio.
+Base: Kerbauy (2008), Taiz & Zeiger Cap. 19-23, Marschner (2012).`}`
 }
 
 export async function buildDiagnoseOption03Prompt(d, lang) {
@@ -223,10 +231,12 @@ ${en ? 'Generate nutritional map as pure HTML (no markdown):' : 'Gere mapa nutri
 <h3>🗺️ ${en ? 'Nutritional Map' : 'Mapa Nutricional'}</h3>
 ${en
   ? `<table><tr><th>Nutrient</th><th>Soil Value</th><th>Soil Ref.</th><th>Foliar Value</th><th>Foliar Ref.</th><th>Status</th><th>Physiological Impact</th></tr>...</table>
-Include N, P, K, Ca, Mg, S, B, Zn, Cu, Mn, Fe, Mo. Status: ✅Adequate/⚠️Borderline/❌Deficient/—(no data).
+MANDATORY: rows in EXACT sequence — 1.N 2.P 3.K 4.Ca 5.Mg 6.S 7.B 8.Zn 9.Cu 10.Mn 11.Fe 12.Mo — do not reorder.
+Status: ✅Adequate/⚠️Borderline/❌Deficient/—(no data).
 Fill reference ranges from the data above. Be precise with the measured vs. reference comparison.`
   : `<table><tr><th>Nutriente</th><th>Valor Solo</th><th>Ref. Solo</th><th>Valor Foliar</th><th>Ref. Foliar</th><th>Status</th><th>Impacto Fisiológico</th></tr>...</table>
-Incluir N, P, K, Ca, Mg, S, B, Zn, Cu, Mn, Fe, Mo. Status: ✅Adequado/⚠️Limite/❌Deficiente/—(sem dado).
+OBRIGATÓRIO: linhas em ORDEM EXATA — 1.N 2.P 3.K 4.Ca 5.Mg 6.S 7.B 8.Zn 9.Cu 10.Mn 11.Fe 12.Mo — não reordenar.
+Status: ✅Adequado/⚠️Limite/❌Deficiente/—(sem dado).
 Preencha as faixas de referência com os dados fornecidos acima. Seja preciso na comparação medido vs. referência.`}`
 }
 
@@ -284,8 +294,9 @@ Após a tabela adicione:
 <h4>Observações técnicas:</h4> — 2-3 linhas sobre antagonismos entre nutrientes e sinergias de aplicação.`}`
 }
 
-export function buildManipPrompt(d, manipOptions, lang) {
+export async function buildManipPrompt(d, manipOptions, lang) {
   const en = isEn(lang)
+  const knowledge = await getKnowledge(d.cultura, lang)
   const optionLabels = {
     raiz:       en ? 'Root Growth'            : 'Crescimento de Raiz',
     defesa:     en ? 'Cell Defense'           : 'Defesa Celular',
@@ -299,25 +310,41 @@ export function buildManipPrompt(d, manipOptions, lang) {
 ${base(lang)}
 ${en ? 'FARM' : 'LAVOURA'}: ${d.prodNome} | ${d.cultura} | ${en ? 'Stage' : 'Estádio'} ${d.estadio} | ${en ? 'Expected' : 'Expectativa'}: ${d.prodExpect} sc/ha
 ${en ? 'Fertilization' : 'Adubação'}: ${d.adubacao}
-${en ? 'Stress' : 'Estresse'}: ${d.stresse ? (en ? 'YES — ' : 'SIM — ') + d.tiposStresse.join(', ') : (en ? 'NO' : 'NÃO')}
+${en ? 'Stress' : 'Estresse'}: ${d.stresse ? (en ? 'YES — ' : 'SIM — ') + d.tiposStresse.join(', ') : (en ? 'NO' : 'NÃO')}${knowledge}
 
 ${en ? `Selected objectives: ${selectedLabels}` : `Objetivos selecionados: ${selectedLabels}`}
 
 ${en
-  ? 'For each selected objective, generate a concise HTML block (3-4 lines):'
-  : 'Para cada objetivo selecionado, gere um bloco HTML resumido (3-4 linhas):'}
-${manipOptions.map(o => `<h3>🌿 ${optionLabels[o] || o}</h3>`).join('\n')}
-${en
-  ? `For each block include:
-- Main physiological mechanism
-- Involved nutrients and what each one does
-- Expected change in plant/productivity
-Be technical and concise. Base: Kerbauy, Taiz & Zeiger, Marschner.`
-  : `Para cada bloco incluir:
-- Mecanismo fisiológico principal
-- Nutrientes envolvidos e o que cada um faz
-- Mudança esperada na planta/produtividade
-Seja técnico e conciso. Base: Kerbauy, Taiz & Zeiger, Marschner.`}`
+  ? `For each selected objective, generate a structured HTML block as pure HTML (no markdown):
+
+<h3>[icon] [Objective]</h3>
+<p>2 lines: dominant physiological mechanism at stage ${d.estadio} and why this objective is critical now.</p>
+<table>
+  <tr><th>Nutrient</th><th>Type</th><th>Role in this Process</th><th>Recommended Action</th></tr>
+  [3-5 rows ordered by importance]
+</table>
+
+RULES:
+- Type: Macro or Micro
+- Role: name the exact molecular/physiological function (e.g. "IAA precursor via tryptophan synthesis", "sucrose phloem loading", "stomatal ABA signaling", "pollen tube elongation")
+- Recommended Action: concrete and specific, no commercial brands (e.g. "100–200 g/ha zinc sulfate foliar at ${d.estadio}", "ensure soil pH 6.0–6.5 for adequate uptake", "30 kg/ha N-urea split application")
+- Never write generic text like "essential for growth" — always name the specific process
+- Base: Marschner (2012), Kerbauy (2008), Taiz & Zeiger (2017)`
+  : `Para cada objetivo selecionado, gere um bloco HTML estruturado em HTML puro (sem markdown):
+
+<h3>[ícone] [Objetivo]</h3>
+<p>2 linhas: mecanismo fisiológico dominante no estádio ${d.estadio} e por que este objetivo é crítico agora.</p>
+<table>
+  <tr><th>Nutriente</th><th>Tipo</th><th>Função neste Processo</th><th>Ação Recomendada</th></tr>
+  [3-5 linhas em ordem de importância]
+</table>
+
+REGRAS:
+- Tipo: Macro ou Micro
+- Função: nomear o processo molecular/fisiológico específico (ex: "precursor de IAA via síntese de triptofano", "carregamento de sacarose no floema", "sinalização ABA para fechamento estomático", "elongação do tubo polínico")
+- Ação Recomendada: concreta e específica, sem marcas comerciais (ex: "100–200 g/ha de sulfato de zinco via foliar no ${d.estadio}", "garantir pH do solo 6,0–6,5 para absorção adequada", "30 kg/ha de N-ureia parcelado")
+- Nunca escrever textos genéricos como "essencial para crescimento" — sempre nomear o processo específico
+- Base: Marschner (2012), Kerbauy (2008), Taiz & Zeiger (2017)`}`
 }
 
 export function buildLaudoPrompt3(d, lang) {
