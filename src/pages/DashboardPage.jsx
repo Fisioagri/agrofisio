@@ -29,10 +29,12 @@ export default function DashboardPage() {
   }
 
   useEffect(() => {
+    let cancelled = false
     listLaudos({ limit: PAGE_SIZE, offset: 0 })
-      .then(({ data, count }) => { setLaudos(data); setTotal(count) })
+      .then(({ data, count }) => { if (!cancelled) { setLaudos(data); setTotal(count) } })
       .catch(() => {})
-      .finally(() => setLoading(false))
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
   }, [])
 
   async function loadMore() {

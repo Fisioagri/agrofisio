@@ -24,7 +24,17 @@ export default function StepCultura() {
       <Card title={c.cardCrop}>
         <CropSelector
           value={data.cultura}
-          onChange={v => update({ cultura: v, estadio: '' })}
+          onChange={v => update({
+            cultura: v, estadio: '',
+            ph: '', mo: '', pSolo: '', kSolo: '', caSolo: '', mgSolo: '',
+            sSolo: '', alSolo: '', hAlSolo: '', ctcSolo: '', vSolo: '', satAlSolo: '',
+            argilaSolo: '', bSolo: '', znSolo: '', cuSolo: '', mnSolo: '', feSolo: '', moSolo: '',
+            nFoliar: '', pFoliar: '', kFoliar: '', caFoliar: '', mgFoliar: '', sFoliar: '',
+            bFoliar: '', znFoliar: '', cuFoliar: '', mnFoliar: '', feFoliar: '', moFoliar: '',
+            fotoB64: '', temp: '', chuva: '', diasSemChuva: '',
+            stresse: null, tiposStresse: [], ocorrencias: [], outrasOcorrencias: '',
+            sintomas: '', molestia: null, doencas: [], visivel: [], objetivos: [],
+          })}
         />
       </Card>
 

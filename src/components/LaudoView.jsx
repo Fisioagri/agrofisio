@@ -1,6 +1,13 @@
 import { useRef, useState } from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
 
+function sanitize(html) {
+  if (!html) return ''
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*')/gi, '')
+}
+
 export default function LaudoView({ title, subtitle, badge, html, showPrint = false }) {
   const { lang } = useLanguage()
   const contentRef = useRef(null)
@@ -64,8 +71,7 @@ export default function LaudoView({ title, subtitle, badge, html, showPrint = fa
         a.click()
         setTimeout(() => URL.revokeObjectURL(url), 1000)
       }
-    } catch (e) {
-      console.error('PDF error:', e)
+    } catch {
       alert(lang === 'en' ? 'Could not generate PDF. Try again.' : 'Não foi possível gerar o PDF. Tente novamente.')
     } finally {
       setGenerating(false)
@@ -101,7 +107,7 @@ export default function LaudoView({ title, subtitle, badge, html, showPrint = fa
         <div
           ref={contentRef}
           className="laudo-body text-sm text-ink-900 leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: html }}
+          dangerouslySetInnerHTML={{ __html: sanitize(html) }}
         />
         <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-sm">
           <p className="font-mono text-[10px] text-amber-700 leading-relaxed">

@@ -1,11 +1,12 @@
 import AppLayout from '../layouts/AppLayout'
 import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../contexts/LanguageContext'
-import { signOut } from '../services/authService'
+import { useSignOut } from '../hooks/useSignOut'
 
 export default function SettingsPage() {
   const { user, profile } = useAuth()
   const { t } = useLanguage()
+  const signOut = useSignOut()
 
   return (
     <AppLayout>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { callClaude } from '../services/api'
 import { useLanguage } from '../contexts/LanguageContext'
+import { compressPhoto } from '../utils/compressPhoto'
 import Spinner from './ui/Spinner'
 
 const PROMPTS = {
@@ -17,34 +18,23 @@ JSON esperado (use exatamente estas chaves):
 {"nFoliar":null,"pFoliar":null,"kFoliar":null,"caFoliar":null,"mgFoliar":null,"sFoliar":null,"bFoliar":null,"znFoliar":null,"cuFoliar":null,"mnFoliar":null,"feFoliar":null,"moFoliar":null}`,
 }
 
-function compressPhoto(file) {
-  return new Promise(resolve => {
-    const reader = new FileReader()
-    reader.onload = ev => {
-      const img = new Image()
-      img.onload = () => {
-        const canvas = document.createElement('canvas')
-        let w = img.width, h = img.height, max = 1400
-        if (w > h) { h = Math.round(h * max / w); w = max }
-        else       { w = Math.round(w * max / h); h = max }
-        canvas.width = w; canvas.height = h
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h)
-        resolve(canvas.toDataURL('image/jpeg', 0.75).split(',')[1])
-      }
-      img.src = ev.target.result
-    }
-    reader.readAsDataURL(file)
-  })
-}
-
 function extractJSON(text) {
-  const match = text.match(/\{[\s\S]*\}/)
-  if (!match) throw new Error('Could not parse lab report')
-  return JSON.parse(match[0])
+  // Non-greedy match to get the first complete JSON object
+  const match = text.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)?\}/)
+  if (!match) throw new Error('Não foi possível extrair os dados do laudo')
+  try {
+    return JSON.parse(match[0])
+  } catch {
+    // Fallback: try to find any valid JSON in the text
+    const start = text.indexOf('{')
+    const end = text.lastIndexOf('}')
+    if (start === -1 || end === -1) throw new Error('Formato de resposta inválido')
+    return JSON.parse(text.slice(start, end + 1))
+  }
 }
 
 export default function AnalysisPhotoUpload({ type, onFill }) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const ap = t.analysisPhoto
   const [status, setStatus]     = useState(null) // null | 'reading' | 'done' | 'error'
   const [preview, setPreview]   = useState(null)
@@ -66,8 +56,14 @@ export default function AnalysisPhotoUpload({ type, onFill }) {
       setStatus('done')
     } catch (e) {
       setStatus('error')
-      setErrorMsg(e.message || 'Error processing image')
+      setErrorMsg(e.message || 'Erro ao processar imagem')
     }
+  }
+
+  function handleRetake() {
+    setStatus(null)
+    setPreview(null)
+    setErrorMsg('')
   }
 
   return (
@@ -112,6 +108,12 @@ export default function AnalysisPhotoUpload({ type, onFill }) {
         <div className="p-3 bg-brand-100 rounded-sm border border-brand-700">
           <p className="font-mono text-xs font-semibold text-brand-900">{ap.done}</p>
           <p className="font-mono text-[10px] text-ink-600 mt-0.5">{ap.doneSub}</p>
+          <button
+            onClick={handleRetake}
+            className="mt-2 font-mono text-[10px] text-brand-700 underline"
+          >
+            {lang === 'en' ? 'Use a different photo' : 'Usar outra foto'}
+          </button>
         </div>
       )}
 

@@ -78,7 +78,7 @@ export default function StepLaudo() {
         <div className="bg-white border border-danger-600 rounded-card p-5 shadow-card text-center space-y-3">
           <p className="text-2xl">⚠️</p>
           <p className="font-mono text-xs text-danger-600">{error}</p>
-          <Button onClick={generate} fullWidth>🔄 Tentar novamente</Button>
+          <Button onClick={generate} fullWidth disabled={loading}>🔄 Tentar novamente</Button>
         </div>
       ) : isLoading ? (
         <div className="bg-white border border-surface-border rounded-card shadow-card">

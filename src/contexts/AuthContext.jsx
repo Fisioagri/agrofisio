@@ -34,7 +34,7 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe()
   }, [loadProfile])
 
-  const isAdmin = profile?.role === 'admin' || user?.user_metadata?.role === 'admin'
+  const isAdmin = profile?.role === 'admin'
 
   return (
     <AuthContext.Provider value={{

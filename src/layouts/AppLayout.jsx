@@ -1,12 +1,13 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../contexts/LanguageContext'
-import { signOut } from '../services/authService'
+import { useSignOut } from '../hooks/useSignOut'
 
 export default function AppLayout({ children }) {
   const { isAdmin } = useAuth()
   const { lang, setLang, t } = useLanguage()
   const { pathname } = useLocation()
+  const signOut = useSignOut()
 
   const NAV = [
     { to: '/',         icon: '🏠', label: t.nav.dashboard  },
