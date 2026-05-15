@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useWizard } from '../../hooks/useWizard'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { callClaude } from '../../services/api'
@@ -20,6 +20,16 @@ export default function StepDiagnose() {
   const hasSoloData = Object.keys(data).some(k => k.endsWith('Solo') && data[k])
   const hasFoliarData = Object.keys(data).some(k => k.endsWith('Foliar') && data[k])
   const hasPhoto = !!data.fotoB64
+
+  // Auto-select available options when arriving at this step
+  useEffect(() => {
+    if ((data.diagnoseOptions || []).length > 0) return
+    const auto = []
+    if (hasSoloData && hasFoliarData && hasPhoto) auto.push('01')
+    auto.push('02')
+    if (hasSoloData && hasFoliarData) auto.push('03')
+    update({ diagnoseOptions: auto })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const options = [
     {
@@ -75,16 +85,20 @@ export default function StepDiagnose() {
     setDiagnoseHtml('__loading__')
     try {
       const promises = selected.map(id => {
-        if (id === '01') return callClaude(buildDiagnoseOption01Prompt(data, t.promptLang), data.fotoB64 || null, 2500)
-        if (id === '02') return callClaude(buildDiagnoseOption02Prompt(data, t.promptLang), null, 2500)
-        if (id === '03') return callClaude(buildDiagnoseOption03Prompt(data, t.promptLang), null, 2500)
+        if (id === '01') return callClaude(buildDiagnoseOption01Prompt(data, t.promptLang), data.fotoB64 || null, 4000)
+        if (id === '02') return callClaude(buildDiagnoseOption02Prompt(data, t.promptLang), null, 4000)
+        if (id === '03') return callClaude(buildDiagnoseOption03Prompt(data, t.promptLang), null, 4000)
         return Promise.resolve('')
       })
       const results = await Promise.all(promises)
-      setDiagnoseHtml(results.join(''))
+      const combined = results.join('')
+      if (!combined.trim()) {
+        throw new Error(lang === 'en' ? 'No content was generated. Please try again.' : 'Nenhum conteúdo foi gerado. Tente novamente.')
+      }
+      setDiagnoseHtml(combined)
     } catch (e) {
       setDiagnoseHtml(null)
-      setError(e.message)
+      setError(e.message || String(e) || (lang === 'en' ? 'Unknown error' : 'Erro desconhecido'))
     } finally {
       setLoading(false)
     }
@@ -152,6 +166,9 @@ export default function StepDiagnose() {
             <div className="mb-3 bg-white border border-danger-600 rounded-card p-4 shadow-card text-center space-y-2">
               <p className="text-2xl">⚠️</p>
               <p className="font-mono text-xs text-danger-600">{error}</p>
+              <Button onClick={handleGenerate} disabled={selected.length === 0} fullWidth>
+                🔄 {lang === 'en' ? 'Try again' : 'Tentar novamente'}
+              </Button>
             </div>
           )}
 
