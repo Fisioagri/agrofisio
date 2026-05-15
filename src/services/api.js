@@ -18,7 +18,7 @@ export async function callClaude(prompt, imageB64 = null, maxTokens = 4000) {
   content.push({ type: 'text', text: prompt })
 
   const body = JSON.stringify({
-    model: 'claude-3-5-haiku-20241022',
+    model: 'claude-sonnet-4-6',
     max_tokens: maxTokens,
     messages: [{ role: 'user', content }],
   })
