@@ -1,3 +1,13 @@
+import { buildRefContext } from '../data/referencias'
+import { fetchKnowledgeContext } from './conhecimentoService'
+
+/**
+ * Fetches Supabase knowledge context (gracefully returns '' if offline/error).
+ */
+async function getKnowledge(cultura, lang) {
+  try { return await fetchKnowledgeContext(cultura, isEn(lang) ? 'en' : 'pt') } catch { return '' }
+}
+
 // lang = t.promptLang (either PT or EN instruction string)
 function isEn(lang) { return lang.includes('ENGLISH') }
 
@@ -138,13 +148,15 @@ ${en
 ${en ? 'NEVER cite brands.' : 'NUNCA citar marcas.'}`
 }
 
-export function buildDiagnoseOption01Prompt(d, lang) {
+export async function buildDiagnoseOption01Prompt(d, lang) {
   const en = isEn(lang)
   const solo   = `pH=${d.ph||'nd'}, MO=${d.mo||'nd'}%, P=${d.pSolo||'nd'}, K=${d.kSolo||'nd'}, Ca=${d.caSolo||'nd'}, Mg=${d.mgSolo||'nd'}, S=${d.sSolo||'nd'}, Al=${d.alSolo||'nd'}, H+Al=${d.hAlSolo||'nd'}, CTC=${d.ctcSolo||'nd'}, V%=${d.vSolo||'nd'}, Sat.Al=${d.satAlSolo||'nd'}%, B=${d.bSolo||'nd'}, Zn=${d.znSolo||'nd'}, Cu=${d.cuSolo||'nd'}, Mn=${d.mnSolo||'nd'}, Fe=${d.feSolo||'nd'}`
   const foliar = `N=${d.nFoliar||'nd'}, P=${d.pFoliar||'nd'}, K=${d.kFoliar||'nd'}, Ca=${d.caFoliar||'nd'}, Mg=${d.mgFoliar||'nd'}, S=${d.sFoliar||'nd'}, B=${d.bFoliar||'nd'}, Zn=${d.znFoliar||'nd'}, Cu=${d.cuFoliar||'nd'}, Mn=${d.mnFoliar||'nd'}, Fe=${d.feFoliar||'nd'}`
+  const refs = buildRefContext(d.cultura, en)
+  const knowledge = await getKnowledge(d.cultura, lang)
 
   return `${lang}
-${en ? 'Expert in plant physiology.' : 'Especialista em fisiologia vegetal.'} ${en ? 'Based on: Marschner (2012), Taiz & Zeiger (2017).' : 'Base: Marschner (2012), Taiz & Zeiger (2017).'}
+${en ? 'Expert in plant physiology.' : 'Especialista em fisiologia vegetal.'} ${en ? 'Based on: Marschner (2012), Taiz & Zeiger (2017), Embrapa.' : 'Base: Marschner (2012), Taiz & Zeiger (2017), Embrapa.'}
 ${en ? 'FARM' : 'LAVOURA'}: ${d.prodNome} | ${d.prodCidade} | ${d.cultura} | ${d.hibrido} | ${en ? 'Season' : 'Safra'} ${d.safra}
 ${en ? 'Stage' : 'Estádio'}: ${d.estadio} | ${en ? 'Expected' : 'Expectativa'}: ${d.prodExpect} sc/ha
 ${en ? 'Symptoms' : 'Sintomas'}: ${d.sintomas||(en ? 'none' : 'nenhum')}
@@ -152,42 +164,51 @@ ${d.fotoB64 ? (en ? 'PHOTO ATTACHED: correlate visual symptoms with analytical d
 SOIL: ${solo}
 FOLIAR: ${foliar}
 
-${en ? 'Generate deficiency/toxicity diagnosis in HTML:' : 'Gere diagnose de deficiência/toxidez em HTML:'}
+${refs}
+${knowledge}
+${en ? 'Generate deficiency/toxicity diagnosis as HTML (no markdown, pure HTML tags):' : 'Gere diagnose de deficiência/toxidez em HTML puro (sem markdown, apenas tags HTML):'}
 
 <h3>🔬 ${en ? 'Deficiency/Toxicity Diagnosis' : 'Diagnose de Deficiência/Toxidez'}</h3>
 ${en
-  ? `Table: Nutrient | Soil | Foliar | Diagnosis (✅Adequate/⚠️Borderline/❌Deficient/☠️Toxic) | Visual Symptom | Priority (🔴🟡🟢)
-Base on analytical data + photo to correlate visual symptoms.
-After the table: "Main findings:" — 3-4 lines of technical conclusion.`
-  : `Tabela: Nutriente | Solo | Foliar | Diagnose (✅Adequado/⚠️Limite/❌Deficiente/☠️Tóxico) | Sintoma Visual | Prioridade (🔴🟡🟢)
-Baseie-se nos dados analíticos + foto para correlacionar sintomas visuais.
-Após a tabela: "Principais achados:" — 3-4 linhas de conclusão técnica.`}`
+  ? `<table><tr><th>Nutrient</th><th>Soil (measured)</th><th>Soil Ref.</th><th>Foliar (measured)</th><th>Foliar Ref.</th><th>Status</th><th>Visual Symptom</th><th>Priority</th></tr>...</table>
+Status: ✅Adequate / ⚠️Borderline / ❌Deficient / ☠️Toxic. Priority: 🔴High/🟡Medium/🟢Low.
+Use the reference values provided above. Include: N,P,K,Ca,Mg,S,B,Zn,Cu,Mn,Fe,Mo.
+After the table add: <h4>Main findings:</h4> — 3-4 technical lines correlating soil, foliar and visual symptoms.`
+  : `<table><tr><th>Nutriente</th><th>Solo (medido)</th><th>Ref. Solo</th><th>Foliar (medido)</th><th>Ref. Foliar</th><th>Status</th><th>Sintoma Visual</th><th>Prioridade</th></tr>...</table>
+Status: ✅Adequado / ⚠️Limite / ❌Deficiente / ☠️Tóxico. Prioridade: 🔴Alta/🟡Média/🟢Baixa.
+Use os valores de referência fornecidos acima. Incluir: N,P,K,Ca,Mg,S,B,Zn,Cu,Mn,Fe,Mo.
+Após a tabela adicione: <h4>Principais achados:</h4> — 3-4 linhas técnicas correlacionando solo, foliar e sintomas visuais.`}`
 }
 
-export function buildDiagnoseOption02Prompt(d, lang) {
+export async function buildDiagnoseOption02Prompt(d, lang) {
   const en = isEn(lang)
+  const knowledge = await getKnowledge(d.cultura, lang)
   return `${lang}
 ${base(lang)}
 ${en ? 'FARM' : 'LAVOURA'}: ${d.prodNome} | ${d.cultura} | ${en ? 'Stage' : 'Estádio'} ${d.estadio} | ${en ? 'Expected' : 'Expectativa'}: ${d.prodExpect} sc/ha
 ${en ? 'Stress' : 'Estresse'}: ${d.stresse ? (en ? 'YES — ' : 'SIM — ') + d.tiposStresse.join(', ') : (en ? 'NO' : 'NÃO')}
 ${en ? 'Fertilization' : 'Adubação'}: ${d.adubacao}
-
-${en ? `Generate hormonal map in HTML:` : `Gere mapa hormonal em HTML:`}
+${knowledge}
+${en ? 'Generate hormonal map as pure HTML (no markdown):' : 'Gere mapa hormonal em HTML puro (sem markdown):'}
 
 <h3>🧬 ${en ? `Hormonal Map — Stage ${d.estadio}` : `Mapa Hormonal — Estádio ${d.estadio}`}</h3>
 ${en
-  ? `Table: Hormone | Current Status | Action at Stage | Key Nutrient | Management Implication
+  ? `<table><tr><th>Hormone</th><th>Status</th><th>Action at Stage</th><th>Key Nutrient</th><th>Management Implication</th></tr>...</table>
 Include: Auxin, Cytokinin, Gibberellin, Ethylene, ABA, Brassinosteroid, Jasmonate.
+For each hormone: describe current synthesis/activity level, interaction with nutrients, and practical management implication.
 Base: Kerbauy (2008), Taiz & Zeiger Ch. 19-23.`
-  : `Tabela: Hormônio | Status Atual | Ação no Estádio | Nutriente-Chave | Implicação de Manejo
+  : `<table><tr><th>Hormônio</th><th>Status</th><th>Ação no Estádio</th><th>Nutriente-Chave</th><th>Implicação de Manejo</th></tr>...</table>
 Incluir: Auxina, Citocinina, Giberelina, Etileno, ABA, Brassinoesteroide, Jasmonato.
+Para cada hormônio: descrever nível atual de síntese/atividade, interação com nutrientes e implicação prática de manejo.
 Base: Kerbauy (2008), Taiz & Zeiger Cap. 19-23.`}`
 }
 
-export function buildDiagnoseOption03Prompt(d, lang) {
+export async function buildDiagnoseOption03Prompt(d, lang) {
   const en = isEn(lang)
   const solo   = `pH=${d.ph||'nd'}, MO=${d.mo||'nd'}%, P=${d.pSolo||'nd'}, K=${d.kSolo||'nd'}, Ca=${d.caSolo||'nd'}, Mg=${d.mgSolo||'nd'}, S=${d.sSolo||'nd'}, Al=${d.alSolo||'nd'}, H+Al=${d.hAlSolo||'nd'}, CTC=${d.ctcSolo||'nd'}, V%=${d.vSolo||'nd'}, Sat.Al=${d.satAlSolo||'nd'}%, B=${d.bSolo||'nd'}, Zn=${d.znSolo||'nd'}, Cu=${d.cuSolo||'nd'}, Mn=${d.mnSolo||'nd'}, Fe=${d.feSolo||'nd'}`
   const foliar = `N=${d.nFoliar||'nd'}, P=${d.pFoliar||'nd'}, K=${d.kFoliar||'nd'}, Ca=${d.caFoliar||'nd'}, Mg=${d.mgFoliar||'nd'}, S=${d.sFoliar||'nd'}, B=${d.bFoliar||'nd'}, Zn=${d.znFoliar||'nd'}, Cu=${d.cuFoliar||'nd'}, Mn=${d.mnFoliar||'nd'}, Fe=${d.feFoliar||'nd'}`
+  const refs = buildRefContext(d.cultura, en)
+  const knowledge = await getKnowledge(d.cultura, lang)
 
   return `${lang}
 ${base(lang)}
@@ -195,43 +216,72 @@ ${en ? 'FARM' : 'LAVOURA'}: ${d.prodNome} | ${d.cultura} | ${en ? 'Stage' : 'Est
 SOIL: ${solo}
 FOLIAR: ${foliar}
 
-${en ? 'Generate nutritional map in HTML:' : 'Gere mapa nutricional em HTML:'}
+${refs}
+${knowledge}
+${en ? 'Generate nutritional map as pure HTML (no markdown):' : 'Gere mapa nutricional em HTML puro (sem markdown):'}
 
 <h3>🗺️ ${en ? 'Nutritional Map' : 'Mapa Nutricional'}</h3>
 ${en
-  ? `Table: Nutrient | Soil Value | Soil Ref. | Foliar Value | Foliar Ref. | Status | Physiological Impact
-Include N, P, K, Ca, Mg, S, B, Zn, Cu, Mn, Fe, Mo. Status: ✅/⚠️/❌/—`
-  : `Tabela: Nutriente | Valor Solo | Ref. Solo | Valor Foliar | Ref. Foliar | Status | Impacto Fisiológico
-Incluir N, P, K, Ca, Mg, S, B, Zn, Cu, Mn, Fe, Mo. Status: ✅/⚠️/❌/—`}`
+  ? `<table><tr><th>Nutrient</th><th>Soil Value</th><th>Soil Ref.</th><th>Foliar Value</th><th>Foliar Ref.</th><th>Status</th><th>Physiological Impact</th></tr>...</table>
+Include N, P, K, Ca, Mg, S, B, Zn, Cu, Mn, Fe, Mo. Status: ✅Adequate/⚠️Borderline/❌Deficient/—(no data).
+Fill reference ranges from the data above. Be precise with the measured vs. reference comparison.`
+  : `<table><tr><th>Nutriente</th><th>Valor Solo</th><th>Ref. Solo</th><th>Valor Foliar</th><th>Ref. Foliar</th><th>Status</th><th>Impacto Fisiológico</th></tr>...</table>
+Incluir N, P, K, Ca, Mg, S, B, Zn, Cu, Mn, Fe, Mo. Status: ✅Adequado/⚠️Limite/❌Deficiente/—(sem dado).
+Preencha as faixas de referência com os dados fornecidos acima. Seja preciso na comparação medido vs. referência.`}`
 }
 
-export function buildCorrecaoPrompt(d, diagnoseHtml, lang) {
+export async function buildCorrecaoPrompt(d, diagnoseHtml, lang) {
   const en = isEn(lang)
-  const soloCtx = `pH=${d.ph||'nd'}, MO=${d.mo||'nd'}%, P=${d.pSolo||'nd'}, K=${d.kSolo||'nd'}, Ca=${d.caSolo||'nd'}, Mg=${d.mgSolo||'nd'}`
-  const foliarCtx = `N=${d.nFoliar||'nd'}, P=${d.pFoliar||'nd'}, K=${d.kFoliar||'nd'}, Ca=${d.caFoliar||'nd'}, Mg=${d.mgFoliar||'nd'}`
+  const soloCtx = `pH=${d.ph||'nd'}, MO=${d.mo||'nd'}%, P=${d.pSolo||'nd'}, K=${d.kSolo||'nd'}, Ca=${d.caSolo||'nd'}, Mg=${d.mgSolo||'nd'}, S=${d.sSolo||'nd'}, Al=${d.alSolo||'nd'}, V%=${d.vSolo||'nd'}`
+  const foliarCtx = `N=${d.nFoliar||'nd'}, P=${d.pFoliar||'nd'}, K=${d.kFoliar||'nd'}, Ca=${d.caFoliar||'nd'}, Mg=${d.mgFoliar||'nd'}, S=${d.sFoliar||'nd'}, B=${d.bFoliar||'nd'}, Zn=${d.znFoliar||'nd'}, Cu=${d.cuFoliar||'nd'}, Mn=${d.mnFoliar||'nd'}, Fe=${d.feFoliar||'nd'}`
+  const refs = buildRefContext(d.cultura, en)
+  const knowledge = await getKnowledge(d.cultura, lang)
 
   return `${lang}
 ${base(lang)}
 ${en ? 'FARM' : 'LAVOURA'}: ${d.prodNome} | ${d.cultura} | ${en ? 'Stage' : 'Estádio'} ${d.estadio} | ${en ? 'Expected' : 'Expectativa'}: ${d.prodExpect} sc/ha
-${en ? 'Fertilization' : 'Adubação'}: ${d.adubacao}
-SOIL (${en ? 'summary' : 'resumo'}): ${soloCtx}
-FOLIAR (${en ? 'summary' : 'resumo'}): ${foliarCtx}
+${en ? 'Fertilization already applied' : 'Adubação já realizada'}: ${d.adubacao}
+SOIL: ${soloCtx}
+FOLIAR: ${foliarCtx}
 
-${en ? 'DIAGNOSIS CONTEXT (HTML):' : 'CONTEXTO DA DIAGNOSE (HTML):'}
+${refs}
+${knowledge}
+${en ? 'DIAGNOSIS (use as basis — HTML):' : 'DIAGNOSE (use como base — HTML):'}
 ${diagnoseHtml}
 
 ${en
-  ? 'Based on the diagnosis above, generate nutritional correction protocol in HTML:'
-  : 'Com base na diagnose acima, gere protocolo de correção nutricional em HTML:'}
+  ? `Based on the diagnosis above, generate a COMPLETE nutritional correction protocol as pure HTML.
 
-<h3>💊 ${en ? 'Nutritional Correction Protocol' : 'Protocolo de Correção Nutricional'}</h3>
-${en
-  ? `For each nutrient with deficiency (❌ or ⚠️):
-Table: Nutrient | Via (Soil/Foliar/Both) | Indicative Dose | Source | Timing | Observation
-No commercial brands.`
-  : `Para cada nutriente com deficiência (❌ ou ⚠️):
-Tabela: Nutriente | Via (Solo/Foliar/Ambos) | Dose Indicativa | Fonte | Momento | Observação
-Sem marcas comerciais.`}`
+MANDATORY RULES:
+1. Include ALL nutrients with ❌Deficient or ⚠️Borderline status from the diagnosis
+2. The "Dose" column is MANDATORY — never leave blank. Use the reference doses provided above.
+   Examples of correct format: "2 kg/ha bórax (11% B)" | "300 g/ha sulfato de Zn via foliar" | "30 kg/ha N-ureia"
+3. Always specify: amount + unit + source material (no commercial brand names)
+4. Via: Soil / Foliar / Both — choose the most efficient for current stage ${d.estadio}
+5. Timing: indicate phenological window (e.g., "R1–R2" or "immediately" or "next application")
+
+<h3>💊 Nutritional Correction Protocol</h3>
+<table><tr><th>Nutrient</th><th>Status</th><th>Via</th><th>Dose</th><th>Source (active ingredient)</th><th>Timing</th><th>Note</th></tr>...</table>
+
+After the table add:
+<h4>Priority order:</h4> — numbered list of corrections from most to least urgent, with brief justification.
+<h4>Technical observations:</h4> — 2-3 lines on nutrient antagonisms and application synergies.`
+  : `Com base na diagnose acima, gere um protocolo COMPLETO de correção nutricional em HTML puro.
+
+REGRAS OBRIGATÓRIAS:
+1. Inclua TODOS os nutrientes com status ❌Deficiente ou ⚠️Limite/Borderline da diagnose
+2. A coluna "Dose" é OBRIGATÓRIA — nunca deixar em branco. Use as doses de referência fornecidas acima.
+   Exemplos de formato correto: "2 kg/ha de bórax (11% B)" | "300 g/ha de sulfato de Zn via foliar" | "30 kg/ha de N-ureia"
+3. Especifique sempre: quantidade + unidade + ingrediente ativo (sem marcas comerciais)
+4. Via: Solo / Foliar / Ambos — escolha a mais eficiente para o estádio atual ${d.estadio}
+5. Momento: indique a janela fenológica (ex: "R1–R2" ou "imediato" ou "próxima aplicação")
+
+<h3>💊 Protocolo de Correção Nutricional</h3>
+<table><tr><th>Nutriente</th><th>Status</th><th>Via</th><th>Dose</th><th>Fonte (ingrediente ativo)</th><th>Momento</th><th>Observação</th></tr>...</table>
+
+Após a tabela adicione:
+<h4>Ordem de prioridade:</h4> — lista numerada das correções da mais para a menos urgente, com breve justificativa.
+<h4>Observações técnicas:</h4> — 2-3 linhas sobre antagonismos entre nutrientes e sinergias de aplicação.`}`
 }
 
 export function buildManipPrompt(d, manipOptions, lang) {

@@ -31,9 +31,9 @@ export default function StepCorrecao() {
     setCorrecaoHtml('__loading__')
     try {
       const html = await callClaude(
-        buildCorrecaoPrompt(data, laudoDiagnoseHtml || '', t.promptLang),
+        await buildCorrecaoPrompt(data, laudoDiagnoseHtml || '', t.promptLang),
         null,
-        3000
+        4000
       )
       setCorrecaoHtml(html)
     } catch (e) {
