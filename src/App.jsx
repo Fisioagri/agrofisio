@@ -1,6 +1,7 @@
 import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { LanguageProvider } from './contexts/LanguageContext'
+import { WizardProvider } from './contexts/WizardContext'
 import AppRoutes from './routes'
 
 export default function App() {
@@ -8,7 +9,9 @@ export default function App() {
     <BrowserRouter>
       <LanguageProvider>
         <AuthProvider>
-          <AppRoutes />
+          <WizardProvider>
+            <AppRoutes />
+          </WizardProvider>
         </AuthProvider>
       </LanguageProvider>
     </BrowserRouter>
