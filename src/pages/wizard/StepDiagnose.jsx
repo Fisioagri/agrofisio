@@ -5,7 +5,6 @@ import { callClaude } from '../../services/api'
 import {
   buildDiagnoseOption01Prompt,
   buildDiagnoseOption02Prompt,
-  buildDiagnoseOption03Prompt,
 } from '../../services/prompts'
 import LaudoView from '../../components/LaudoView'
 import LoadingLaudo from '../../components/LoadingLaudo'
@@ -28,7 +27,6 @@ export default function StepDiagnose() {
     const auto = []
     if (hasSoloData && hasFoliarData && hasPhoto) auto.push('01')
     auto.push('02')
-    if (hasSoloData && hasFoliarData) auto.push('03')
     update({ diagnoseOptions: auto })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -57,19 +55,6 @@ export default function StepDiagnose() {
       enabled: true,
       missing: [],
     },
-    {
-      id: '03',
-      icon: '🗺️',
-      label:   en ? 'Nutritional Map'           : 'Mapa Nutricional',
-      desc:    en ? 'Full nutrient-by-nutrient table contrasting measured values against Embrapa/Bataglia references for the crop.'
-                  : 'Tabela nutriente a nutriente contrastando valores medidos com referências Embrapa/Bataglia para a cultura.',
-      badge:   en ? 'Soil + Foliar'              : 'Solo + Foliar',
-      enabled: hasSoloData && hasFoliarData,
-      missing: [
-        !hasSoloData   && (en ? 'soil analysis'   : 'análise de solo'),
-        !hasFoliarData && (en ? 'foliar analysis'  : 'análise foliar'),
-      ].filter(Boolean),
-    },
   ]
 
   function toggleOption(id) {
@@ -88,7 +73,6 @@ export default function StepDiagnose() {
       const promises = selected.map(async id => {
         if (id === '01') return callClaude(await buildDiagnoseOption01Prompt(data, t.promptLang), data.fotoB64 || null, 4000)
         if (id === '02') return callClaude(await buildDiagnoseOption02Prompt(data, t.promptLang), null, 4000)
-        if (id === '03') return callClaude(await buildDiagnoseOption03Prompt(data, t.promptLang), null, 4000)
         return ''
       })
       const results = await Promise.all(promises)

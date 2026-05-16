@@ -16,7 +16,7 @@ export default function StepCorrecao() {
 
   // Only applicable if option 01 or 03 was selected
   const diagnoseOptions = data.diagnoseOptions || []
-  const isApplicable = diagnoseOptions.includes('01') || diagnoseOptions.includes('03')
+  const isApplicable = diagnoseOptions.includes('01')
 
   useEffect(() => {
     if (!isApplicable) return
