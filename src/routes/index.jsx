@@ -11,6 +11,7 @@ import ProdutoresPage   from '../pages/ProdutoresPage'
 import TalhoesPage      from '../pages/TalhoesPage'
 import EstoquePage      from '../pages/EstoquePage'
 import FinanceiroPage   from '../pages/FinanceiroPage'
+import AnalysePage      from '../pages/AnalysePage'
 
 export default function AppRoutes() {
   return (
@@ -19,6 +20,7 @@ export default function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/"            element={<DashboardPage />} />
+        <Route path="/analise"     element={<AnalysePage />} />
         <Route path="/wizard"      element={<WizardPage />} />
         <Route path="/produtores"  element={<ProdutoresPage />} />
         <Route path="/talhoes"     element={<TalhoesPage />} />

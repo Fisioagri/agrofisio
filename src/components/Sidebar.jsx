@@ -32,8 +32,10 @@ const NAV_ROUTES = [
     icon: 'M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z',
   },
   {
-    to: '/wizard',
+    to: '/analise',
     key: 'analise',
+    // Also highlight when inside wizard or viewing a laudo
+    extraPaths: ['/wizard', '/laudos'],
     icon: 'M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5',
   },
   {
@@ -54,17 +56,49 @@ const ICON_SETTINGS = {
 }
 const ICON_LOGOUT = 'M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75'
 
+// Tooltip label balloon shown on first click in mobile rail mode
+function Tip({ label, onClick }) {
+  return (
+    <motion.button
+      initial={{ opacity: 0, x: -8, scale: 0.92 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      exit={{ opacity: 0, x: -8, scale: 0.92 }}
+      transition={{ duration: 0.15 }}
+      onClick={onClick}
+      className="md:hidden absolute left-full top-1/2 -translate-y-1/2 ml-2 z-50
+        bg-brand-900 text-white font-mono text-xs font-semibold px-4 py-2.5
+        rounded-xl whitespace-nowrap shadow-2xl border border-white/10
+        hover:bg-brand-700 active:bg-brand-700 transition-colors select-none"
+    >
+      {/* Triangle arrow pointing left */}
+      <span className="absolute right-full top-1/2 -translate-y-1/2
+        border-y-[5px] border-y-transparent border-r-[6px] border-r-brand-900 pointer-events-none" />
+      {label}
+    </motion.button>
+  )
+}
+
 export default function Sidebar() {
   const { lang, setLang, t } = useLanguage()
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const signOut = useSignOut()
-  const [tooltip, setTooltip] = useState(null)
   const sidebarRef = useRef(null)
 
-  const isActive = (to) => to === '/' ? pathname === '/' : pathname.startsWith(to)
+  const [tooltip, setTooltip] = useState(null)
+  // Track mobile rail mode via matchMedia — more reliable than window.innerWidth at click time
+  const [mobileRail, setMobileRail] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
+  )
 
-  // Dismiss tooltip when clicking outside the sidebar
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const update = () => setMobileRail(mq.matches)
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [])
+
+  // Clear tooltip on outside click
   useEffect(() => {
     function onOutside(e) {
       if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
@@ -72,33 +106,34 @@ export default function Sidebar() {
       }
     }
     document.addEventListener('mousedown', onOutside)
-    return () => document.removeEventListener('mousedown', onOutside)
+    document.addEventListener('touchstart', onOutside, { passive: true })
+    return () => {
+      document.removeEventListener('mousedown', onOutside)
+      document.removeEventListener('touchstart', onOutside)
+    }
   }, [])
 
-  // Dismiss tooltip on route change
+  // Clear tooltip on navigation
   useEffect(() => { setTooltip(null) }, [pathname])
 
-  function handleNavClick(e, item) {
-    const mobile = window.innerWidth < 768
-    if (!mobile) {
-      navigate(item.to)
-      return
-    }
-    // Mobile: first click → show label; second click → navigate
-    if (tooltip === item.key) {
-      setTooltip(null)
-      navigate(item.to)
-    } else {
-      e.stopPropagation()
-      setTooltip(item.key)
-    }
+  const isActive = (item) => {
+    if (item.to === '/') return pathname === '/'
+    if (pathname.startsWith(item.to)) return true
+    return item.extraPaths?.some(p => pathname.startsWith(p)) ?? false
   }
 
-  function handleSettingsClick() {
-    const mobile = window.innerWidth < 768
-    if (!mobile) { navigate('/settings'); return }
-    if (tooltip === '__settings') { setTooltip(null); navigate('/settings') }
-    else setTooltip('__settings')
+  function navClick(e, key, to) {
+    e.preventDefault()
+    if (!mobileRail) {
+      navigate(to)
+      return
+    }
+    if (tooltip === key) {
+      setTooltip(null)
+      navigate(to)
+    } else {
+      setTooltip(key)
+    }
   }
 
   return (
@@ -106,25 +141,20 @@ export default function Sidebar() {
       ref={sidebarRef}
       className="w-14 md:w-[220px] flex-shrink-0 h-screen sticky top-0 bg-brand-900 md:bg-white md:border-r md:border-surface-border flex flex-col z-40"
     >
-      {/* ── Logo + language ─────────────────────────────── */}
+      {/* ── Logo + language ─────────────────────────── */}
       <div className="bg-brand-900 flex-shrink-0">
         {/* Mobile */}
-        <div className="md:hidden flex flex-col items-center pt-3 pb-2 gap-2 px-1">
-          <div className="w-8 h-8 bg-brand-700 rounded-lg flex items-center justify-center text-base flex-shrink-0">
+        <div className="md:hidden flex flex-col items-center pt-3 pb-2 gap-2">
+          <div className="w-8 h-8 bg-brand-700 rounded-lg flex items-center justify-center text-base">
             🌱
           </div>
           <div className="flex gap-1">
-            <button
-              onClick={() => setLang('pt')} title="Português"
-              className={`text-sm leading-none transition-opacity ${lang === 'pt' ? 'opacity-100 scale-110' : 'opacity-35 hover:opacity-60'}`}
-            >🇧🇷</button>
-            <button
-              onClick={() => setLang('en')} title="English"
-              className={`text-sm leading-none transition-opacity ${lang === 'en' ? 'opacity-100 scale-110' : 'opacity-35 hover:opacity-60'}`}
-            >🇺🇸</button>
+            <button onClick={() => setLang('pt')} title="Português"
+              className={`text-sm leading-none transition-opacity ${lang === 'pt' ? 'opacity-100' : 'opacity-30 hover:opacity-70'}`}>🇧🇷</button>
+            <button onClick={() => setLang('en')} title="English"
+              className={`text-sm leading-none transition-opacity ${lang === 'en' ? 'opacity-100' : 'opacity-30 hover:opacity-70'}`}>🇺🇸</button>
           </div>
         </div>
-
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-2.5 px-4 py-4">
           <div className="w-8 h-8 bg-brand-700 rounded-lg flex items-center justify-center text-base flex-shrink-0">
@@ -135,60 +165,43 @@ export default function Sidebar() {
             <div className="font-mono text-[9px] text-brand-400 mt-0.5">Plataforma Agrícola</div>
           </div>
           <div className="flex gap-1.5 flex-shrink-0">
-            <button
-              onClick={() => setLang('pt')} title="Português"
-              className={`text-base leading-none transition-opacity ${lang === 'pt' ? 'opacity-100' : 'opacity-30 hover:opacity-60'}`}
-            >🇧🇷</button>
-            <button
-              onClick={() => setLang('en')} title="English"
-              className={`text-base leading-none transition-opacity ${lang === 'en' ? 'opacity-100' : 'opacity-30 hover:opacity-60'}`}
-            >🇺🇸</button>
+            <button onClick={() => setLang('pt')} title="Português"
+              className={`text-base leading-none transition-opacity ${lang === 'pt' ? 'opacity-100' : 'opacity-30 hover:opacity-60'}`}>🇧🇷</button>
+            <button onClick={() => setLang('en')} title="English"
+              className={`text-base leading-none transition-opacity ${lang === 'en' ? 'opacity-100' : 'opacity-30 hover:opacity-60'}`}>🇺🇸</button>
           </div>
         </div>
       </div>
 
-      {/* ── Nav principal ───────────────────────────────── */}
+      {/* ── Nav principal ───────────────────────────── */}
       <nav className="flex-1 py-3 px-1.5 md:px-2 space-y-0.5 overflow-y-auto">
         {NAV_ROUTES.map(item => {
-          const active = isActive(item.to)
+          const active = isActive(item)
           const showTip = tooltip === item.key
 
           return (
             <div key={item.to} className="relative">
-              <motion.button
-                whileHover={{ x: active ? 0 : 2 }}
-                transition={{ duration: 0.12 }}
-                onClick={e => handleNavClick(e, item)}
-                className={[
-                  'w-full flex items-center justify-center md:justify-start gap-2.5 px-2 md:px-3 py-2.5 rounded-lg text-[11px] font-mono transition-colors',
-                  active
-                    ? 'bg-white/20 text-white md:bg-brand-50 md:text-brand-900 md:font-medium md:border-l-[3px] md:border-brand-900 md:pl-[9px]'
-                    : 'text-white/60 md:text-ink-400 hover:bg-white/10 md:hover:bg-surface-bg md:hover:text-ink-600',
-                ].join(' ')}
-              >
-                <Icon path={item.icon} />
-                <span className="hidden md:block">{t.nav[item.key]}</span>
-              </motion.button>
+              <motion.div whileHover={{ x: active ? 0 : 2 }} transition={{ duration: 0.12 }}>
+                <button
+                  onClick={e => navClick(e, item.key, item.to)}
+                  className={[
+                    'w-full flex items-center justify-center md:justify-start gap-2.5 px-2 md:px-3 py-2.5 rounded-lg text-[11px] font-mono transition-colors',
+                    active
+                      ? 'bg-white/20 text-white md:bg-brand-50 md:text-brand-900 md:font-medium md:border-l-[3px] md:border-brand-900 md:pl-[9px]'
+                      : 'text-white/60 md:text-ink-400 hover:bg-white/10 md:hover:bg-surface-bg md:hover:text-ink-600',
+                  ].join(' ')}
+                >
+                  <Icon path={item.icon} />
+                  <span className="hidden md:block">{t.nav[item.key]}</span>
+                </button>
+              </motion.div>
 
-              {/* Mobile tooltip — first click label */}
               <AnimatePresence>
                 {showTip && (
-                  <motion.button
-                    initial={{ opacity: 0, x: -6, scale: 0.94 }}
-                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                    exit={{ opacity: 0, x: -6, scale: 0.94 }}
-                    transition={{ duration: 0.14 }}
+                  <Tip
+                    label={t.nav[item.key]}
                     onClick={() => { navigate(item.to); setTooltip(null) }}
-                    className="md:hidden absolute left-full top-1/2 -translate-y-1/2 ml-2 z-50
-                      bg-brand-900 text-white font-mono text-xs font-semibold px-4 py-2.5
-                      rounded-xl whitespace-nowrap shadow-2xl border border-white/10 cursor-pointer
-                      hover:bg-brand-700 transition-colors"
-                  >
-                    {/* Arrow */}
-                    <span className="absolute right-full top-1/2 -translate-y-1/2
-                      border-y-[5px] border-y-transparent border-r-[6px] border-r-brand-900" />
-                    {t.nav[item.key]}
-                  </motion.button>
+                  />
                 )}
               </AnimatePresence>
             </div>
@@ -196,12 +209,12 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* ── Bottom ──────────────────────────────────────── */}
+      {/* ── Bottom ──────────────────────────────────── */}
       <div className="border-t border-white/10 md:border-surface-border px-1.5 md:px-2 py-2 space-y-0.5 flex-shrink-0">
         {/* Settings */}
         <div className="relative">
           <button
-            onClick={handleSettingsClick}
+            onClick={e => navClick(e, '__settings', '/settings')}
             className={[
               'w-full flex items-center justify-center md:justify-start gap-2.5 px-2 md:px-3 py-2 rounded-lg text-[11px] font-mono transition-colors',
               pathname === '/settings'
@@ -212,24 +225,12 @@ export default function Sidebar() {
             <Icon path={ICON_SETTINGS.path} path2={ICON_SETTINGS.path2} />
             <span className="hidden md:block">{t.nav.settings}</span>
           </button>
-
           <AnimatePresence>
             {tooltip === '__settings' && (
-              <motion.button
-                initial={{ opacity: 0, x: -6, scale: 0.94 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: -6, scale: 0.94 }}
-                transition={{ duration: 0.14 }}
+              <Tip
+                label={t.nav.settings}
                 onClick={() => { navigate('/settings'); setTooltip(null) }}
-                className="md:hidden absolute left-full top-1/2 -translate-y-1/2 ml-2 z-50
-                  bg-brand-900 text-white font-mono text-xs font-semibold px-4 py-2.5
-                  rounded-xl whitespace-nowrap shadow-2xl border border-white/10 cursor-pointer
-                  hover:bg-brand-700 transition-colors"
-              >
-                <span className="absolute right-full top-1/2 -translate-y-1/2
-                  border-y-[5px] border-y-transparent border-r-[6px] border-r-brand-900" />
-                {t.nav.settings}
-              </motion.button>
+              />
             )}
           </AnimatePresence>
         </div>

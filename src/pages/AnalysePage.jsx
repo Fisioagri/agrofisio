@@ -1,0 +1,167 @@
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import AppLayout from '../layouts/AppLayout'
+import { useLanguage } from '../contexts/LanguageContext'
+import { listLaudos, deleteLaudo } from '../services/laudoService'
+import Spinner from '../components/ui/Spinner'
+
+const CROP_ICO = { soja: '🫘', milho: '🌽', feijao: '🫛' }
+const PAGE_SIZE = 10
+
+export default function AnalysePage() {
+  const { t, lang } = useLanguage()
+  const navigate = useNavigate()
+  const [laudos, setLaudos]           = useState([])
+  const [total, setTotal]             = useState(0)
+  const [loading, setLoading]         = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [deleting, setDeleting]       = useState(null)
+
+  useEffect(() => {
+    let cancelled = false
+    listLaudos({ limit: PAGE_SIZE, offset: 0 })
+      .then(({ data, count }) => { if (!cancelled) { setLaudos(data); setTotal(count) } })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [])
+
+  async function loadMore() {
+    setLoadingMore(true)
+    listLaudos({ limit: PAGE_SIZE, offset: laudos.length })
+      .then(({ data }) => setLaudos(prev => [...prev, ...data]))
+      .catch(() => {})
+      .finally(() => setLoadingMore(false))
+  }
+
+  async function handleDelete(e, id) {
+    e.stopPropagation()
+    const msg = lang === 'en' ? 'Delete this report?' : 'Excluir este laudo?'
+    if (!window.confirm(msg)) return
+    setDeleting(id)
+    await deleteLaudo(id).catch(() => {})
+    setLaudos(prev => prev.filter(l => l.id !== id))
+    setTotal(prev => prev - 1)
+    setDeleting(null)
+  }
+
+  const hasMore = laudos.length < total
+
+  return (
+    <AppLayout>
+      <div className="space-y-4">
+        {/* Header */}
+        <div>
+          <h1 className="font-display font-bold text-xl md:text-2xl text-brand-900">
+            {lang === 'en' ? 'Physiological Analysis' : 'Análise Fisiológica'}
+          </h1>
+          <p className="font-mono text-xs text-ink-400 mt-0.5">
+            {lang === 'en' ? 'protocol · 8 steps' : 'protocolo · 8 etapas'}
+          </p>
+        </div>
+
+        {/* Nova Análise CTA */}
+        <Link
+          to="/wizard"
+          className="block bg-brand-900 text-white rounded-card p-4 md:p-5 shadow-card hover:bg-brand-700 transition-colors"
+        >
+          <div className="text-2xl mb-1.5">🌱</div>
+          <h2 className="font-display font-bold text-lg md:text-xl">{t.dashboard.newAnalysis}</h2>
+          <p className="font-mono text-xs text-brand-400 mt-0.5">{t.dashboard.newAnalysisSub}</p>
+        </Link>
+
+        {/* Histórico de laudos */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <div className="font-mono text-[10px] font-bold text-ink-400 uppercase tracking-wider">
+              {lang === 'en' ? 'History' : 'Histórico'}
+            </div>
+            {total > 0 && (
+              <div className="font-mono text-[10px] text-ink-300">{laudos.length}/{total}</div>
+            )}
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center py-8"><Spinner /></div>
+          ) : laudos.length === 0 ? (
+            <div className="bg-white border border-surface-border rounded-card p-6 text-center shadow-card">
+              <p className="text-2xl mb-2">📋</p>
+              <p className="font-mono text-xs text-ink-400">
+                {lang === 'en' ? 'No reports yet.' : 'Nenhum laudo gerado ainda.'}
+              </p>
+              <Link
+                to="/wizard"
+                className="mt-3 inline-block font-mono text-xs text-brand-700 underline"
+              >
+                {lang === 'en' ? 'Start first analysis →' : 'Iniciar primeira análise →'}
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-2">
+                {laudos.map(l => (
+                  <button
+                    key={l.id}
+                    onClick={() => navigate(`/laudos/${l.id}`)}
+                    className="w-full bg-white border border-surface-border rounded-card p-3.5 shadow-card
+                      hover:border-brand-700 hover:shadow-md transition-all text-left flex items-center gap-3"
+                  >
+                    <div className="w-10 h-10 bg-brand-100 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
+                      {CROP_ICO[l.cultura] || '🌱'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-display font-bold text-sm text-brand-900 truncate">
+                        {l.produtor_nome}
+                      </p>
+                      <p className="font-mono text-[10px] text-ink-400 mt-0.5">
+                        {(l.cultura || '').toUpperCase()} · {lang === 'en' ? 'Stage' : 'Estádio'} {l.estadio} · {lang === 'en' ? 'Season' : 'Safra'} {l.safra}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="text-right">
+                        <p className="font-mono text-[10px] text-ink-400">
+                          {new Date(l.created_at).toLocaleDateString(lang === 'en' ? 'en-US' : 'pt-BR', {
+                            day: '2-digit', month: 'short'
+                          })}
+                        </p>
+                        <p className="font-mono text-[10px] text-ink-300 mt-0.5">
+                          {new Date(l.created_at).toLocaleTimeString(lang === 'en' ? 'en-US' : 'pt-BR', {
+                            hour: '2-digit', minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                      <button
+                        onClick={e => handleDelete(e, l.id)}
+                        disabled={deleting === l.id}
+                        className="w-7 h-7 flex items-center justify-center rounded-md text-ink-300
+                          hover:text-danger-600 hover:bg-danger-50 transition-colors"
+                      >
+                        {deleting === l.id ? '…' : '🗑'}
+                      </button>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {hasMore && (
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="mt-2 w-full py-2.5 border border-surface-border rounded-card
+                    font-mono text-xs text-ink-500 hover:border-brand-700 hover:text-brand-900
+                    transition-all disabled:opacity-50"
+                >
+                  {loadingMore
+                    ? t.common.loading
+                    : lang === 'en'
+                      ? `Load more (${total - laudos.length} remaining)`
+                      : `Ver mais (${total - laudos.length} restantes)`}
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </AppLayout>
+  )
+}
