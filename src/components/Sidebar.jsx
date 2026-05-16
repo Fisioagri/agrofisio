@@ -1,9 +1,10 @@
-import { Link, useLocation } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useSignOut } from '../hooks/useSignOut'
 
-function Icon({ path, path2, size = 16 }) {
+function Icon({ path, path2, size = 17 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
       stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
@@ -47,97 +48,198 @@ const NAV_ROUTES = [
   },
 ]
 
-const SETTINGS_ICON = 'M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z'
-const SETTINGS_ICON2 = 'M15 12a3 3 0 11-6 0 3 3 0 016 0z'
-const LOGOUT_ICON = 'M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75'
+const ICON_SETTINGS = {
+  path: 'M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z',
+  path2: 'M15 12a3 3 0 11-6 0 3 3 0 016 0z',
+}
+const ICON_LOGOUT = 'M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75'
 
 export default function Sidebar() {
   const { lang, setLang, t } = useLanguage()
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const signOut = useSignOut()
+  const [tooltip, setTooltip] = useState(null)
+  const sidebarRef = useRef(null)
 
   const isActive = (to) => to === '/' ? pathname === '/' : pathname.startsWith(to)
 
+  // Dismiss tooltip when clicking outside the sidebar
+  useEffect(() => {
+    function onOutside(e) {
+      if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
+        setTooltip(null)
+      }
+    }
+    document.addEventListener('mousedown', onOutside)
+    return () => document.removeEventListener('mousedown', onOutside)
+  }, [])
+
+  // Dismiss tooltip on route change
+  useEffect(() => { setTooltip(null) }, [pathname])
+
+  function handleNavClick(e, item) {
+    const mobile = window.innerWidth < 768
+    if (!mobile) {
+      navigate(item.to)
+      return
+    }
+    // Mobile: first click → show label; second click → navigate
+    if (tooltip === item.key) {
+      setTooltip(null)
+      navigate(item.to)
+    } else {
+      e.stopPropagation()
+      setTooltip(item.key)
+    }
+  }
+
+  function handleSettingsClick() {
+    const mobile = window.innerWidth < 768
+    if (!mobile) { navigate('/settings'); return }
+    if (tooltip === '__settings') { setTooltip(null); navigate('/settings') }
+    else setTooltip('__settings')
+  }
+
   return (
-    <aside className="
-      w-14 md:w-[220px] flex-shrink-0 h-screen sticky top-0
-      bg-brand-900 md:bg-white md:border-r md:border-surface-border
-      flex flex-col z-40 overflow-hidden
-    ">
-      {/* Logo */}
-      <div className="bg-brand-900 flex items-center gap-2.5 px-3 md:px-4 py-4 md:py-5 flex-shrink-0">
-        <div className="w-8 h-8 bg-brand-700 rounded-lg flex items-center justify-center text-base flex-shrink-0">
-          🌱
+    <aside
+      ref={sidebarRef}
+      className="w-14 md:w-[220px] flex-shrink-0 h-screen sticky top-0 bg-brand-900 md:bg-white md:border-r md:border-surface-border flex flex-col z-40"
+    >
+      {/* ── Logo + language ─────────────────────────────── */}
+      <div className="bg-brand-900 flex-shrink-0">
+        {/* Mobile */}
+        <div className="md:hidden flex flex-col items-center pt-3 pb-2 gap-2 px-1">
+          <div className="w-8 h-8 bg-brand-700 rounded-lg flex items-center justify-center text-base flex-shrink-0">
+            🌱
+          </div>
+          <div className="flex gap-1">
+            <button
+              onClick={() => setLang('pt')} title="Português"
+              className={`text-sm leading-none transition-opacity ${lang === 'pt' ? 'opacity-100 scale-110' : 'opacity-35 hover:opacity-60'}`}
+            >🇧🇷</button>
+            <button
+              onClick={() => setLang('en')} title="English"
+              className={`text-sm leading-none transition-opacity ${lang === 'en' ? 'opacity-100 scale-110' : 'opacity-35 hover:opacity-60'}`}
+            >🇺🇸</button>
+          </div>
         </div>
-        <div className="hidden md:block min-w-0">
-          <div className="font-display font-extrabold text-white text-sm leading-tight">AgroFísio</div>
-          <div className="font-mono text-[9px] text-brand-400 mt-0.5">Plataforma Agrícola</div>
+
+        {/* Desktop */}
+        <div className="hidden md:flex items-center gap-2.5 px-4 py-4">
+          <div className="w-8 h-8 bg-brand-700 rounded-lg flex items-center justify-center text-base flex-shrink-0">
+            🌱
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-display font-extrabold text-white text-sm leading-tight">AgroFísio</div>
+            <div className="font-mono text-[9px] text-brand-400 mt-0.5">Plataforma Agrícola</div>
+          </div>
+          <div className="flex gap-1.5 flex-shrink-0">
+            <button
+              onClick={() => setLang('pt')} title="Português"
+              className={`text-base leading-none transition-opacity ${lang === 'pt' ? 'opacity-100' : 'opacity-30 hover:opacity-60'}`}
+            >🇧🇷</button>
+            <button
+              onClick={() => setLang('en')} title="English"
+              className={`text-base leading-none transition-opacity ${lang === 'en' ? 'opacity-100' : 'opacity-30 hover:opacity-60'}`}
+            >🇺🇸</button>
+          </div>
         </div>
       </div>
 
-      {/* Nav principal */}
+      {/* ── Nav principal ───────────────────────────────── */}
       <nav className="flex-1 py-3 px-1.5 md:px-2 space-y-0.5 overflow-y-auto">
         {NAV_ROUTES.map(item => {
           const active = isActive(item.to)
+          const showTip = tooltip === item.key
+
           return (
-            <motion.div key={item.to} whileHover={{ x: active ? 0 : 2 }} transition={{ duration: 0.12 }}>
-              <Link
-                to={item.to}
-                title={t.nav[item.key]}
+            <div key={item.to} className="relative">
+              <motion.button
+                whileHover={{ x: active ? 0 : 2 }}
+                transition={{ duration: 0.12 }}
+                onClick={e => handleNavClick(e, item)}
                 className={[
-                  'flex items-center justify-center md:justify-start gap-2.5 px-2 md:px-3 py-2.5 rounded-lg text-[11px] font-mono transition-colors',
+                  'w-full flex items-center justify-center md:justify-start gap-2.5 px-2 md:px-3 py-2.5 rounded-lg text-[11px] font-mono transition-colors',
                   active
                     ? 'bg-white/20 text-white md:bg-brand-50 md:text-brand-900 md:font-medium md:border-l-[3px] md:border-brand-900 md:pl-[9px]'
                     : 'text-white/60 md:text-ink-400 hover:bg-white/10 md:hover:bg-surface-bg md:hover:text-ink-600',
                 ].join(' ')}
               >
-                <Icon path={item.icon} size={17} />
+                <Icon path={item.icon} />
                 <span className="hidden md:block">{t.nav[item.key]}</span>
-              </Link>
-            </motion.div>
+              </motion.button>
+
+              {/* Mobile tooltip — first click label */}
+              <AnimatePresence>
+                {showTip && (
+                  <motion.button
+                    initial={{ opacity: 0, x: -6, scale: 0.94 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -6, scale: 0.94 }}
+                    transition={{ duration: 0.14 }}
+                    onClick={() => { navigate(item.to); setTooltip(null) }}
+                    className="md:hidden absolute left-full top-1/2 -translate-y-1/2 ml-2 z-50
+                      bg-brand-900 text-white font-mono text-xs font-semibold px-4 py-2.5
+                      rounded-xl whitespace-nowrap shadow-2xl border border-white/10 cursor-pointer
+                      hover:bg-brand-700 transition-colors"
+                  >
+                    {/* Arrow */}
+                    <span className="absolute right-full top-1/2 -translate-y-1/2
+                      border-y-[5px] border-y-transparent border-r-[6px] border-r-brand-900" />
+                    {t.nav[item.key]}
+                  </motion.button>
+                )}
+              </AnimatePresence>
+            </div>
           )
         })}
       </nav>
 
-      {/* Bottom */}
+      {/* ── Bottom ──────────────────────────────────────── */}
       <div className="border-t border-white/10 md:border-surface-border px-1.5 md:px-2 py-2 space-y-0.5 flex-shrink-0">
-        <Link
-          to="/settings"
-          title={t.nav.settings}
-          className={[
-            'flex items-center justify-center md:justify-start gap-2.5 px-2 md:px-3 py-2 rounded-lg text-[11px] font-mono transition-colors',
-            pathname === '/settings'
-              ? 'bg-white/20 text-white md:bg-brand-50 md:text-brand-900'
-              : 'text-white/60 md:text-ink-400 hover:bg-white/10 md:hover:bg-surface-bg md:hover:text-ink-600',
-          ].join(' ')}
-        >
-          <Icon path={SETTINGS_ICON} path2={SETTINGS_ICON2} size={17} />
-          <span className="hidden md:block">{t.nav.settings}</span>
-        </Link>
+        {/* Settings */}
+        <div className="relative">
+          <button
+            onClick={handleSettingsClick}
+            className={[
+              'w-full flex items-center justify-center md:justify-start gap-2.5 px-2 md:px-3 py-2 rounded-lg text-[11px] font-mono transition-colors',
+              pathname === '/settings'
+                ? 'bg-white/20 text-white md:bg-brand-50 md:text-brand-900'
+                : 'text-white/60 md:text-ink-400 hover:bg-white/10 md:hover:bg-surface-bg md:hover:text-ink-600',
+            ].join(' ')}
+          >
+            <Icon path={ICON_SETTINGS.path} path2={ICON_SETTINGS.path2} />
+            <span className="hidden md:block">{t.nav.settings}</span>
+          </button>
 
-        {/* Language toggle */}
-        <div className="flex items-center justify-center md:justify-start gap-1.5 px-2 md:px-3 py-1.5">
-          <span className="hidden md:block font-mono text-[10px] text-ink-300 flex-1">
-            {lang === 'pt' ? 'Idioma' : 'Language'}
-          </span>
-          <button
-            onClick={() => setLang('pt')}
-            title="Português"
-            className={`text-base leading-none transition-opacity ${lang === 'pt' ? 'opacity-100' : 'opacity-30 hover:opacity-60'}`}
-          >🇧🇷</button>
-          <button
-            onClick={() => setLang('en')}
-            title="English"
-            className={`text-base leading-none transition-opacity ${lang === 'en' ? 'opacity-100' : 'opacity-30 hover:opacity-60'}`}
-          >🇺🇸</button>
+          <AnimatePresence>
+            {tooltip === '__settings' && (
+              <motion.button
+                initial={{ opacity: 0, x: -6, scale: 0.94 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: -6, scale: 0.94 }}
+                transition={{ duration: 0.14 }}
+                onClick={() => { navigate('/settings'); setTooltip(null) }}
+                className="md:hidden absolute left-full top-1/2 -translate-y-1/2 ml-2 z-50
+                  bg-brand-900 text-white font-mono text-xs font-semibold px-4 py-2.5
+                  rounded-xl whitespace-nowrap shadow-2xl border border-white/10 cursor-pointer
+                  hover:bg-brand-700 transition-colors"
+              >
+                <span className="absolute right-full top-1/2 -translate-y-1/2
+                  border-y-[5px] border-y-transparent border-r-[6px] border-r-brand-900" />
+                {t.nav.settings}
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
 
+        {/* Logout */}
         <button
           onClick={signOut}
-          title={t.nav.logout}
           className="w-full flex items-center justify-center md:justify-start gap-2.5 px-2 md:px-3 py-2 rounded-lg text-[11px] font-mono text-white/50 md:text-ink-400 hover:bg-red-500/20 md:hover:bg-danger-50 hover:text-white md:hover:text-danger-600 transition-colors"
         >
-          <Icon path={LOGOUT_ICON} size={17} />
+          <Icon path={ICON_LOGOUT} />
           <span className="hidden md:block">{t.nav.logout}</span>
         </button>
       </div>
