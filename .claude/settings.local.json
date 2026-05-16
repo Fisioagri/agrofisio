@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(ipconfig)",
+      "PowerShell(Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -match 'Wi-Fi|Wireless|WLAN|Ethernet' -and $_.IPAddress -notmatch '^169' } | Select-Object InterfaceAlias, IPAddress)",
+      "PowerShell(Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -notmatch '^127|^169' } | Select-Object InterfaceAlias, IPAddress)",
+      "PowerShell(wrangler --version 2>&1)",
+      "PowerShell(node --version)",
+      "PowerShell(npm install -g wrangler 2>&1)",
+      "PowerShell(tail -5)",
+      "Bash(wrangler --version)",
+      "Bash(git push *)"
+    ]
+  }
+}
