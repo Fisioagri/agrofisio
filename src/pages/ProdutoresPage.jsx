@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import AppLayout from '../layouts/AppLayout'
 import Spinner from '../components/ui/Spinner'
+import { useLanguage } from '../contexts/LanguageContext'
 import {
   listProdutores, createProdutor, updateProdutor, deleteProdutor,
   validateCPF, formatCPF,
@@ -10,6 +11,8 @@ import {
 const EMPTY = { nome: '', cpf: '', data_nasc: '', cidade: '', telefone: '', email: '' }
 
 function PanelForm({ initial, onSave, onCancel, saving }) {
+  const { t } = useLanguage()
+  const s = t.produtoresPage
   const [form, setForm] = useState(initial || EMPTY)
   const [cpfErr, setCpfErr] = useState(false)
 
@@ -40,41 +43,41 @@ function PanelForm({ initial, onSave, onCancel, saving }) {
       className="bg-white border border-surface-border rounded-card shadow-card p-6"
     >
       <h3 className="font-display font-bold text-base text-brand-900 mb-5">
-        {initial ? '✏️ Editar Produtor' : '➕ Novo Produtor'}
+        {initial ? s.editTitle : s.newTitle}
       </h3>
       <form onSubmit={submit} className="space-y-4">
         <div>
-          <label className={label}>Nome completo *</label>
+          <label className={label}>{s.fieldName}</label>
           <input className={field} required value={form.nome}
             onChange={e => set('nome', e.target.value)} placeholder="João da Silva" />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={label}>CPF</label>
+            <label className={label}>{s.fieldCPF}</label>
             <input className={`${field} ${cpfErr ? 'border-danger-600 ring-1 ring-danger-600' : ''}`}
               value={form.cpf} onChange={e => handleCPF(e.target.value)}
               placeholder="000.000.000-00" maxLength={14} />
-            {cpfErr && <p className="font-mono text-[10px] text-danger-600 mt-1">CPF inválido</p>}
+            {cpfErr && <p className="font-mono text-[10px] text-danger-600 mt-1">{s.cpfInvalid}</p>}
           </div>
           <div>
-            <label className={label}>Data de Nascimento</label>
+            <label className={label}>{s.fieldBirth}</label>
             <input type="date" className={field} value={form.data_nasc}
               onChange={e => set('data_nasc', e.target.value)} />
           </div>
         </div>
         <div>
-          <label className={label}>Cidade *</label>
+          <label className={label}>{s.fieldCity}</label>
           <input className={field} required value={form.cidade}
             onChange={e => set('cidade', e.target.value)} placeholder="Londrina – PR" />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={label}>Telefone</label>
+            <label className={label}>{s.fieldPhone}</label>
             <input className={field} value={form.telefone}
               onChange={e => set('telefone', e.target.value)} placeholder="(43) 99999-0000" />
           </div>
           <div>
-            <label className={label}>E-mail</label>
+            <label className={label}>{s.fieldEmail}</label>
             <input type="email" className={field} value={form.email}
               onChange={e => set('email', e.target.value)} placeholder="joao@email.com" />
           </div>
@@ -82,11 +85,11 @@ function PanelForm({ initial, onSave, onCancel, saving }) {
         <div className="flex gap-2 pt-2">
           <button type="button" onClick={onCancel}
             className="flex-1 py-2.5 border border-surface-border rounded-sm font-mono text-xs text-ink-600 hover:border-ink-400 transition-colors">
-            Cancelar
+            {s.cancel}
           </button>
           <button type="submit" disabled={saving}
             className="flex-1 py-2.5 bg-brand-900 text-white rounded-sm font-mono text-xs font-bold hover:bg-brand-700 disabled:opacity-50 transition-colors">
-            {saving ? 'Salvando…' : 'Salvar'}
+            {saving ? s.saving : s.save}
           </button>
         </div>
       </form>
@@ -95,10 +98,12 @@ function PanelForm({ initial, onSave, onCancel, saving }) {
 }
 
 export default function ProdutoresPage() {
+  const { t } = useLanguage()
+  const s = t.produtoresPage
   const [produtores, setProdutores] = useState([])
   const [loading, setLoading]       = useState(true)
   const [search, setSearch]         = useState('')
-  const [panel, setPanel]           = useState(null) // null | 'new' | producer obj
+  const [panel, setPanel]           = useState(null)
   const [saving, setSaving]         = useState(false)
   const [deleting, setDeleting]     = useState(null)
   const [error, setError]           = useState('')
@@ -106,7 +111,7 @@ export default function ProdutoresPage() {
   useEffect(() => {
     listProdutores()
       .then(setProdutores)
-      .catch(() => setError('Erro ao carregar produtores.'))
+      .catch(() => setError(s.errLoad))
       .finally(() => setLoading(false))
   }, [])
 
@@ -127,20 +132,20 @@ export default function ProdutoresPage() {
       }
       setPanel(null)
     } catch {
-      setError('Erro ao salvar. Tente novamente.')
+      setError(s.errSave)
     } finally {
       setSaving(false)
     }
   }
 
   async function handleDelete(id) {
-    if (!window.confirm('Excluir este produtor?')) return
+    if (!window.confirm(s.confirmDelete)) return
     setDeleting(id)
     try {
       await deleteProdutor(id)
       setProdutores(prev => prev.filter(p => p.id !== id))
     } catch {
-      setError('Erro ao excluir.')
+      setError(s.errDelete)
     } finally {
       setDeleting(null)
     }
@@ -154,9 +159,9 @@ export default function ProdutoresPage() {
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="font-display font-bold text-2xl text-brand-900">👤 Produtores</h1>
+            <h1 className="font-display font-bold text-2xl text-brand-900">{s.title}</h1>
             <p className="font-mono text-xs text-ink-400 mt-1">
-              {produtores.length} cadastrado{produtores.length !== 1 ? 's' : ''}
+              {s.registered(produtores.length)}
             </p>
           </div>
           {!showForm && (
@@ -164,7 +169,7 @@ export default function ProdutoresPage() {
               onClick={() => setPanel('new')}
               className="flex-shrink-0 bg-brand-900 text-white px-4 py-2.5 rounded-sm font-mono text-xs font-bold hover:bg-brand-700 transition-colors flex items-center gap-1.5"
             >
-              + Novo Produtor
+              {s.newBtn}
             </button>
           )}
         </div>
@@ -183,7 +188,7 @@ export default function ProdutoresPage() {
               <div className="mb-3">
                 <input
                   className="w-full border border-surface-border rounded-sm px-3 py-2.5 font-mono text-xs bg-white focus:outline-none focus:border-brand-700 transition-colors"
-                  placeholder="🔍 Buscar por nome ou cidade…"
+                  placeholder={s.searchPh}
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                 />
@@ -196,12 +201,12 @@ export default function ProdutoresPage() {
               <div className="bg-white border border-surface-border rounded-card p-8 text-center">
                 <p className="text-3xl mb-2">👤</p>
                 <p className="font-mono text-xs text-ink-400">
-                  {search ? 'Nenhum resultado.' : 'Nenhum produtor cadastrado ainda.'}
+                  {search ? s.emptySearch : s.emptyAll}
                 </p>
                 {!search && (
                   <button onClick={() => setPanel('new')}
                     className="mt-3 font-mono text-xs text-brand-700 underline">
-                    Cadastrar primeiro produtor →
+                    {s.firstRegister}
                   </button>
                 )}
               </div>

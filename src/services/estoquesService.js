@@ -54,6 +54,20 @@ export async function listMovimentacoes(limit = 100) {
   return data
 }
 
+export async function uploadEstoqueDoc(file, folder) {
+  const { data: { user } } = await supabase.auth.getUser()
+  const ext = file.name.split('.').pop() || 'bin'
+  const path = `${user.id}/${folder}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+  const { error } = await supabase.storage
+    .from('estoque-docs')
+    .upload(path, file, { cacheControl: '3600', upsert: false })
+  if (error) throw error
+  const { data: { publicUrl } } = supabase.storage
+    .from('estoque-docs')
+    .getPublicUrl(path)
+  return publicUrl
+}
+
 export async function createMovimentacao(fields) {
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -85,4 +99,45 @@ export async function createMovimentacao(fields) {
     .eq('id', fields.insumo_id)
 
   return { mov, novaQtd }
+}
+
+// ── Contratos ──────────────────────────────────────────────────────────────
+
+export async function listContratos() {
+  const { data, error } = await supabase
+    .from('contratos')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createContrato(fields) {
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data, error } = await supabase
+    .from('contratos')
+    .insert([{ ...fields, user_id: user.id }])
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function updateContrato(id, fields) {
+  const { data, error } = await supabase
+    .from('contratos')
+    .update(fields)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteContrato(id) {
+  const { error } = await supabase
+    .from('contratos')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
 }
