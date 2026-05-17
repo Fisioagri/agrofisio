@@ -24,8 +24,10 @@ export default function AppRoutes() {
         <Route path="/wizard"      element={<WizardPage />} />
         <Route path="/produtores"  element={<ProdutoresPage />} />
         <Route path="/talhoes"     element={<TalhoesPage />} />
-        <Route path="/estoque"     element={<EstoquePage />} />
-        <Route path="/financeiro"  element={<FinanceiroPage />} />
+        <Route element={<AdminRoute />}>
+          <Route path="/estoque"    element={<EstoquePage />} />
+          <Route path="/financeiro" element={<FinanceiroPage />} />
+        </Route>
         <Route path="/settings"    element={<SettingsPage />} />
         <Route path="/laudos/:id"  element={<LaudoDetailPage />} />
 
