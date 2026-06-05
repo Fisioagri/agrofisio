@@ -315,11 +315,11 @@ export async function buildManipPrompt(d, manipOptions, lang) {
   const en = isEn(lang)
   const knowledge = await getKnowledge(d.cultura, lang)
   const optionLabels = {
-    raiz:       en ? 'Root Growth'            : 'Crescimento de Raiz',
-    defesa:     en ? 'Cell Defense'           : 'Defesa Celular',
-    prestresse: en ? 'Pre-Stress Management'  : 'Manejo Pré-Estresse',
-    enchimento: en ? 'Grain Filling'          : 'Enchimento de Grão',
-    floral:     en ? 'Floral Setting'         : 'Pegamento Floral',
+    raiz:         en ? 'Root Growth'                  : 'Crescimento de Raiz',
+    protecao:     en ? 'Cell Protection'              : 'Proteção Celular',
+    oxidativo:    en ? 'Oxidative Stress Prevention'  : 'Prevenção de Estresse Oxidativo',
+    engalhamento: en ? 'Canopy Branching'             : 'Engalhamento',
+    enchimento:   en ? 'Grain Filling'                : 'Enchimento de Grão',
   }
   const selectedLabels = manipOptions.map(o => optionLabels[o] || o).join(', ')
 

@@ -30,7 +30,7 @@ function shareReport(data, manipHtml, shareTitle) {
 }
 
 export default function BottomNav() {
-  const { step, setStep, data, laudoDiagnoseHtml, manipHtml, reset } = useWizard()
+  const { step, setStep, data, manipHtml, reset } = useWizard()
   const { t } = useLanguage()
   const navigate = useNavigate()
   const ok = canProceed(step, data)
@@ -38,20 +38,14 @@ export default function BottomNav() {
   const base = 'flex-1 py-3 px-5 rounded-sm font-display font-bold text-sm flex items-center justify-center gap-1.5 transition-all'
 
   if (step === 5) {
-    const hasDiagnose = !!laudoDiagnoseHtml && laudoDiagnoseHtml !== '__loading__'
-    const diagnoseOptions = data.diagnoseOptions || []
-    const onlyHormonal = diagnoseOptions.length === 1 && diagnoseOptions[0] === '02'
-    const nextStep = onlyHormonal ? 7 : 6
-
     return (
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-surface-border p-3 flex gap-2.5 max-w-2xl mx-auto z-50">
         <button onClick={() => setStep(4)} className={`${base} bg-transparent border-[1.5px] border-surface-border text-ink-600`}>
           {t.common.back}
         </button>
         <button
-          onClick={() => hasDiagnose && setStep(nextStep)}
-          disabled={!hasDiagnose}
-          className={`${base} bg-brand-900 text-white hover:bg-brand-700 disabled:bg-ink-400 disabled:cursor-not-allowed`}
+          onClick={() => setStep(6)}
+          className={`${base} bg-brand-900 text-white hover:bg-brand-700`}
         >
           {t.common.next} →
         </button>
@@ -78,9 +72,7 @@ export default function BottomNav() {
     )
   }
 
-  const nextLabel =
-    step === 4 ? t.bottomNav.generateDiagnose :
-    t.common.next
+  const nextLabel = t.common.next
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-surface-border p-3 flex gap-2.5 max-w-2xl mx-auto z-50">

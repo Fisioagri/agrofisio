@@ -59,7 +59,7 @@ const ICON_SETTINGS = {
 const ICON_LOGOUT = 'M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75'
 
 export default function Sidebar() {
-  const { lang, setLang, t } = useLanguage()
+  const { t } = useLanguage()
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const signOut = useSignOut()
@@ -144,12 +144,6 @@ export default function Sidebar() {
         {/* Mobile */}
         <div className="md:hidden flex flex-col items-center pt-3 pb-2 gap-2">
           <div className="w-8 h-8 bg-brand-700 rounded-lg flex items-center justify-center text-base">🌱</div>
-          <div className="flex gap-1">
-            <button onClick={() => setLang('pt')} title="Português"
-              className={`text-sm leading-none transition-opacity ${lang === 'pt' ? 'opacity-100' : 'opacity-30 hover:opacity-70'}`}>🇧🇷</button>
-            <button onClick={() => setLang('en')} title="English"
-              className={`text-sm leading-none transition-opacity ${lang === 'en' ? 'opacity-100' : 'opacity-30 hover:opacity-70'}`}>🇺🇸</button>
-          </div>
         </div>
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-2.5 px-4 py-4">
@@ -157,12 +151,6 @@ export default function Sidebar() {
           <div className="flex-1 min-w-0">
             <div className="font-display font-extrabold text-white text-sm leading-tight">AgroFísio</div>
             <div className="font-mono text-[9px] text-brand-400 mt-0.5">Plataforma Agrícola</div>
-          </div>
-          <div className="flex gap-1.5 flex-shrink-0">
-            <button onClick={() => setLang('pt')} title="Português"
-              className={`text-base leading-none transition-opacity ${lang === 'pt' ? 'opacity-100' : 'opacity-30 hover:opacity-60'}`}>🇧🇷</button>
-            <button onClick={() => setLang('en')} title="English"
-              className={`text-base leading-none transition-opacity ${lang === 'en' ? 'opacity-100' : 'opacity-30 hover:opacity-60'}`}>🇺🇸</button>
           </div>
         </div>
       </div>

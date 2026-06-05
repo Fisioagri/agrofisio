@@ -6,7 +6,7 @@ import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 
 export default function LoginPage() {
-  const { lang, setLang, t } = useLanguage()
+  const { t } = useLanguage()
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [error, setError]       = useState('')
@@ -30,27 +30,6 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-surface-bg flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        {/* Language selector */}
-        <div className="flex justify-center gap-2 mb-6">
-          <button
-            onClick={() => setLang('pt')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border font-mono text-xs transition-all
-              ${lang === 'pt'
-                ? 'bg-brand-900 border-brand-900 text-white font-semibold'
-                : 'bg-white border-surface-border text-ink-400 hover:border-ink-400'}`}
-          >
-            🇧🇷 PT
-          </button>
-          <button
-            onClick={() => setLang('en')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border font-mono text-xs transition-all
-              ${lang === 'en'
-                ? 'bg-brand-900 border-brand-900 text-white font-semibold'
-                : 'bg-white border-surface-border text-ink-400 hover:border-ink-400'}`}
-          >
-            🇺🇸 EN
-          </button>
-        </div>
 
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-brand-900 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">

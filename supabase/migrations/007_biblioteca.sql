@@ -4,7 +4,7 @@ VALUES (
   'biblioteca',
   'biblioteca',
   false,
-  157286400,  -- 150 MB por arquivo
+  52428800,  -- 50 MB por arquivo
   ARRAY['application/pdf']
 )
 ON CONFLICT (id) DO NOTHING;
