@@ -14,10 +14,10 @@ const SOJA_STAGES = ['VE','VC','V1','V2','V3','V4','V5','V6','R1','R2','R3','R4'
 const STAGE_IDX = Object.fromEntries(SOJA_STAGES.map((s, i) => [s, i]))
 
 const MANIP_OPTIONS = [
-  { id: 'raiz',         icon: '🌱', label: 'Crescimento de Raiz',             from: 0, to: 8  }, // VE–R1
+  { id: 'raiz',         icon: '🌱', label: 'Crescimento de Raiz',             from: 2, to: 9  }, // V1–R2
   { id: 'protecao',     icon: '🛡️', label: 'Proteção Celular',                from: 0, to: 20 }, // todo ciclo
   { id: 'oxidativo',    icon: '⚡', label: 'Prevenção de Estresse Oxidativo', from: 0, to: 20 }, // todo ciclo
-  { id: 'engalhamento', icon: '🌿', label: 'Engalhamento',                    from: 3, to: 8  }, // V2–R1
+  { id: 'engalhamento', icon: '🌿', label: 'Engalhamento',                    from: 2, to: 9  }, // V1–R2
   { id: 'enchimento',   icon: '🌾', label: 'Enchimento de Grão',              from: 8, to: 17 }, // R1–R5.5
 ]
 

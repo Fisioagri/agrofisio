@@ -12,6 +12,7 @@ import ScoreCard from '../../components/ScoreCard'
 import PlantSVG from '../../components/PlantSVG'
 import LaudoView from '../../components/LaudoView'
 import Spinner from '../../components/ui/Spinner'
+import AgroEngineReport from '../../components/AgroEngineReport'
 
 // ─── Mapeamentos ───────────────────────────────────────────────────────────
 const FOLIAR_MAP = {
@@ -372,9 +373,15 @@ export default function StepDiagnose() {
   const { estadio, cultura } = data
   const contentRef  = useRef(null)
   const [pdfLoading, setPdfLoading] = useState(false)
+  const [diagnoseTab, setDiagnoseTab] = useState('engine') // 'engine' | 'ai'
 
   const foliarNuts = calcNutrientsFoliar(data, cultura)
   const soloNuts   = calcNutrientsSolo(data, cultura)
+
+  const clima = {
+    diasSemChuva: parseFloat(data.diasSemChuva) || 0,
+    tempMax: parseFloat(data.tempMax) || 28,
+  }
 
   async function handleExportPdf() {
     if (!contentRef.current) return
@@ -404,7 +411,53 @@ export default function StepDiagnose() {
         <HormonasCard estadio={estadio} cultura={cultura} />
         <NutrientCard title="Análise Foliar" icon="🌿" nuts={foliarNuts} />
         <NutrientCard title="Análise de Solo" icon="🌍" nuts={soloNuts} />
-        <AiDiagnoseCard data={data} t={t} />
+
+        {/* Tabs: Motor de IA Offline | IA Claude (online) */}
+        <div className="bg-white border border-surface-border rounded-card shadow-card overflow-hidden">
+          {/* Tab switcher */}
+          <div className="flex border-b border-surface-border">
+            <button
+              onClick={() => setDiagnoseTab('engine')}
+              className={`flex-1 py-2.5 px-3 font-mono text-[11px] font-semibold transition-colors flex items-center justify-center gap-1.5 ${
+                diagnoseTab === 'engine'
+                  ? 'bg-brand-900 text-white'
+                  : 'bg-surface-muted text-ink-500 hover:bg-surface-bg'
+              }`}
+            >
+              🧠 Motor Offline
+              <span className={`text-[8px] px-1.5 py-0.5 rounded-full font-bold ${diagnoseTab === 'engine' ? 'bg-white/20 text-white' : 'bg-green-100 text-green-700'}`}>
+                SEMPRE DISPONÍVEL
+              </span>
+            </button>
+            <button
+              onClick={() => setDiagnoseTab('ai')}
+              className={`flex-1 py-2.5 px-3 font-mono text-[11px] font-semibold transition-colors flex items-center justify-center gap-1.5 ${
+                diagnoseTab === 'ai'
+                  ? 'bg-brand-900 text-white'
+                  : 'bg-surface-muted text-ink-500 hover:bg-surface-bg'
+              }`}
+            >
+              🤖 IA Claude
+              <span className={`text-[8px] px-1.5 py-0.5 rounded-full font-bold ${diagnoseTab === 'ai' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-700'}`}>
+                ONLINE
+              </span>
+            </button>
+          </div>
+
+          {/* Conteúdo da tab */}
+          <div className="p-3">
+            {diagnoseTab === 'engine' ? (
+              <AgroEngineReport
+                data={data}
+                cultura={cultura}
+                estadio={estadio}
+                clima={clima}
+              />
+            ) : (
+              <AiDiagnoseCard data={data} t={t} />
+            )}
+          </div>
+        </div>
       </div>
 
       <button

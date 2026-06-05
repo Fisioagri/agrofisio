@@ -22,10 +22,10 @@ const CUSTO_CORRECAO = {
   B: 18, Zn: 22, Cu: 15, Mn: 20, Fe: 25, Mo: 12,
 }
 
-export function calcROI({ deficiencias = [], prodExpect, areaHa = 1 }) {
+export function calcROI({ deficiencias = [], prodExpect, areaHa = 1, precoSoja }) {
   const prod    = parseFloat(prodExpect) || 60
   const area    = parseFloat(areaHa)    || 1
-  const preco   = 85 // R$/sc — referência
+  const preco   = parseFloat(precoSoja) || 100
 
   let perdaMin = 0
   let perdaMax = 0

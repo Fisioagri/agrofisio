@@ -48,6 +48,7 @@ export default function StepValor() {
   const { data }           = useWizard()
   const contentRef         = useRef(null)
   const [pdfLoading, setPdfLoading] = useState(false)
+  const [precoSoja, setPrecoSoja]   = useState('')
 
   const { foliar, solo } = calcNuts(data, data.cultura)
   const deficiencias     = getDeficiencias(foliar, solo)
@@ -57,6 +58,7 @@ export default function StepValor() {
     deficiencias,
     prodExpect: data.prodExpect,
     areaHa: area,
+    precoSoja: precoSoja || undefined,
   })
 
   async function handleExportPdf() {
@@ -74,6 +76,22 @@ export default function StepValor() {
 
   return (
     <div className="space-y-3">
+      {/* Preço da soja */}
+      <div className="bg-white border border-surface-border rounded-card px-4 py-3 flex items-center gap-3">
+        <span className="font-mono text-[11px] text-ink-600 whitespace-nowrap">Preço da soja (R$/sc):</span>
+        <input
+          type="number"
+          min="1"
+          max="9999"
+          step="1"
+          placeholder={`${roi.precoSoja} (padrão)`}
+          value={precoSoja}
+          onChange={e => setPrecoSoja(e.target.value)}
+          className="flex-1 px-3 py-1.5 border-[1.5px] border-surface-border rounded-sm text-sm font-mono
+            text-ink-900 bg-surface-input focus:border-brand-700 outline-none"
+        />
+      </div>
+
       <div ref={contentRef} className="space-y-3">
         <div>
           <h2 className="font-display font-bold text-xl text-brand-900">💰 Impacto Econômico</h2>

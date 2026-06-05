@@ -1,0 +1,412 @@
+/**
+ * AgroEngineReport — Relatório técnico do Motor de IA Offline
+ * Exibe os 9 campos do diagnóstico estruturado do AgroEngine
+ */
+import { useMemo, useState } from 'react'
+import { runDiagnostic } from '../engine/agroEngine'
+import { NUTRIENT_PROFILES } from '../engine/knowledgeBase'
+
+const GRAVIDADE_COR = {
+  severo:   'bg-red-100 text-red-700 border-red-200',
+  moderado: 'bg-orange-100 text-orange-700 border-orange-200',
+  leve:     'bg-yellow-100 text-yellow-700 border-yellow-200',
+}
+const GRAVIDADE_DOT = {
+  severo:   'bg-red-500',
+  moderado: 'bg-orange-500',
+  leve:     'bg-yellow-500',
+}
+const STATUS_LABEL = { def: 'Deficiente', ok: 'Adequado', alto: 'Elevado', toxico: 'Tóxico', nd: '—' }
+const STATUS_COR   = {
+  def:   'text-red-700 bg-red-50 border-red-200',
+  ok:    'text-green-700 bg-green-50 border-green-200',
+  alto:  'text-amber-700 bg-amber-50 border-amber-200',
+  toxico:'text-purple-700 bg-purple-50 border-purple-200',
+  nd:    'text-ink-400 bg-surface-muted border-surface-border',
+}
+
+function Badge({ label, color }) {
+  return <span className={`inline-block px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold border ${color}`}>{label}</span>
+}
+
+function Section({ n, title, subtitle, children, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <div className="bg-white border border-surface-border rounded-card shadow-card overflow-hidden pdf-no-break">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-surface-muted transition-colors text-left"
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="w-6 h-6 rounded-full bg-brand-900 text-white flex items-center justify-center font-mono text-[10px] font-bold flex-shrink-0">{n}</span>
+          <div>
+            <p className="font-display font-bold text-sm text-brand-900">{title}</p>
+            {subtitle && <p className="font-mono text-[9px] text-ink-400">{subtitle}</p>}
+          </div>
+        </div>
+        <span className={`font-mono text-ink-400 text-sm transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
+      </button>
+      {open && <div className="border-t border-surface-border px-4 py-3 space-y-2">{children}</div>}
+    </div>
+  )
+}
+
+function ScoreRing({ score, label, cor, corClass }) {
+  const colorMap = {
+    green: '#16a34a', lime: '#65a30d', amber: '#d97706', orange: '#ea580c', red: '#dc2626'
+  }
+  const c = colorMap[corClass] || '#d97706'
+  const r = 38, circ = 2 * Math.PI * r
+  const progress = circ - (score / 100) * circ
+  return (
+    <div className="flex items-center gap-4">
+      <div className="relative w-24 h-24 flex-shrink-0">
+        <svg width="96" height="96" viewBox="0 0 96 96">
+          <circle cx="48" cy="48" r={r} fill="none" stroke="#e5e7eb" strokeWidth="8" />
+          <circle cx="48" cy="48" r={r} fill="none" stroke={c} strokeWidth="8"
+            strokeDasharray={circ} strokeDashoffset={progress}
+            strokeLinecap="round" transform="rotate(-90 48 48)" style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="font-display font-extrabold text-xl" style={{ color: c }}>{score}</span>
+          <span className="font-mono text-[8px] text-ink-400">/ 100</span>
+        </div>
+      </div>
+      <div>
+        <p className="font-display font-bold text-base" style={{ color: c }}>{label}</p>
+        <p className="font-mono text-[10px] text-ink-500 mt-0.5">Score de sanidade nutricional</p>
+        <p className="font-mono text-[9px] text-ink-400 mt-1">Baseado em análise foliar + solo<br />Fontes: Marschner (2012), Embrapa (2013)</p>
+      </div>
+    </div>
+  )
+}
+
+export default function AgroEngineReport({ data, cultura, estadio, clima }) {
+  const result = useMemo(() => {
+    if (!data) return null
+    try {
+      return runDiagnostic({ data, cultura, estadio, clima })
+    } catch (e) {
+      console.error('AgroEngine error:', e)
+      return null
+    }
+  }, [data, cultura, estadio, clima])
+
+  if (!result) return null
+
+  const defs   = result.diagnosticos.filter(d => d.status === 'def')
+  const altos  = result.diagnosticos.filter(d => d.status === 'alto' || d.status === 'toxico')
+  const temDados = defs.length > 0 || altos.length > 0
+
+  const nutsFoliar = result.foliarNuts.filter(n => n.status !== 'nd')
+  const nutsSolo   = result.soloNuts.filter(n => n.status !== 'nd')
+
+  return (
+    <div className="space-y-2">
+      {/* Header */}
+      <div className="bg-brand-900 rounded-card px-4 py-3 flex items-center justify-between">
+        <div>
+          <p className="font-display font-extrabold text-white text-sm">🧠 AgroEngine · IA Offline</p>
+          <p className="font-mono text-[9px] text-brand-300 mt-0.5">
+            Motor de diagnóstico agronômico · Offline · v1.0
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="font-mono text-[9px] text-brand-300">{(cultura || 'Soja').toUpperCase()} · {estadio || '—'}</p>
+          <p className="font-mono text-[8px] text-brand-400 mt-0.5">Marschner · Taiz & Zeiger · Embrapa</p>
+        </div>
+      </div>
+
+      {/* Score */}
+      <div className="bg-white border border-surface-border rounded-card shadow-card p-4">
+        <ScoreRing score={result.score} label={result.label} cor={result.cor} corClass={result.corClass} />
+        {result.deducoes.length > 0 && (
+          <div className="mt-3 space-y-1">
+            {result.deducoes.slice(0, 5).map((d, i) => (
+              <div key={i} className="flex items-center justify-between text-[9px] font-mono">
+                <span className="text-ink-500">{d.motivo}</span>
+                <span className="text-red-600 font-semibold">{d.pontos} pts</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Alerta principal */}
+      {result.resumo.alertaPrincipal && (
+        <div className={`px-4 py-3 rounded-card border font-mono text-[11px] ${result.score < 55 ? 'bg-red-50 border-red-200 text-red-700' : result.score < 70 ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-green-50 border-green-200 text-green-700'}`}>
+          ⚠️ {result.resumo.alertaPrincipal}
+        </div>
+      )}
+
+      {/* 1. Diagnóstico Principal */}
+      <Section n="1" title="Diagnóstico Principal" subtitle={`${defs.length} deficiência(s) · ${altos.length} excesso(s)`} defaultOpen={temDados}>
+        {!temDados && (
+          <p className="font-mono text-[11px] text-green-700 py-1">✅ Todos os nutrientes dentro da faixa adequada de referência.</p>
+        )}
+        {defs.map(d => (
+          <div key={d.nut + d.fonte} className="flex items-start gap-2.5 py-2 border-b border-surface-border last:border-0">
+            <span className={`flex-shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center font-mono font-bold text-xs ${GRAVIDADE_COR[d.grav] || 'bg-red-100 text-red-700 border-red-200'}`}>{d.nut}</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <Badge label={`Def. ${d.grav || ''}`} color={GRAVIDADE_COR[d.grav] || ''} />
+                <Badge label={d.fonte} color="text-ink-600 bg-surface-muted border-surface-border" />
+                {d.estadioPeso >= 9 && <Badge label="Crítico neste estádio" color="text-red-700 bg-red-100 border-red-200" />}
+              </div>
+              <p className="font-mono text-[10px] text-ink-600 mt-1">
+                {d.ref && `Faixa adequada: ${d.ref.min}–${d.ref.max} ${d.ref.unit}`}
+                {d.valor !== null && ` · Valor: ${d.valor}`}
+              </p>
+            </div>
+          </div>
+        ))}
+        {altos.map(d => (
+          <div key={d.nut + d.fonte} className="flex items-start gap-2.5 py-2 border-b border-surface-border last:border-0">
+            <span className={`flex-shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center font-mono font-bold text-xs ${d.status === 'toxico' ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-amber-100 text-amber-700 border-amber-200'}`}>{d.nut}</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5">
+                <Badge label={d.status === 'toxico' ? 'Tóxico' : `Elevado`} color={STATUS_COR[d.status]} />
+                <Badge label={d.fonte} color="text-ink-600 bg-surface-muted border-surface-border" />
+              </div>
+              <p className="font-mono text-[10px] text-ink-600 mt-1">Valor: {d.valor} · Max ref: {d.ref?.max} {d.ref?.unit}</p>
+            </div>
+          </div>
+        ))}
+      </Section>
+
+      {/* 2. Evidências Analíticas */}
+      <Section n="2" title="Evidências Encontradas" subtitle="Dados de análise foliar e solo">
+        {nutsFoliar.length > 0 && (
+          <>
+            <p className="font-mono text-[9px] text-ink-500 uppercase tracking-wider">Análise Foliar</p>
+            <div className="grid grid-cols-3 gap-1.5">
+              {nutsFoliar.map(n => (
+                <div key={n.nut} className={`px-2 py-1.5 rounded border text-center ${STATUS_COR[n.status]}`}>
+                  <p className="font-mono font-bold text-[11px]">{n.nut}</p>
+                  <p className="font-mono text-[8px] mt-0.5">{n.valor ?? '—'}</p>
+                  <p className="font-mono text-[8px]">{STATUS_LABEL[n.status]}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+        {nutsSolo.length > 0 && (
+          <>
+            <p className="font-mono text-[9px] text-ink-500 uppercase tracking-wider mt-2">Análise de Solo</p>
+            <div className="grid grid-cols-3 gap-1.5">
+              {nutsSolo.map(n => (
+                <div key={n.nut} className={`px-2 py-1.5 rounded border text-center ${STATUS_COR[n.status]}`}>
+                  <p className="font-mono font-bold text-[11px]">{n.nut}</p>
+                  <p className="font-mono text-[8px] mt-0.5">{n.valor ?? '—'}</p>
+                  <p className="font-mono text-[8px]">{STATUS_LABEL[n.status]}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </Section>
+
+      {/* 3. Interpretação Nutricional */}
+      <Section n="3" title="Interpretação Nutricional" subtitle="Funções e impacto das deficiências detectadas">
+        {defs.length === 0 && altos.length === 0 && (
+          <p className="font-mono text-[11px] text-ink-500">Nenhuma alteração nutricional significativa detectada.</p>
+        )}
+        {[...defs, ...altos].map(d => {
+          // NUTRIENT_PROFILES imported at top
+          const prof = NUTRIENT_PROFILES[d.nut]
+          if (!prof) return null
+          return (
+            <div key={d.nut + d.fonte} className="border border-surface-border rounded-lg p-3 space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="font-display font-bold text-sm text-brand-900">{prof.nome} ({d.nut})</span>
+                <Badge label={STATUS_LABEL[d.status]} color={STATUS_COR[d.status]} />
+              </div>
+              <div className="space-y-1">
+                <p className="font-mono text-[10px] text-ink-600">
+                  <span className="font-semibold text-ink-700">Impacto: </span>
+                  {d.status === 'def' ? prof.deficiencia.impacto_produtivo : prof.toxicidade?.mecanismo}
+                </p>
+                <p className="font-mono text-[10px] text-ink-600">
+                  <span className="font-semibold text-ink-700">Sintoma esperado: </span>
+                  {d.status === 'def' ? prof.deficiencia.sintomas_visuais[0] : prof.toxicidade?.sintomas_visuais[0]}
+                </p>
+                <p className="font-mono text-[10px] text-ink-500">
+                  <span className="font-semibold">Mobilidade: </span>{prof.mobilidade} ·{' '}
+                  <span className="font-semibold">Folhas afetadas: </span>
+                  {d.status === 'def' ? prof.deficiencia.folhas_afetadas : '—'}
+                </p>
+              </div>
+              <p className="font-mono text-[9px] text-ink-400">{prof.fonte_ref}</p>
+            </div>
+          )
+        })}
+      </Section>
+
+      {/* 4. Interpretação Fisiológica */}
+      <Section n="4" title="Interpretação Fisiológica" subtitle={result.demandaEstadio ? `Fisiologia do estádio ${estadio}: ${result.demandaEstadio.label}` : ''}>
+        {result.demandaEstadio && (
+          <div className="bg-brand-50 border border-brand-200 rounded-lg p-3 space-y-1.5">
+            <p className="font-mono text-[10px] text-brand-900 font-semibold">{result.demandaEstadio.foco_fisiologico}</p>
+            <div>
+              <p className="font-mono text-[9px] text-ink-500 uppercase tracking-wider mb-1">Nutrientes críticos neste estádio:</p>
+              <div className="flex flex-wrap gap-1">
+                {result.demandaEstadio.nutrientes_criticos.slice(0, 6).map(n => (
+                  <span key={n.nut} className={`px-2 py-0.5 rounded font-mono font-bold text-[9px] border ${
+                    defs.some(d => d.nut === n.nut)
+                      ? 'bg-red-100 border-red-300 text-red-700'
+                      : 'bg-brand-100 border-brand-200 text-brand-900'
+                  }`} title={n.razao}>{n.nut} (P{n.peso})</span>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="font-mono text-[9px] text-ink-500 uppercase tracking-wider mb-1">Vulnerabilidades:</p>
+              {result.demandaEstadio.vulnerabilidades.map((v, i) => (
+                <p key={i} className="font-mono text-[10px] text-orange-700">⚠ {v}</p>
+              ))}
+            </div>
+          </div>
+        )}
+      </Section>
+
+      {/* 5. Antagonismos e Sinergismos */}
+      <Section n="5" title="Antagonismos & Sinergismos" subtitle={`${result.interacoes.length} interação(ões) detectada(s)`}>
+        {result.interacoes.length === 0 && (
+          <p className="font-mono text-[11px] text-ink-500">Nenhuma interação significativa detectada com os dados disponíveis.</p>
+        )}
+        {result.interacoes.map((inter, i) => (
+          <div key={i} className={`border rounded-lg p-3 space-y-1 ${
+            inter.tipo.includes('antagonismo') ? 'border-red-200 bg-red-50'
+            : inter.tipo.includes('sinergismo') ? 'border-blue-200 bg-blue-50'
+            : inter.tipo.includes('ph') ? 'border-orange-200 bg-orange-50'
+            : 'border-surface-border bg-surface-muted'
+          }`}>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[10px] font-bold">
+                {inter.tipo === 'antagonismo_explicativo' ? '⚡ Antagonismo (causa)' :
+                 inter.tipo === 'antagonismo_risco'       ? '⚠ Antagonismo (risco)' :
+                 inter.tipo === 'sinergismo_potencializador' ? '🔗 Sinergismo' :
+                 inter.tipo === 'ph_acido'                ? '🔴 Solo Ácido' :
+                 inter.tipo === 'ph_alcalino'             ? '🟡 Solo Alcalino' : inter.tipo}
+              </span>
+              {inter.nutA !== 'pH' && (
+                <span className="font-mono text-[10px] text-ink-600">{inter.nutA} → {inter.nutB}</span>
+              )}
+              <span className="ml-auto">{'●'.repeat(inter.severidade)}</span>
+            </div>
+            <p className="font-mono text-[10px] text-ink-700">{inter.interpretacao}</p>
+            <p className="font-mono text-[9px] text-ink-500">{inter.mecanismo}</p>
+            <p className="font-mono text-[8px] text-ink-400">{inter.fonte}</p>
+          </div>
+        ))}
+      </Section>
+
+      {/* 6. Risco Produtivo */}
+      <Section n="6" title="Risco Produtivo" subtitle="Impacto estimado no rendimento">
+        {defs.length === 0 && !result.interacoes.some(i => i.tipo === 'ph_acido') && (
+          <p className="font-mono text-[11px] text-green-700">Baixo risco produtivo com base nos dados inseridos.</p>
+        )}
+        {defs.filter(d => d.estadioPeso >= 7).map(d => {
+          // NUTRIENT_PROFILES imported at top
+          const prof = NUTRIENT_PROFILES[d.nut]
+          return (
+            <div key={d.nut + d.fonte} className="flex items-start gap-2 py-1.5 border-b border-surface-border last:border-0">
+              <span className={`w-6 h-6 rounded font-mono font-bold text-[10px] flex items-center justify-center flex-shrink-0 ${GRAVIDADE_COR[d.grav]}`}>{d.nut}</span>
+              <div>
+                <p className="font-mono text-[10px] text-ink-700 font-semibold">{prof?.nome || d.nut} — Estádio: {d.estadioPeso >= 9 ? 'crítico' : 'importante'}</p>
+                <p className="font-mono text-[10px] text-ink-600">{prof?.deficiencia?.impacto_produtivo}</p>
+              </div>
+            </div>
+          )
+        })}
+        {/* Estresse climático */}
+        {result.recomendacoes.filter(r => r.tipo === 'estresse_climatico').map((r, i) => (
+          <div key={i} className="bg-orange-50 border border-orange-200 rounded p-2 font-mono text-[10px] text-orange-700">
+            ⚠ {r.justificativa}
+          </div>
+        ))}
+      </Section>
+
+      {/* 7. Recomendação Prática */}
+      <Section n="7" title="Recomendação Prática" subtitle={`${result.recomendacoes.length} ação(ões) priorizadas`} defaultOpen>
+        {result.recomendacoes.slice(0, 8).map((rec, i) => (
+          <div key={i} className={`border rounded-lg p-3 space-y-1 ${
+            rec.urgencia === 'imediata'    ? 'border-red-200 bg-red-50'
+            : rec.urgencia === 'curto_prazo' ? 'border-orange-200 bg-orange-50'
+            : rec.urgencia === 'proativo'   ? 'border-blue-200 bg-blue-50'
+            : 'border-surface-border bg-surface-muted'
+          }`}>
+            <div className="flex items-center gap-2">
+              <Badge label={
+                rec.urgencia === 'imediata'    ? '🔴 Urgente' :
+                rec.urgencia === 'curto_prazo' ? '🟡 Curto prazo' :
+                rec.urgencia === 'proativo'    ? '🔵 Proativo' : '📋 Planejamento'
+              } color="" />
+              {rec.nut && <span className="font-mono font-bold text-[10px] text-ink-700">{rec.nut}</span>}
+            </div>
+            <p className="font-mono text-[11px] text-ink-800 font-medium">{rec.acao}</p>
+            {rec.justificativa && <p className="font-mono text-[10px] text-ink-500">{rec.justificativa}</p>}
+            {rec.fonte && <p className="font-mono text-[9px] text-ink-400">{rec.fonte}</p>}
+          </div>
+        ))}
+      </Section>
+
+      {/* 8. Justificativa Técnica — Hormônios e Antioxidantes */}
+      <Section n="8" title="Justificativa Técnica" subtitle="Impacto hormonal e sistema antioxidante">
+        {result.impactoHormonal.length === 0 && result.antioxidantes.length === 0 && (
+          <p className="font-mono text-[11px] text-ink-500">Nenhum impacto hormonal ou antioxidante significativo detectado.</p>
+        )}
+        {result.impactoHormonal.slice(0, 4).map((h, i) => (
+          <div key={i} className="border border-purple-200 bg-purple-50 rounded-lg p-3 space-y-1.5">
+            <p className="font-mono text-[11px] font-bold text-purple-900">{h.hormonio} ({h.abrev})</p>
+            <div className="flex flex-wrap gap-1">
+              {h.nutsAfetados.map((n, j) => (
+                <span key={j} className={`font-mono text-[9px] px-1.5 py-0.5 rounded border ${n.status === 'deficiente' ? 'bg-red-100 border-red-200 text-red-700' : 'bg-amber-100 border-amber-200 text-amber-700'}`}>
+                  {n.nut}: {n.status} ({n.nivel})
+                </span>
+              ))}
+            </div>
+            <p className="font-mono text-[10px] text-purple-700">{h.impacto}</p>
+            <p className="font-mono text-[9px] text-ink-400">{h.fonte}</p>
+          </div>
+        ))}
+        {result.antioxidantes.map((a, i) => (
+          <div key={i} className="border border-amber-200 bg-amber-50 rounded-lg p-2.5">
+            <p className="font-mono text-[10px] font-semibold text-amber-900">{a.impacto}</p>
+          </div>
+        ))}
+        {result.sintomasProvaveis.length > 0 && (
+          <div>
+            <p className="font-mono text-[9px] text-ink-500 uppercase tracking-wider mb-1">Sintomas visuais esperados:</p>
+            {result.sintomasProvaveis.slice(0, 3).map((s, i) => (
+              <div key={i} className="font-mono text-[10px] text-ink-700 py-1 border-b border-surface-border last:border-0">
+                <span className="font-semibold">→ {s.sintoma}</span>
+                {s.causasConfirmadas.slice(0, 1).map((c, j) => (
+                  <span key={j} className="text-ink-500 block ml-2">• {c.nut}: {c.mecanismo}</span>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </Section>
+
+      {/* 9. Fontes da Base de Conhecimento */}
+      <Section n="9" title="Fontes da Base de Conhecimento" subtitle="Referências bibliográficas utilizadas">
+        <div className="space-y-1">
+          {result.resumo.fontesPrimarias.map((f, i) => (
+            <p key={i} className="font-mono text-[9px] text-ink-500 border-b border-surface-border pb-1 last:border-0">
+              [{i + 1}] {f}
+            </p>
+          ))}
+        </div>
+        <div className="mt-2 bg-surface-muted rounded px-3 py-2">
+          <p className="font-mono text-[9px] text-ink-400">
+            Motor AgroEngine v1.0 — Diagnóstico gerado localmente sem conexão com internet.
+            Base de conhecimento codificada de 7 fontes primárias de agronomia tropical.
+            Confirme recomendações com engenheiro agrônomo responsável.
+          </p>
+        </div>
+      </Section>
+    </div>
+  )
+}

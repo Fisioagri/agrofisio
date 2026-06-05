@@ -16,7 +16,7 @@ export default {
     home: 'Home', dashboard: 'Dashboard', wizard: 'Nova Análise',
     produtores: 'Produtores', talhoes: 'Talhões',
     analise: 'Análise', estoque: 'Estoque', financeiro: 'Financeiro',
-    settings: 'Configurações', users: 'Usuários', logout: 'Sair',
+    settings: 'Configurações', users: 'Usuários', addUser: 'Adicionar Usuário', logout: 'Sair',
   },
   steps: ['Produtor','Cultura','Solo','Foliar','Planta','Diagnose','Correção','Fisiologia'],
   bottomNav: {
