@@ -8,6 +8,7 @@ import StepPlanta     from './StepPlanta'
 import StepDiagnose   from './StepDiagnose'
 import StepCorrecao   from './StepCorrecao'
 import StepFisiologia from './StepFisiologia'
+import StepValor      from './StepValor'
 
 const SCREENS = [
   StepProdutor,
@@ -18,6 +19,7 @@ const SCREENS = [
   StepDiagnose,
   StepCorrecao,
   StepFisiologia,
+  StepValor,
 ]
 
 export default function WizardInner() {

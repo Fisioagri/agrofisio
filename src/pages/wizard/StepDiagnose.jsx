@@ -7,6 +7,9 @@ import { HORMONE_STYLE, STAGE_ICON, FASE_LABEL, getHormonesForStage } from '../.
 import { callClaude } from '../../services/api'
 import { buildDiagnoseOption01Prompt } from '../../services/prompts'
 import { exportToPdf } from '../../utils/exportPdf'
+import { calcScore } from '../../utils/calcScore'
+import ScoreCard from '../../components/ScoreCard'
+import PlantSVG from '../../components/PlantSVG'
 import LaudoView from '../../components/LaudoView'
 import Spinner from '../../components/ui/Spinner'
 
@@ -61,118 +64,7 @@ const GROUP_STYLE = {
   mature:       { bg: 'from-yellow-100 via-amber-100 to-orange-100',   badge: 'bg-amber-800' },
 }
 
-// ─── Desenho da planta ─────────────────────────────────────────────────────
-function PlantDiagram({ group }) {
-  const diagrams = {
-    seed: (
-      <div className="flex flex-col items-center justify-end h-full pb-2 gap-0.5">
-        <div className="text-4xl leading-none">🌱</div>
-        <div className="w-0.5 h-5 bg-green-700 rounded" />
-        <div className="w-16 border-t-2 border-dashed border-amber-800/40" />
-        <div className="flex gap-4 text-sm mt-0.5 opacity-50">🌿 🌿</div>
-      </div>
-    ),
-    veg_early: (
-      <div className="flex flex-col items-center justify-end h-full pb-2 gap-0.5">
-        <div className="flex gap-2 text-base leading-none">🌿 🌿</div>
-        <div className="text-3xl leading-none mt-0.5">🌱</div>
-        <div className="w-0.5 h-5 bg-green-700 rounded" />
-        <div className="w-20 border-t-2 border-dashed border-amber-800/40" />
-        <div className="flex gap-3 text-sm mt-0.5 opacity-50">🫚 🫚</div>
-      </div>
-    ),
-    veg_mid: (
-      <div className="flex flex-col items-center justify-end h-full pb-2 gap-0.5">
-        <div className="flex gap-1.5 text-base leading-none">🌿 🌿 🌿</div>
-        <div className="flex gap-2 text-xl leading-none mt-0.5">🌿 🌿</div>
-        <div className="w-0.5 h-6 bg-green-700 rounded" />
-        <div className="w-20 border-t-2 border-dashed border-amber-800/40" />
-        <div className="flex gap-2 text-sm mt-0.5 opacity-50">🫚 🫚 🫚</div>
-      </div>
-    ),
-    veg_late: (
-      <div className="flex flex-col items-center justify-end h-full pb-2 gap-0.5">
-        <div className="flex gap-1 text-sm leading-none">🌿 🌿 🌿 🌿</div>
-        <div className="flex gap-1.5 text-base leading-none mt-0.5">🌿 🌿 🌿</div>
-        <div className="flex gap-2 text-xl leading-none mt-0.5">🌿 🌿</div>
-        <div className="w-0.5 h-5 bg-green-700 rounded" />
-        <div className="w-24 border-t-2 border-dashed border-amber-800/40" />
-        <div className="flex gap-1.5 text-sm mt-0.5 opacity-50">🫚 🫚 🫚 🫚</div>
-      </div>
-    ),
-    flower_early: (
-      <div className="flex flex-col items-center justify-end h-full pb-2 gap-0.5">
-        <div className="flex gap-2 text-base leading-none">🌸 🌿</div>
-        <div className="flex gap-1.5 text-lg leading-none mt-0.5">🌿 🌿 🌿</div>
-        <div className="flex gap-2 text-xl leading-none mt-0.5">🌿 🌿</div>
-        <div className="w-0.5 h-5 bg-green-700 rounded" />
-        <div className="w-24 border-t-2 border-dashed border-amber-800/40" />
-        <div className="flex gap-1.5 text-sm mt-0.5 opacity-50">🫚 🫚 🫚 🫚</div>
-      </div>
-    ),
-    flower_full: (
-      <div className="flex flex-col items-center justify-end h-full pb-2 gap-0.5">
-        <div className="flex gap-1.5 text-base leading-none">🌸 🌸 🌸</div>
-        <div className="flex gap-1.5 text-lg leading-none mt-0.5">🌿 🌸 🌿</div>
-        <div className="flex gap-1.5 text-xl leading-none mt-0.5">🌿 🌿 🌿</div>
-        <div className="w-0.5 h-5 bg-green-700 rounded" />
-        <div className="w-24 border-t-2 border-dashed border-amber-800/40" />
-        <div className="flex gap-1.5 text-sm mt-0.5 opacity-50">🫚 🫚 🫚 🫚</div>
-      </div>
-    ),
-    pod_early: (
-      <div className="flex flex-col items-center justify-end h-full pb-2 gap-0.5">
-        <div className="flex gap-1.5 text-base leading-none">🫛 🌿 🫛</div>
-        <div className="flex gap-1.5 text-lg leading-none mt-0.5">🌿 🌿 🌿</div>
-        <div className="flex gap-2 text-xl leading-none mt-0.5">🌿 🌿</div>
-        <div className="w-0.5 h-5 bg-green-700 rounded" />
-        <div className="w-24 border-t-2 border-dashed border-amber-800/40" />
-        <div className="flex gap-1.5 text-sm mt-0.5 opacity-50">🫚 🫚 🫚 🫚</div>
-      </div>
-    ),
-    pod_late: (
-      <div className="flex flex-col items-center justify-end h-full pb-2 gap-0.5">
-        <div className="flex gap-1.5 text-base leading-none">🫛 🫛 🫛</div>
-        <div className="flex gap-1.5 text-lg leading-none mt-0.5">🌿 🫛 🌿</div>
-        <div className="flex gap-2 text-xl leading-none mt-0.5">🌿 🌿</div>
-        <div className="w-0.5 h-5 bg-green-700 rounded" />
-        <div className="w-24 border-t-2 border-dashed border-amber-800/40" />
-        <div className="flex gap-1.5 text-sm mt-0.5 opacity-50">🫚 🫚 🫚 🫚</div>
-      </div>
-    ),
-    fill: (
-      <div className="flex flex-col items-center justify-end h-full pb-2 gap-0.5">
-        <div className="flex gap-1 text-lg leading-none">🫛 🫛 🫛</div>
-        <div className="flex gap-1 text-xl leading-none mt-0.5">🫛 🌿 🫛</div>
-        <div className="flex gap-1.5 text-lg leading-none mt-0.5">🌿 🌿 🌿</div>
-        <div className="w-0.5 h-4 bg-green-700 rounded" />
-        <div className="w-24 border-t-2 border-dashed border-amber-800/40" />
-        <div className="flex gap-1.5 text-sm mt-0.5 opacity-40">🫚 🫚 🫚</div>
-      </div>
-    ),
-    fill_late: (
-      <div className="flex flex-col items-center justify-end h-full pb-2 gap-0.5">
-        <div className="flex gap-1 text-xl leading-none">🫛 🫛 🫛</div>
-        <div className="flex gap-1 text-lg leading-none mt-0.5">🍂 🫛 🍂</div>
-        <div className="flex gap-1.5 text-base leading-none mt-0.5">🍂 🍂 🍂</div>
-        <div className="w-0.5 h-4 bg-amber-700 rounded" />
-        <div className="w-24 border-t-2 border-dashed border-amber-800/40" />
-        <div className="flex gap-2 text-sm mt-0.5 opacity-30">🫚 🫚</div>
-      </div>
-    ),
-    mature: (
-      <div className="flex flex-col items-center justify-end h-full pb-2 gap-0.5">
-        <div className="flex gap-1 text-xl leading-none">🌾 🌾 🌾</div>
-        <div className="flex gap-1 text-lg leading-none mt-0.5">🍂 🌾 🍂</div>
-        <div className="flex gap-1.5 text-base leading-none mt-0.5">🍂 🍂 🍂</div>
-        <div className="w-0.5 h-4 bg-amber-800 rounded" />
-        <div className="w-20 border-t-2 border-dashed border-amber-800/40" />
-        <div className="flex gap-3 text-sm mt-0.5 opacity-25">🫚 🫚</div>
-      </div>
-    ),
-  }
-  return diagrams[group] || diagrams.veg_mid
-}
+// PlantDiagram agora usa SVG vetorial via PlantSVG component
 
 // ─── PhenoBar ─────────────────────────────────────────────────────────────
 function PhenoBar({ estadio, cultura }) {
@@ -214,9 +106,9 @@ function StageCard({ estadio, cultura }) {
       <div className={`relative bg-gradient-to-b ${style.bg} overflow-hidden`} style={{ height: 160 }}>
         {/* Solo */}
         <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-amber-900/25 to-transparent" />
-        {/* Planta */}
-        <div className="absolute inset-0">
-          <PlantDiagram group={group} />
+        {/* Planta — ilustração vetorial SVG */}
+        <div className="absolute inset-0 p-2">
+          <PlantSVG group={group} />
         </div>
         {/* Badge estádio */}
         <div className="absolute top-2 left-2">
@@ -504,6 +396,9 @@ export default function StepDiagnose() {
           <h2 className="font-display font-bold text-xl text-brand-900">🔬 Diagnose Fisiológica</h2>
           <p className="font-mono text-[11px] text-ink-400 mt-0.5">{FASE_LABEL(estadio)}</p>
         </div>
+
+        {/* Score AgroFísio */}
+        <ScoreCard foliarNuts={foliarNuts} soloNuts={soloNuts} data={data} />
 
         <StageCard estadio={estadio} cultura={cultura} />
         <HormonasCard estadio={estadio} cultura={cultura} />

@@ -7,6 +7,7 @@ export const STEPS = [
   { id: 5, lbl: 'Diagnose',  ico: '🔬'  },
   { id: 6, lbl: 'Correção',  ico: '💊'  },
   { id: 7, lbl: 'Fisiologia',ico: '🧬'  },
+  { id: 8, lbl: 'Valor',     ico: '💰'  },
 ]
 
 export const PHENO = {

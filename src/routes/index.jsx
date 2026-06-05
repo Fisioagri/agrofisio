@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import ProtectedRoute   from './ProtectedRoute'
 import AdminRoute       from './AdminRoute'
 import LoginPage        from '../pages/LoginPage'
+import LandingPage      from '../pages/LandingPage'
 import DashboardPage    from '../pages/DashboardPage'
 import WizardPage       from '../pages/wizard/WizardPage'
 import UsersPage        from '../pages/UsersPage'
@@ -16,7 +17,8 @@ import AnalysePage      from '../pages/AnalysePage'
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
+      <Route path="/landing" element={<LandingPage />} />
+      <Route path="/login"   element={<LoginPage />} />
 
       <Route element={<ProtectedRoute />}>
         <Route path="/"            element={<DashboardPage />} />

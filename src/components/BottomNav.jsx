@@ -53,9 +53,12 @@ export default function BottomNav() {
     )
   }
 
-  if (step === 7) {
+  if (step === 8) {
     return (
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-surface-border p-3 flex gap-2.5 max-w-2xl mx-auto z-50">
+        <button onClick={() => setStep(7)} className={`${base} bg-transparent border-[1.5px] border-surface-border text-ink-600`}>
+          {t.common.back}
+        </button>
         <button
           onClick={() => { reset(); navigate('/') }}
           className={`${base} bg-transparent border-[1.5px] border-surface-border text-ink-600`}
