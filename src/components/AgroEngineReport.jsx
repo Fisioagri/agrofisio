@@ -242,67 +242,8 @@ export default function AgroEngineReport({ data, cultura, estadio, clima }) {
         })}
       </Section>
 
-      {/* 4. Interpretação Fisiológica */}
-      <Section n="4" title="Interpretação Fisiológica" subtitle={result.demandaEstadio ? `Fisiologia do estádio ${estadio}: ${result.demandaEstadio.label}` : ''}>
-        {result.demandaEstadio && (
-          <div className="bg-brand-50 border border-brand-200 rounded-lg p-3 space-y-1.5">
-            <p className="font-mono text-[10px] text-brand-900 font-semibold">{result.demandaEstadio.foco_fisiologico}</p>
-            <div>
-              <p className="font-mono text-[9px] text-ink-500 uppercase tracking-wider mb-1">Nutrientes críticos neste estádio:</p>
-              <div className="flex flex-wrap gap-1">
-                {result.demandaEstadio.nutrientes_criticos.slice(0, 6).map(n => (
-                  <span key={n.nut} className={`px-2 py-0.5 rounded font-mono font-bold text-[9px] border ${
-                    defs.some(d => d.nut === n.nut)
-                      ? 'bg-red-100 border-red-300 text-red-700'
-                      : 'bg-brand-100 border-brand-200 text-brand-900'
-                  }`} title={n.razao}>{n.nut} (P{n.peso})</span>
-                ))}
-              </div>
-            </div>
-            <div>
-              <p className="font-mono text-[9px] text-ink-500 uppercase tracking-wider mb-1">Vulnerabilidades:</p>
-              {result.demandaEstadio.vulnerabilidades.map((v, i) => (
-                <p key={i} className="font-mono text-[10px] text-orange-700">⚠ {v}</p>
-              ))}
-            </div>
-          </div>
-        )}
-      </Section>
-
-      {/* 5. Antagonismos e Sinergismos */}
-      <Section n="5" title="Antagonismos & Sinergismos" subtitle={`${result.interacoes.length} interação(ões) detectada(s)`}>
-        {result.interacoes.length === 0 && (
-          <p className="font-mono text-[11px] text-ink-500">Nenhuma interação significativa detectada com os dados disponíveis.</p>
-        )}
-        {result.interacoes.map((inter, i) => (
-          <div key={i} className={`border rounded-lg p-3 space-y-1 ${
-            inter.tipo.includes('antagonismo') ? 'border-red-200 bg-red-50'
-            : inter.tipo.includes('sinergismo') ? 'border-blue-200 bg-blue-50'
-            : inter.tipo.includes('ph') ? 'border-orange-200 bg-orange-50'
-            : 'border-surface-border bg-surface-muted'
-          }`}>
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] font-bold">
-                {inter.tipo === 'antagonismo_explicativo' ? '⚡ Antagonismo (causa)' :
-                 inter.tipo === 'antagonismo_risco'       ? '⚠ Antagonismo (risco)' :
-                 inter.tipo === 'sinergismo_potencializador' ? '🔗 Sinergismo' :
-                 inter.tipo === 'ph_acido'                ? '🔴 Solo Ácido' :
-                 inter.tipo === 'ph_alcalino'             ? '🟡 Solo Alcalino' : inter.tipo}
-              </span>
-              {inter.nutA !== 'pH' && (
-                <span className="font-mono text-[10px] text-ink-600">{inter.nutA} → {inter.nutB}</span>
-              )}
-              <span className="ml-auto">{'●'.repeat(inter.severidade)}</span>
-            </div>
-            <p className="font-mono text-[10px] text-ink-700">{inter.interpretacao}</p>
-            <p className="font-mono text-[9px] text-ink-500">{inter.mecanismo}</p>
-            <p className="font-mono text-[8px] text-ink-400">{inter.fonte}</p>
-          </div>
-        ))}
-      </Section>
-
-      {/* 6. Risco Produtivo */}
-      <Section n="6" title="Risco Produtivo" subtitle="Impacto estimado no rendimento">
+      {/* 4. Risco Produtivo */}
+      <Section n="4" title="Risco Produtivo" subtitle="Impacto estimado no rendimento">
         {defs.length === 0 && !result.interacoes.some(i => i.tipo === 'ph_acido') && (
           <p className="font-mono text-[11px] text-green-700">Baixo risco produtivo com base nos dados inseridos.</p>
         )}
@@ -327,71 +268,8 @@ export default function AgroEngineReport({ data, cultura, estadio, clima }) {
         ))}
       </Section>
 
-      {/* 7. Recomendação Prática */}
-      <Section n="7" title="Recomendação Prática" subtitle={`${result.recomendacoes.length} ação(ões) priorizadas`} defaultOpen>
-        {result.recomendacoes.slice(0, 8).map((rec, i) => (
-          <div key={i} className={`border rounded-lg p-3 space-y-1 ${
-            rec.urgencia === 'imediata'    ? 'border-red-200 bg-red-50'
-            : rec.urgencia === 'curto_prazo' ? 'border-orange-200 bg-orange-50'
-            : rec.urgencia === 'proativo'   ? 'border-blue-200 bg-blue-50'
-            : 'border-surface-border bg-surface-muted'
-          }`}>
-            <div className="flex items-center gap-2">
-              <Badge label={
-                rec.urgencia === 'imediata'    ? '🔴 Urgente' :
-                rec.urgencia === 'curto_prazo' ? '🟡 Curto prazo' :
-                rec.urgencia === 'proativo'    ? '🔵 Proativo' : '📋 Planejamento'
-              } color="" />
-              {rec.nut && <span className="font-mono font-bold text-[10px] text-ink-700">{rec.nut}</span>}
-            </div>
-            <p className="font-mono text-[11px] text-ink-800 font-medium">{rec.acao}</p>
-            {rec.justificativa && <p className="font-mono text-[10px] text-ink-500">{rec.justificativa}</p>}
-            {rec.fonte && <p className="font-mono text-[9px] text-ink-400">{rec.fonte}</p>}
-          </div>
-        ))}
-      </Section>
-
-      {/* 8. Justificativa Técnica — Hormônios e Antioxidantes */}
-      <Section n="8" title="Justificativa Técnica" subtitle="Impacto hormonal e sistema antioxidante">
-        {result.impactoHormonal.length === 0 && result.antioxidantes.length === 0 && (
-          <p className="font-mono text-[11px] text-ink-500">Nenhum impacto hormonal ou antioxidante significativo detectado.</p>
-        )}
-        {result.impactoHormonal.slice(0, 4).map((h, i) => (
-          <div key={i} className="border border-purple-200 bg-purple-50 rounded-lg p-3 space-y-1.5">
-            <p className="font-mono text-[11px] font-bold text-purple-900">{h.hormonio} ({h.abrev})</p>
-            <div className="flex flex-wrap gap-1">
-              {h.nutsAfetados.map((n, j) => (
-                <span key={j} className={`font-mono text-[9px] px-1.5 py-0.5 rounded border ${n.status === 'deficiente' ? 'bg-red-100 border-red-200 text-red-700' : 'bg-amber-100 border-amber-200 text-amber-700'}`}>
-                  {n.nut}: {n.status} ({n.nivel})
-                </span>
-              ))}
-            </div>
-            <p className="font-mono text-[10px] text-purple-700">{h.impacto}</p>
-            <p className="font-mono text-[9px] text-ink-400">{h.fonte}</p>
-          </div>
-        ))}
-        {result.antioxidantes.map((a, i) => (
-          <div key={i} className="border border-amber-200 bg-amber-50 rounded-lg p-2.5">
-            <p className="font-mono text-[10px] font-semibold text-amber-900">{a.impacto}</p>
-          </div>
-        ))}
-        {result.sintomasProvaveis.length > 0 && (
-          <div>
-            <p className="font-mono text-[9px] text-ink-500 uppercase tracking-wider mb-1">Sintomas visuais esperados:</p>
-            {result.sintomasProvaveis.slice(0, 3).map((s, i) => (
-              <div key={i} className="font-mono text-[10px] text-ink-700 py-1 border-b border-surface-border last:border-0">
-                <span className="font-semibold">→ {s.sintoma}</span>
-                {s.causasConfirmadas.slice(0, 1).map((c, j) => (
-                  <span key={j} className="text-ink-500 block ml-2">• {c.nut}: {c.mecanismo}</span>
-                ))}
-              </div>
-            ))}
-          </div>
-        )}
-      </Section>
-
-      {/* 9. Fontes da Base de Conhecimento */}
-      <Section n="9" title="Fontes da Base de Conhecimento" subtitle="Referências bibliográficas utilizadas">
+      {/* 5. Fontes da Base de Conhecimento */}
+      <Section n="5" title="Fontes da Base de Conhecimento" subtitle="Referências bibliográficas utilizadas">
         <div className="space-y-1">
           {result.resumo.fontesPrimarias.map((f, i) => (
             <p key={i} className="font-mono text-[9px] text-ink-500 border-b border-surface-border pb-1 last:border-0">

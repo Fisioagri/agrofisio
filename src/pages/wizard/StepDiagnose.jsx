@@ -51,6 +51,34 @@ const STAGE_DRAW = {
   R8:    { title: 'Plena Maturação — Colheita',group: 'mature',       obs: '95% das vagens maduras — pronto para colheita mecânica',     physio: 'Umidade ≤ 15%. Lignificação completa do tegumento.' },
 }
 
+// ─── Dados do desenho por estádio — MILHO ──────────────────────────────────
+const STAGE_DRAW_MILHO = {
+  VE:  { title: 'Emergência',                   group: 'seed',         obs: 'Coleóptilo rompe o solo; mesocótilo posicionou a coroa a ~2 cm de profundidade; raízes nodais iniciando',         physio: 'Giberelina elongua o coleóptilo; Auxina orienta a radícula; Citocinina ativa raízes nodais. P e Zn críticos.' },
+  V1:  { title: 'V1 — 1ª Folha com Colar',     group: 'veg_early',    obs: '1ª folha com COLAR visível (dobra entre bainha e lâmina); folha com ponta arredondada (identificador único de V1)',  physio: 'Raízes nodais dominam absorção. P máxima demanda por unidade de biomassa. Zn para prevenção de mancha branca.' },
+  V2:  { title: 'V2 — Alerta: Mancha Branca',   group: 'veg_early',    obs: '2ª folha com colar visível; RISCO DE MANCHA BRANCA (faixas esbranquiçadas paralelas à nervura) se Zn baixo',       physio: 'Mancha branca = deficiência de Zn (IAA via triptofano sintase comprometido). Corrigir Zn imediatamente.' },
+  V3:  { title: 'V3 — Crescimento Inicial',     group: 'veg_early',    obs: '3ª folha com colar; ponto de crescimento ~2 cm abaixo do solo; protegido de geada e granizo',                       physio: 'Demanda de N cresce. Milho NÃO faz FBN — todo N vem do solo. P para energia celular.' },
+  V4:  { title: 'V4 — Crescimento Acelerado',   group: 'veg_mid',      obs: '4ª folha com colar; raiz seminal completamente inativa; raízes escora (brace roots) começam a aparecer',             physio: 'K absorção começa a crescer rumo ao pico em V6-VT. Zn: última chance eficiente de correção foliar.' },
+  V5:  { title: 'V5 — Pré-Fase Rápida',        group: 'veg_mid',      obs: '5ª folha com colar; raízes escora visíveis; ponto de crescimento prestes a emergir acima do solo em ~V6',             physio: 'Todas as folhas e espigas potenciais foram iniciadas. N disponível no solo deve ser garantido antes de V6.' },
+  V6:  { title: 'V6 — Ponto de Crescimento Acima do Solo',group:'veg_mid', obs: '6ª folha com colar; PONTO DE CRESCIMENTO ACIMA DO SOLO — planta vulnerável a granizo, geada e herbicidas', physio: '>60% do N total do ciclo é absorvido entre V6-R1. Topdress de N deve estar no solo AGORA. K absorção escala.' },
+  V7:  { title: 'V7 — Definição de Fileiras',   group: 'veg_late',     obs: '7ª folha com colar; número de FILEIRAS DA ESPIGA definido em V7 (sempre par: 14-16-18); internós em elongação rápida', physio: 'ESTÁDIO MAIS CRÍTICO para rendimento: estresse de N, K, seca ou calor aqui = menos fileiras permanentemente.' },
+  V8:  { title: 'V8 — Grãos por Fileira',       group: 'veg_late',     obs: '8ª folha com colar; início da determinação de grãos por fileira; espiga primária visível em dissecção',               physio: 'Citocinina define grãos por fileira. N e K adequados = mais grãos. B preventivo antes de VT é essencial.' },
+  V9:  { title: 'V9 — Espiga Primária Visível', group: 'veg_late',     obs: '9ª folha com colar; espiga primária de ~5-7 cm visível em dissecção; máxima taxa de crescimento se aproxima',          physio: 'N absorção em pico. Seca em V9-V12 = maior impacto em produtividade. Mg para fotossíntese C4.' },
+  V10: { title: 'V10 — Crescimento Máximo',     group: 'veg_late',     obs: '10ª folha com colar; planta pode crescer 8-12 cm/dia; lignificação de internós basais iniciando',                       physio: 'N absorção máxima. B+Ca+Zn foliar deve ser aplicado antes de VT. K para qualidade do colmo.' },
+  V11: { title: 'V11 — Fase Mais Rápida',       group: 'veg_late',     obs: '11ª folha com colar; internós medianos em elongação máxima; pendão em formação interna; colmo cresce visivelmente', physio: 'B CRÍTICO PREVENTIVO — pendão em formação; deficiência agora = falha de polinização em VT. Aplique B+Ca+Zn.' },
+  V12: { title: 'V12 — Primórdios Florais',     group: 'veg_late',     obs: '12ª folha com colar; primórdios florais femininos visíveis na espiga em dissecção; elongação do pedúnculo da espiga inicia', physio: 'Número final de grãos por fileira próximo do definitivo. B+Ca+Zn foliar obrigatório antes de VT.' },
+  V13: { title: 'V13 — Comprimento da Espiga',  group: 'veg_late',     obs: '13ª folha com colar; comprimento final da espiga sendo determinado; silk (estigmas) em desenvolvimento interno',        physio: 'Última chance de aplicação foliar de B+Ca+Zn antes de VT. N para desenvolvimento do silk.' },
+  V14: { title: 'V14 — Pré-Pendoamento',        group: 'veg_late',     obs: '14ª folha com colar; pendão quase completo internamente; silk prestes a emergir; elongação dos últimos internós',      physio: 'Seca aqui = silk atrasado = NICK comprometido (assincronia com liberação de pólen). Irrigar se necessário.' },
+  V15: { title: 'V15 — Pendão Emergindo',       group: 'veg_late',     obs: '15ª folha com colar; pendão emergindo ou já emergido; início da liberação de pólen em 1-3 dias',                        physio: 'Temperatura > 35°C inibe germinação do grão de pólen (viável por apenas ~20 min). Irrigar.' },
+  V16: { title: 'V16 — Pendão Pleno / Silk',    group: 'flower_early', obs: '16+ folhas; pendão completamente expandido; silk emergindo pela palha; plena altura da planta atingida',                physio: 'ESTA SEMANA = MAIS CRÍTICA DO CICLO. Silk receptivo por 3-5 dias. Seca = silk desseca = grain gaps.' },
+  VT:  { title: 'VT — Pendoamento',             group: 'flower_early', obs: 'Último ramo do pendão emergido; pico de liberação de pólen = meio da manhã; >1 milhão grãos pólen/planta; vida do pólen = 20 min', physio: 'B para tubo polínico. Ca para reconhecimento no silk. Temperatura > 35°C = falha de polinização.' },
+  R1:  { title: 'R1 — Silking — Fertilização',  group: 'flower_full',  obs: 'Silk emergem ao longo de 3-5 dias (base → ponta); grão de pólen → tubo polínico em 24h → fertiliza óvulo → grain set', physio: '2 semanas após R1 = MÁXIMA SENSIBILIDADE a aborto. B+Ca essenciais. Irrigação prioritária.' },
+  R2:  { title: 'R2 — Blister (85% umidade)',   group: 'pod_early',    obs: 'Grãos com aspecto de bolha; 85% umidade; endosperma claro; comprimento máximo da espiga atingido',                     physio: 'K co-transportado com sacarose. N para zeínas do endosperma. Aborto ainda possível.' },
+  R3:  { title: 'R3 — Milk (80% umidade)',      group: 'pod_late',     obs: 'Fluido leitoso branco (amido em suspensão); 80% umidade; cor final do grão visível; embrião distinguível',              physio: 'K máxima demanda. S para zeínas (proteínas sulfuradas do milho). Proteger área foliar!' },
+  R4:  { title: 'R4 — Dough (70% umidade)',     group: 'fill',         obs: 'Consistência pastosa; 70% umidade; ~50% do peso seco final; cor do sabugo definida; palha começa a escurecer',           physio: 'ABA dominant — acúmulo de amido. K e N para qualidade final do grão. Estresse = grão mais leve.' },
+  R5:  { title: 'R5 — Dent — Milk Line',        group: 'fill',         obs: 'Dent visível; milk line avança (coroa → base); R5.5 = 90% MS final; 35-55% umidade; folhas inferiores amarelando',       physio: 'Maturação irreversível. Milk line = indicador de maturidade. Colheita: aguardar black layer.' },
+  R6:  { title: 'R6 — Maturidade Fisiológica',  group: 'mature',       obs: 'Camada negra (black layer) na ponta do grão; milk line na base; ~35% umidade; peso seco máximo; senescência completa',   physio: 'Black layer = barreira impermeável. Peso de grão definitivo. Colheita ideal com 15-18% umidade.' },
+}
+
 const GROUP_STYLE = {
   seed:         { bg: 'from-emerald-50 via-green-50 to-teal-50',       badge: 'bg-emerald-700' },
   veg_early:    { bg: 'from-green-100 via-lime-50 to-emerald-50',      badge: 'bg-green-700' },
@@ -95,7 +123,9 @@ function PhenoBar({ estadio, cultura }) {
 
 // ─── Stage card com desenho ────────────────────────────────────────────────
 function StageCard({ estadio, cultura }) {
-  const draw = STAGE_DRAW[estadio]
+  const draw = cultura === 'milho'
+    ? (STAGE_DRAW_MILHO[estadio] || STAGE_DRAW[estadio])
+    : STAGE_DRAW[estadio]
   const group = draw?.group || 'veg_mid'
   const style = GROUP_STYLE[group] || GROUP_STYLE.veg_mid
   const icon = STAGE_ICON[estadio] || '🌿'

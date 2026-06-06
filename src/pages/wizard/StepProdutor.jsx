@@ -5,6 +5,7 @@ import Card from '../../components/ui/Card'
 import Input from '../../components/ui/Input'
 import { listProdutores } from '../../services/produtoresService'
 import { listTalhoes } from '../../services/talhoesService'
+import { loadSafraCache } from '../../utils/safraCache'
 
 const MAX_SC = 200
 
@@ -59,16 +60,32 @@ export default function StepProdutor() {
     return { value: data[key] ?? '', onChange: e => update({ [key]: e.target.value }) }
   }
 
+  function applyTalhaoAutoFill(prodNome, talhaoNome) {
+    const cached = loadSafraCache(prodNome, talhaoNome)
+    if (cached) {
+      update({
+        prodTalhao:   talhaoNome,
+        safra:        cached.safra,
+        cultura:      cached.cultura,
+        hibrido:      cached.hibrido,
+        adubacao:     cached.adubacao,
+        _autoFilled:  true,
+      })
+    } else {
+      update({ prodTalhao: talhaoNome, _autoFilled: false })
+    }
+  }
+
   function handleSelectProdutor(e) {
     const id = e.target.value
     if (!id) {
-      update({ produtorId: '', prodNome: '', prodCidade: '', prodTalhao: '' })
+      update({ produtorId: '', prodNome: '', prodCidade: '', prodTalhao: '', _autoFilled: false })
       setTalhoes([])
       return
     }
     const prod = produtores.find(pr => pr.id === id)
     if (prod) {
-      update({ produtorId: id, prodNome: prod.nome, prodCidade: prod.cidade, prodTalhao: '' })
+      update({ produtorId: id, prodNome: prod.nome, prodCidade: prod.cidade, prodTalhao: '', _autoFilled: false })
       listTalhoes(id).then(setTalhoes).catch(() => setTalhoes([]))
     }
   }
@@ -105,7 +122,11 @@ export default function StepProdutor() {
           <div className="mb-3">
             <label className={lblCls}>{p.plot}</label>
             {talhoes.length > 0 ? (
-              <select className={selCls} value={data.prodTalhao || ''} onChange={e => update({ prodTalhao: e.target.value })}>
+              <select
+                className={selCls}
+                value={data.prodTalhao || ''}
+                onChange={e => applyTalhaoAutoFill(data.prodNome, e.target.value)}
+              >
                 <option value="">— Selecionar talhão —</option>
                 {talhoes.map(tl => (
                   <option key={tl.id} value={tl.nome}>
@@ -118,7 +139,11 @@ export default function StepProdutor() {
                 className={selCls}
                 placeholder={p.plotPh}
                 value={data.prodTalhao ?? ''}
-                onChange={e => update({ prodTalhao: e.target.value })}
+                onChange={e => update({ prodTalhao: e.target.value, _autoFilled: false })}
+                onBlur={e => {
+                  const val = e.target.value.trim()
+                  if (val && data.prodNome) applyTalhaoAutoFill(data.prodNome, val)
+                }}
               />
             )}
           </div>

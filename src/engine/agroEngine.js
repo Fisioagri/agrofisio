@@ -21,8 +21,13 @@ import {
   HORMONE_DATABASE,
   SYMPTOMS_DB,
   PHENOLOGY_DEMANDS,
+  PHENOLOGY_DEMANDS_MILHO,
   STRESS_RESPONSES,
   RECOMMENDATION_PROTOCOLS,
+  MANIPULATION_PROTOCOLS_MILHO,
+  CORN_PRODUCTIVITY_PROFILES,
+  SOJA_PRODUCTIVITY_PROFILES,
+  CROP_INTELLIGENCE,
   ANTIOXIDANT_ENZYMES,
   BIBLIOGRAPHY,
 } from './knowledgeBase'
@@ -133,9 +138,20 @@ function normCultura(c) {
 // Etapa 2 — Prioridade por Estádio Fenológico
 // ─────────────────────────────────────────────────────────────────────────────
 
-function estadioParaKey(estadio) {
+function estadioParaKey(estadio, cultura) {
   if (!estadio) return 'V3'
   const s = estadio.trim().toUpperCase()
+
+  if (normCultura(cultura) === 'milho') {
+    const milhoMap = {
+      'VE':'VE','V1':'V1','V2':'V2','V3':'V3','V4':'V4','V5':'V5',
+      'V6':'V6','V7':'V7','V8':'V8','V9':'V9','V10':'V10','V11':'V11',
+      'V12':'V12','V13':'V13','V14':'V14','V15':'V15','V16':'V16',
+      'VT':'VT','R1':'R1','R2':'R2','R3':'R3','R4':'R4','R5':'R5','R6':'R5',
+    }
+    return milhoMap[s] || 'V6'
+  }
+
   const map = {
     VE: 'VE', VC: 'VC', V1: 'V1', V2: 'V2', V3: 'V3', V4: 'V4',
     V5: 'V5', V6: 'V6', R1: 'R1', R2: 'R2', R3: 'R3', R4: 'R4', R5: 'R5',
@@ -147,8 +163,11 @@ function estadioParaKey(estadio) {
   return 'V3'
 }
 
-function getEstadioPeso(nut, estadioKey) {
-  const demands = PHENOLOGY_DEMANDS[estadioKey]
+function getEstadioPeso(nut, estadioKey, cultura) {
+  const isMilho = normCultura(cultura) === 'milho'
+  const demands = isMilho
+    ? (PHENOLOGY_DEMANDS_MILHO[estadioKey] || null)
+    : (PHENOLOGY_DEMANDS[estadioKey] || null)
   if (!demands) return 5
   const found = demands.nutrientes_criticos.find(n => n.nut === nut)
   return found ? found.peso : 3
@@ -339,7 +358,7 @@ function avaliarAntioxidantes(allNuts) {
 // Etapa 6 — Recomendações Priorizadas
 // ─────────────────────────────────────────────────────────────────────────────
 
-function gerarRecomendacoes(diagnosticos, interacoes, estadioKey, clima) {
+function gerarRecomendacoes(diagnosticos, interacoes, estadioKey, clima, cultura) {
   const recs = []
 
   // Recomendações por deficiência detectada
@@ -391,8 +410,42 @@ function gerarRecomendacoes(diagnosticos, interacoes, estadioKey, clima) {
     })
   }
 
-  // Recomendações baseadas no estádio fenológico
-  const stageDemands = PHENOLOGY_DEMANDS[estadioKey]
+  // Recomendações de protocolos milho-específicos por deficiências detectadas
+  if (normCultura(cultura) === 'milho') {
+    const defs = diagnosticos.filter(d => d.status === 'def').map(d => d.nut)
+    const estadioNum = parseInt(estadioKey?.replace(/[^0-9]/g, '')) || 0
+    const isVegetativo = estadioKey?.startsWith('V') || estadioKey === 'VE'
+    const isVT_R1 = ['VT','R1'].includes(estadioKey)
+    const isReprodutivo = ['R1','R2','R3','R4','R5'].includes(estadioKey)
+
+    // Protocolo de crescimento radicular
+    if (isVegetativo && defs.some(n => ['P','Zn','Ca','B'].includes(n))) {
+      const proto = MANIPULATION_PROTOCOLS_MILHO.crescimento_radicular
+      recs.push({ tipo: 'protocolo_milho', prioridade: 2.5, urgencia: 'curto_prazo', nut: null, acao: `Protocolo Raiz Milho: ${proto.nutrientes.slice(0,2).map(n => n.nut).join('+')} — ${proto.objetivo}`, justificativa: proto.mecanismo_fisiologico.substring(0, 200), fonte: proto.fonte_ref })
+    }
+    // Protocolo de pegamento floral
+    if ((isVT_R1 || estadioKey === 'V16' || estadioKey === 'V15') && defs.some(n => ['B','Ca','K','Zn'].includes(n))) {
+      const proto = MANIPULATION_PROTOCOLS_MILHO.pegamento_floral
+      recs.push({ tipo: 'protocolo_milho', prioridade: 4.5, urgencia: 'imediata', nut: null, acao: `URGENTE — Protocolo Pegamento Floral Milho: B+Ca+K+Zn — ${proto.objetivo}`, justificativa: proto.alertas[0], fonte: proto.fonte_ref })
+    }
+    // Protocolo de assimilação de N
+    if (!isVegetativo || estadioNum >= 6) {
+      if (defs.some(n => ['N','Mo','Mg','S','Fe'].includes(n))) {
+        const proto = MANIPULATION_PROTOCOLS_MILHO.assimilacao_nitrogenio
+        recs.push({ tipo: 'protocolo_milho', prioridade: 3.5, urgencia: 'curto_prazo', nut: null, acao: `Protocolo Assimilação N Milho: Mo+Mg+S — ${proto.objetivo.substring(0,80)}`, justificativa: proto.mecanismo_fisiologico.substring(0, 200), fonte: proto.fonte_ref })
+      }
+    }
+    // Protocolo antioxidante
+    if (defs.some(n => ['Mn','Zn','Cu','Fe'].includes(n)) && (estadioNum >= 6 || isReprodutivo)) {
+      const proto = MANIPULATION_PROTOCOLS_MILHO.defesa_antioxidante
+      recs.push({ tipo: 'protocolo_milho', prioridade: 2.0, urgencia: 'proativo', nut: null, acao: `Protocolo Antioxidante Milho: Mn+Zn+Cu+Fe — ${proto.objetivo.substring(0,80)}`, justificativa: `Enzimas alvo: SOD (Cu/Zn), Mn-SOD, Fe-SOD, CAT, POD. ${proto.alertas[0]}`, fonte: proto.fonte_ref })
+    }
+  }
+
+  // Recomendações baseadas no estádio fenológico (cultura-específico)
+  const stageDemands = normCultura(cultura) === 'milho'
+    ? PHENOLOGY_DEMANDS_MILHO[estadioKey]
+    : PHENOLOGY_DEMANDS[estadioKey]
   if (stageDemands) {
     for (const manip of stageDemands.manipulacoes || []) {
       recs.push({
@@ -541,7 +594,7 @@ function mapearSintomas(diagnosticos) {
  * @returns {DiagnosticResult}
  */
 export function runDiagnostic({ data, cultura, estadio, clima } = {}) {
-  const estadioKey = estadioParaKey(estadio)
+  const estadioKey = estadioParaKey(estadio, cultura)
 
   // 1. Classificar nutrientes
   const foliarNuts = classificarFoliar(data, cultura)
@@ -551,7 +604,7 @@ export function runDiagnostic({ data, cultura, estadio, clima } = {}) {
   // 2. Adicionar peso de estádio
   const diagnosticos = allNuts
     .filter(n => n.status !== 'nd')
-    .map(n => ({ ...n, estadioPeso: getEstadioPeso(n.nut, estadioKey) }))
+    .map(n => ({ ...n, estadioPeso: getEstadioPeso(n.nut, estadioKey, cultura) }))
 
   // 3. Interações
   const interacoes = analisarInteracoes(foliarNuts, soloNuts)
@@ -563,7 +616,7 @@ export function runDiagnostic({ data, cultura, estadio, clima } = {}) {
   const antioxidantes = avaliarAntioxidantes(allNuts)
 
   // 6. Recomendações
-  const recomendacoes = gerarRecomendacoes(diagnosticos, interacoes, estadioKey, clima)
+  const recomendacoes = gerarRecomendacoes(diagnosticos, interacoes, estadioKey, clima, cultura)
 
   // 7. Score
   const scoreData = calcularScore(diagnosticos, interacoes, clima)
@@ -571,8 +624,11 @@ export function runDiagnostic({ data, cultura, estadio, clima } = {}) {
   // 8. Sintomas
   const sintomasProvaveis = mapearSintomas(diagnosticos)
 
-  // 9. Estádio
-  const demandaEstadio = PHENOLOGY_DEMANDS[estadioKey] || null
+  // 9. Estádio (cultura-específico)
+  const isMilhoDiag = normCultura(cultura) === 'milho'
+  const demandaEstadio = isMilhoDiag
+    ? (PHENOLOGY_DEMANDS_MILHO[estadioKey] || null)
+    : (PHENOLOGY_DEMANDS[estadioKey] || null)
 
   // Resumo executivo
   const defs    = diagnosticos.filter(d => d.status === 'def')
@@ -646,4 +702,32 @@ export function getSymptomsForNut(nut) {
     .map(([id, s]) => ({ id, descricao: s.descricao, diferenciacao: s.diferenciacao }))
 }
 
-export { PHENOLOGY_DEMANDS, RECOMMENDATION_PROTOCOLS, HORMONE_DATABASE, BIBLIOGRAPHY }
+export {
+  PHENOLOGY_DEMANDS, PHENOLOGY_DEMANDS_MILHO,
+  RECOMMENDATION_PROTOCOLS, MANIPULATION_PROTOCOLS_MILHO,
+  CORN_PRODUCTIVITY_PROFILES, SOJA_PRODUCTIVITY_PROFILES,
+  CROP_INTELLIGENCE,
+  HORMONE_DATABASE, BIBLIOGRAPHY,
+}
+
+// ─── Utilitários públicos adicionais ─────────────────────────────────────────
+
+export function getManipulacaoProtocol(objetivo, cultura) {
+  if (normCultura(cultura) === 'milho') {
+    return MANIPULATION_PROTOCOLS_MILHO[objetivo] || null
+  }
+  return RECOMMENDATION_PROTOCOLS[objetivo] || null
+}
+
+export function getProductivityProfile(cultura, metaSc) {
+  const cult = normCultura(cultura)
+  const profiles = cult === 'milho' ? CORN_PRODUCTIVITY_PROFILES : SOJA_PRODUCTIVITY_PROFILES
+  if (profiles[metaSc]) return profiles[metaSc]
+  const keys = Object.keys(profiles).map(Number).sort((a, b) => a - b)
+  const closest = keys.reduce((prev, cur) => Math.abs(cur - metaSc) < Math.abs(prev - metaSc) ? cur : prev)
+  return profiles[closest] || null
+}
+
+export function getCropIntelligence(topico) {
+  return CROP_INTELLIGENCE[topico] || CROP_INTELLIGENCE
+}
