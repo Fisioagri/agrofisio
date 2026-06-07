@@ -29,14 +29,20 @@ function calcDeficiencias(data, cultura) {
     if (val < ref.min) defFoliar.add(nut)
   }
 
+  const ctc = parseFloat(data.ctcSolo) || 0
+  const CTC_DEF = { caSolo: 45, mgSolo: 15, kSolo: 3 }
+
   const defSolo = new Set()
   for (const [field, nut] of Object.entries(SOLO_MAP)) {
     const val = parseFloat(data[field])
     if (isNaN(val)) continue
-    const ref = refSol[nut]
-    if (!ref) continue
-    const cmpVal = field === 'kSolo' ? val * 391 : val
-    if (cmpVal < ref.min) defSolo.add(nut)
+    if (ctc > 0 && CTC_DEF[field] !== undefined) {
+      if (val / ctc * 100 < CTC_DEF[field]) defSolo.add(nut)
+    } else {
+      const ref = refSol[nut]
+      if (!ref) continue
+      if (val < ref.min) defSolo.add(nut)
+    }
   }
 
   return { defSolo, defFoliar }

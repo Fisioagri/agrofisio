@@ -5,7 +5,8 @@ const TABS = [
   { to: '/produtores', icon: '👤', label: 'Produtores' },
   { to: '/talhoes',    icon: '🗺️', label: 'Talhões' },
   { to: '/wizard',     icon: '🔬', label: 'Análise' },
-  { to: '/estoque',    icon: '📦', label: 'Estoque' },
+  // estoque oculto temporariamente — reativar quando pronto
+  // { to: '/estoque', icon: '📦', label: 'Estoque' },
 ]
 
 export default function AppMobileNav() {

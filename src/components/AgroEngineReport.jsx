@@ -206,6 +206,65 @@ export default function AgroEngineReport({ data, cultura, estadio, clima }) {
         )}
       </Section>
 
+      {/* 2b. Balanço CTC — Ca%, Mg%, K% */}
+      {(() => {
+        const ca  = parseFloat(data?.caSolo  || 0)
+        const mg  = parseFloat(data?.mgSolo  || 0)
+        const k   = parseFloat(data?.kSolo   || 0)  // cmolc/dm³ (valor bruto)
+        const ctc = parseFloat(data?.ctcSolo || 0)
+        if (!ctc || ctc <= 0) return null
+
+        const caP  = (ca  / ctc * 100)
+        const mgP  = (mg  / ctc * 100)
+        const kP   = (k   / ctc * 100)
+        const hAlP = Math.max(0, 100 - caP - mgP - kP)
+
+        function status(val, min, max) {
+          if (val < min) return 'def'
+          if (val > max) return 'alto'
+          return 'ok'
+        }
+        const caStatus = status(caP,  45, 70)
+        const mgStatus = status(mgP,  15, 25)
+        const kStatus  = status(kP,    3,  6)
+
+        const cor = { def: 'bg-red-50 border-red-200 text-red-700', ok: 'bg-green-50 border-green-200 text-green-700', alto: 'bg-amber-50 border-amber-200 text-amber-700' }
+        const lbl = { def: '↓ Baixo', ok: '✓ Adequado', alto: '↑ Alto' }
+
+        return (
+          <div className="bg-white border border-surface-border rounded-card shadow-card overflow-hidden">
+            <div className="px-4 py-2.5 border-b border-surface-border bg-surface-muted">
+              <p className="font-display font-bold text-sm text-brand-900">Balanço de Cátions na CTC</p>
+              <p className="font-mono text-[9px] text-ink-400">Relações Ca / Mg / K — CTC = {ctc} cmolc/dm³</p>
+            </div>
+            <div className="p-3 grid grid-cols-3 gap-2">
+              {[
+                { nut: 'Ca', val: caP, min: 45, max: 70, st: caStatus },
+                { nut: 'Mg', val: mgP, min: 15, max: 25, st: mgStatus },
+                { nut: 'K',  val: kP,  min:  3, max:  6, st: kStatus  },
+              ].map(({ nut, val, min, max, st }) => (
+                <div key={nut} className={`rounded-lg border p-2.5 text-center ${cor[st]}`}>
+                  <p className="font-mono font-extrabold text-base leading-none">{nut}</p>
+                  <p className="font-mono font-bold text-lg mt-1">{val.toFixed(1)}%</p>
+                  <p className="font-mono text-[8px] mt-0.5 opacity-70">ref {min}–{max}%</p>
+                  <p className={`font-mono text-[8px] font-semibold mt-1 border rounded px-1 py-0.5 inline-block ${cor[st]}`}>{lbl[st]}</p>
+                </div>
+              ))}
+            </div>
+            <div className="px-3 pb-3 flex gap-3">
+              <div className="flex-1 bg-surface-muted rounded px-3 py-1.5">
+                <p className="font-mono text-[8px] text-ink-500">H+Al: {hAlP.toFixed(1)}%</p>
+                <p className="font-mono text-[8px] text-ink-400">V% calculado: {(caP + mgP + kP).toFixed(1)}%</p>
+              </div>
+              <div className="flex-1 bg-surface-muted rounded px-3 py-1.5">
+                <p className="font-mono text-[8px] text-ink-500">Ca/Mg: {mg > 0 ? (ca/mg).toFixed(1) : '—'}</p>
+                <p className="font-mono text-[8px] text-ink-400">Ideal: 2–5</p>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
       {/* 3. Interpretação Nutricional */}
       <Section n="3" title="Interpretação Nutricional" subtitle="Funções e impacto das deficiências detectadas">
         {defs.length === 0 && altos.length === 0 && (

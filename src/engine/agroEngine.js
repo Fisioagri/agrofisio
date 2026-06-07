@@ -95,9 +95,13 @@ function classificarFoliar(data, cultura) {
   return result
 }
 
+// Faixas CTC% para Ca, Mg, K (avaliação via concentração na CTC)
+const CTC_RANGES = { caSolo: [45, 70], mgSolo: [15, 25], kSolo: [3, 6] }
+
 function classificarSolo(data, cultura) {
   const cult   = normCultura(cultura)
   const refSol = REF_SOLO[cult] || REF_SOLO.soja
+  const ctc    = parseFloat(data?.ctcSolo) || 0
   const result = []
 
   for (const [field, nut] of Object.entries(SOLO_FIELDS)) {
@@ -107,22 +111,41 @@ function classificarSolo(data, cultura) {
       result.push({ nut, fonte: 'solo', status: 'nd', valor: null, ref })
       continue
     }
-    // K no solo: campo é mmolc ou mg/dm³ dependendo — converte se necessário
-    const cmpVal = field === 'kSolo' ? raw * 391 : raw
+
     let status, grav
-    if (cmpVal < ref.min) {
-      status = 'def'
-      grav   = gravidade(cmpVal / ref.min)
-    } else if (cmpVal > ref.max * 2) {
-      status = 'toxico'
-      grav   = gravidadeAlto(cmpVal / ref.max)
-    } else if (cmpVal > ref.max) {
-      status = 'alto'
-      grav   = gravidadeAlto(cmpVal / ref.max)
+
+    // Ca, Mg, K: avaliar via % da CTC quando CTC disponível
+    if (ctc > 0 && CTC_RANGES[field]) {
+      const pct = raw / ctc * 100
+      const [minPct, maxPct] = CTC_RANGES[field]
+      if (pct < minPct) {
+        status = 'def'
+        grav   = gravidade(pct / minPct)
+      } else if (pct > maxPct) {
+        status = 'alto'  // excesso ≠ tóxico (ajuste de adubação)
+        grav   = gravidadeAlto(pct / maxPct)
+      } else {
+        status = 'ok'
+        grav   = null
+      }
     } else {
-      status = 'ok'
-      grav   = null
+      // Demais nutrientes: comparação absoluta (K sem conversão agora é cmolc)
+      const cmpVal = raw
+      if (cmpVal < ref.min) {
+        status = 'def'
+        grav   = gravidade(cmpVal / ref.min)
+      } else if (cmpVal > ref.max * 2) {
+        status = 'toxico'
+        grav   = gravidadeAlto(cmpVal / ref.max)
+      } else if (cmpVal > ref.max) {
+        status = 'alto'
+        grav   = gravidadeAlto(cmpVal / ref.max)
+      } else {
+        status = 'ok'
+        grav   = null
+      }
     }
+
     result.push({ nut, fonte: 'solo', status, grav, valor: raw, ref, campo: field })
   }
   return result

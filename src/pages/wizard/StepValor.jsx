@@ -28,13 +28,20 @@ function calcNuts(data, cultura) {
     return { nut, status: val < ref.min ? 'def' : val > ref.max ? 'alto' : 'ok' }
   })
 
+  const ctcV  = parseFloat(data.ctcSolo) || 0
+  const CTC_R = { caSolo: [45, 70], mgSolo: [15, 25], kSolo: [3, 6] }
+
   const solo = Object.entries(SOLO_MAP).map(([field, nut]) => {
     const val = parseFloat(data[field])
     if (isNaN(val)) return { nut, status: 'nd' }
+    if (ctcV > 0 && CTC_R[field]) {
+      const pct = val / ctcV * 100
+      const [mn, mx] = CTC_R[field]
+      return { nut, status: pct < mn ? 'def' : pct > mx ? 'alto' : 'ok' }
+    }
     const ref = refSol[nut]
     if (!ref) return { nut, status: 'nd' }
-    const cmpVal = field === 'kSolo' ? val * 391 : val
-    return { nut, status: cmpVal < ref.min ? 'def' : cmpVal > ref.max ? 'alto' : 'ok' }
+    return { nut, status: val < ref.min ? 'def' : val > ref.max ? 'alto' : 'ok' }
   })
 
   return { foliar, solo }

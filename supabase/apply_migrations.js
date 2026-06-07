@@ -26,9 +26,7 @@ if (!SERVICE_KEY) {
 }
 
 const MIGRATIONS = [
-  '042_pioneer_corn_growth_development.sql',
-  '043_fix_milho_remove_soja_incorreto.sql',
-  '044_embrapa_algodao_cerrado.sql',
+  '045_laudos_campos_extras.sql',
 ]
 
 

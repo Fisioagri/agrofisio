@@ -1,7 +1,9 @@
 // Valores de referência nutricional por cultura
 // Fontes: Embrapa (2013), Bataglia et al. (2004), CQFS RS/SC (2016), Marschner (2012)
 // Unidades foliar: macros em g/kg, micros em mg/kg
-// Unidades solo: pH CaCl2, MO %, P mg/dm³, K mg/dm³, CTC cmolc/dm³, V%
+// Unidades solo: pH CaCl2, MO %, P mg/dm³, K cmolc/dm³, CTC cmolc/dm³, V%
+// Ca/Mg/K solo: avaliados via % da CTC quando CTC informada (Ca 45-70%, Mg 15-25%, K 3-6%)
+// Valores absolutos abaixo são fallback quando CTC não informada
 
 export const REF_FOLIAR = {
   soja: {
@@ -53,7 +55,7 @@ export const REF_SOLO = {
     pH:      { min: 5.5,  max: 6.5,  unit: 'CaCl₂', fonte: 'Embrapa Soja (2013)' },
     MO:      { min: 2.5,  max: 5.0,  unit: '%',      fonte: 'CQFS RS/SC (2016)' },
     P:       { min: 12,   max: 40,   unit: 'mg/dm³', fonte: 'Embrapa Soja (2013)' },
-    K:       { min: 80,   max: 200,  unit: 'mg/dm³', fonte: 'Embrapa Soja (2013)' },
+    K:       { min: 0.12, max: 0.35, unit: 'cmolc/dm³', fonte: 'Embrapa Soja (2013)' },
     Ca:      { min: 1.5,  max: 5.0,  unit: 'cmolc/dm³', fonte: 'Embrapa Soja (2013)' },
     Mg:      { min: 0.6,  max: 2.0,  unit: 'cmolc/dm³', fonte: 'Embrapa Soja (2013)' },
     S:       { min: 5,    max: 30,   unit: 'mg/dm³', fonte: 'Embrapa Soja (2013)' },
@@ -68,7 +70,7 @@ export const REF_SOLO = {
     pH:      { min: 5.5,  max: 6.5,  unit: 'CaCl₂', fonte: 'Embrapa Milho e Sorgo (2010)' },
     MO:      { min: 2.0,  max: 5.0,  unit: '%',      fonte: 'CQFS RS/SC (2016)' },
     P:       { min: 10,   max: 40,   unit: 'mg/dm³', fonte: 'Embrapa Milho e Sorgo (2010)' },
-    K:       { min: 90,   max: 200,  unit: 'mg/dm³', fonte: 'Embrapa Milho e Sorgo (2010)' },
+    K:       { min: 0.12, max: 0.35, unit: 'cmolc/dm³', fonte: 'Embrapa Milho e Sorgo (2010)' },
     Ca:      { min: 1.5,  max: 5.0,  unit: 'cmolc/dm³', fonte: 'Embrapa Milho e Sorgo (2010)' },
     Mg:      { min: 0.5,  max: 2.0,  unit: 'cmolc/dm³', fonte: 'Embrapa Milho e Sorgo (2010)' },
     S:       { min: 5,    max: 30,   unit: 'mg/dm³', fonte: 'Embrapa Milho e Sorgo (2010)' },
@@ -83,7 +85,7 @@ export const REF_SOLO = {
     pH:      { min: 5.5,  max: 6.5,  unit: 'CaCl₂', fonte: 'Embrapa Arroz e Feijão (2012)' },
     MO:      { min: 2.0,  max: 5.0,  unit: '%',      fonte: 'CQFS RS/SC (2016)' },
     P:       { min: 12,   max: 35,   unit: 'mg/dm³', fonte: 'Embrapa Arroz e Feijão (2012)' },
-    K:       { min: 80,   max: 180,  unit: 'mg/dm³', fonte: 'Embrapa Arroz e Feijão (2012)' },
+    K:       { min: 0.12, max: 0.35, unit: 'cmolc/dm³', fonte: 'Embrapa Arroz e Feijão (2012)' },
     Ca:      { min: 1.5,  max: 5.0,  unit: 'cmolc/dm³', fonte: 'Embrapa Arroz e Feijão (2012)' },
     Mg:      { min: 0.5,  max: 2.0,  unit: 'cmolc/dm³', fonte: 'Embrapa Arroz e Feijão (2012)' },
     S:       { min: 5,    max: 25,   unit: 'mg/dm³', fonte: 'Bataglia et al. (2004)' },

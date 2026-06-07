@@ -4,17 +4,17 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Lato', 'sans-serif'],
+        sans:    ['Lato', 'sans-serif'],
         display: ['Syne', 'sans-serif'],
-        mono: ['"IBM Plex Mono"', 'monospace'],
+        mono:    ['"IBM Plex Mono"', 'monospace'],
       },
       colors: {
         brand: {
-          900: '#1B4D2E',
-          700: '#2D7A4F',
-          400: '#4CAF82',
-          100: '#E8F5EE',
-          50:  '#F0FAF4',
+          900: '#0C2B5E',   // navy profundo — cor principal
+          700: '#1A4DA0',   // azul médio
+          400: '#5B8FDB',   // azul accent
+          100: '#D8E8FF',   // azul muito claro
+          50:  '#EDF4FF',   // azul quase branco
         },
         amber: {
           600: '#D4870A',
@@ -24,16 +24,18 @@ export default {
           600: '#C0392B',
           50:  '#FDECEA',
         },
+        // ink: neutro/slate — texto sempre legível sobre qualquer fundo
         ink: {
-          900: '#1A2E1A',
-          600: '#4A6B4A',
-          400: '#8FAF8F',
+          900: '#0F172A',   // quase preto com leve toque frio
+          600: '#334155',   // cinza escuro neutro
+          400: '#94A3B8',   // cinza claro neutro
         },
         surface: {
-          bg:     '#F5F7F5',
+          bg:     '#F8FAFC',   // slate-50: branco com levíssimo toque frio
           card:   '#FFFFFF',
-          border: '#DCE8DC',
-          input:  '#FAFCFA',
+          border: '#E2E8F0',   // slate-200: borda sutil
+          input:  '#F8FAFC',
+          muted:  '#F1F5F9',   // slate-100: cabeçalhos de tabela
         },
       },
       borderRadius: {
@@ -41,7 +43,7 @@ export default {
         sm:   '9px',
       },
       boxShadow: {
-        card: '0 2px 16px rgba(27,77,46,0.08)',
+        card: '0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(12,43,94,0.07)',
       },
     },
   },

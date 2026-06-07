@@ -382,16 +382,27 @@ function calcNutrientsFoliar(data, cultura) {
   })
 }
 
+const CTC_RANGES_SOLO = { caSolo: [45, 70], mgSolo: [15, 25], kSolo: [3, 6] }
+
 function calcNutrientsSolo(data, cultura) {
   const cult = (cultura || 'soja').toLowerCase().replace('ã', 'a').replace('é', 'e')
   const refSol = REF_SOLO[cult] || REF_SOLO.soja
+  const ctc    = parseFloat(data.ctcSolo) || 0
+
   return Object.entries(SOLO_MAP).map(([field, nut]) => {
     const val = parseFloat(data[field])
     if (isNaN(val)) return { nut, val: null, ref: refSol[nut], status: 'nd' }
     const ref = refSol[nut]
     if (!ref) return { nut, val, ref: null, status: 'nd' }
-    const cmpVal = field === 'kSolo' ? val * 391 : val
-    const status = cmpVal < ref.min ? 'def' : cmpVal > ref.max ? 'alto' : 'ok'
+
+    let status
+    if (ctc > 0 && CTC_RANGES_SOLO[field]) {
+      const pct = val / ctc * 100
+      const [minPct, maxPct] = CTC_RANGES_SOLO[field]
+      status = pct < minPct ? 'def' : pct > maxPct ? 'alto' : 'ok'
+    } else {
+      status = val < ref.min ? 'def' : val > ref.max ? 'alto' : 'ok'
+    }
     return { nut, val, ref, status }
   })
 }
