@@ -26,7 +26,7 @@ if (!SERVICE_KEY) {
 }
 
 const MIGRATIONS = [
-  '045_laudos_campos_extras.sql',
+  '046_criar_tabela_laudos.sql',
 ]
 
 
